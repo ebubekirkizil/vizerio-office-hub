@@ -8,21 +8,46 @@
 </head>
 
 <body>
+    <div class="app-wrapper">
+        <header class="top-bar">
+            <div class="logo">Vizerio Office Hub</div>
+            <div class="tagline">Visa & Travel Case Management</div>
+        </header>
 
-<div class="container">
-    <h1>Welcome to Vizerio Office Hub</h1>
+        <main class="content">
+            <section class="card">
+                <h1>Welcome back</h1>
+                <p class="subtitle">
+                    Sign in to manage clients, cases, marketing and accounting in one place.
+                </p>
 
-    <form id="loginForm">
-        <input type="email" id="email" placeholder="Email" required />
-        <input type="password" id="password" placeholder="Password" required />
-        <button type="submit">Login</button>
-    </form>
+                <form id="loginForm">
+                    <div class="field">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" placeholder="you@company.com" required />
+                    </div>
 
-    <p id="status"></p>
-</div>
+                    <div class="field">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" placeholder="••••••••" required />
+                    </div>
 
-<script src="app.js"></script>
+                    <button type="submit" class="btn-primary">Sign in</button>
+                </form>
 
+                <p id="status" class="status"></p>
+
+                <p class="hint">
+                    Demo için şimdilik herhangi bir email ve şifre yazıp butona basabilirsin.
+                </p>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <span>© <span id="year"></span> Vizerio Office Hub</span>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
 </body>
 </html>
-
