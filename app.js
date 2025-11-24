@@ -1,16 +1,15 @@
 // ===============================================
-// VIZERIO OFFICE HUB - APP.JS (FULL REVİZYON)
-// Supabase Auth, Rol Kontrolü, Giriş Hata Bildirimi ve Çeviri Mantığı
+// VIZERIO OFFICE HUB - APP.JS (SON VE TAM VERSİYON)
 // ===============================================
 
-// Supabase Bilgileri (Sizden alınan anahtarlar)
+// 1. SUPABASE BAĞLANTISI
+// (Bu anahtarlar sizin Supabase projenize özeldir.)
 const SUPABASE_URL = "https://dgvxzlfeagwzmyjqhupu.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRndnh6bGZlYWd3em15anFodXB1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDEyNDEsImV4cCI6MjA3OTU3NzI0MX0.rwVR89JBTeue0cAtbujkoIBbqg3VjAEsLesXPlcr078";
 
-// Supabase İstemcisini Başlat
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// DOM Elementleri
+// 2. DOM ELEMENTLERİ
 const loginForm = document.getElementById("loginForm");
 const statusEl = document.getElementById("status");
 const loginScreen = document.getElementById("login-screen");
@@ -18,97 +17,127 @@ const appShell = document.getElementById("app-shell");
 const logoutBtn = document.getElementById("logoutBtn");
 const userRoleEl = document.querySelector('.user-role');
 const pageTitleEl = document.getElementById('page-title');
-const langToggleBtn = document.getElementById("langToggle"); // Dil butonu DOM objesi
+const langToggleBtn = document.getElementById("langToggle"); 
+
+// Modal Elementleri
+const addClientBtn = document.getElementById("btn-add-client");
+const addClientModal = document.getElementById("modal-add-client");
+const closeClientModalBtn = document.getElementById("btn-close-client-modal");
+const formAddClient = document.getElementById("form-add-client");
+const clientFormStatus = document.getElementById("client-form-status");
+
+let currentUser = null;
 
 // ===============================================
-// 1) ÇEVİRİ MANTIĞI (i18n)
+// 3. ÇEVİRİ SİSTEMİ (TÜRKÇE / İNGİLİZCE)
 // ===============================================
 
 const TRANSLATIONS = {
   tr: {
     app_name: "Vizerio Office Hub",
-    dashboard_title: "Gösterge Paneli",
-    clients_title: "Müşteriler & Dosyalar",
-    visa_title: "Vize Randevuları",
-    accounting_title: "Muhasebe",
-    marketing_title: "Marketing & Reklam",
-    activity_title: "Aktivite Kayıtları",
-    settings_title: "Ayarlar",
-
-    // Login ekranı
-    login_title: "Vizerio Office Hub'a Hoş Geldin",
-    login_subtitle: "Dahili operasyon paneli",
+    nav_dashboard: "Gösterge Paneli",
+    nav_clients: "Müşteriler & Dosyalar",
+    nav_visa: "Vize Randevuları",
+    nav_accounting: "Muhasebe",
+    nav_marketing: "Pazarlama & Reklam",
+    nav_activity: "Aktivite Kayıtları",
+    nav_settings: "Ayarlar",
+    nav_logout: "Çıkış Yap",
+    login_subtitle: "Dahili Operasyon Paneli",
     login_emailLabel: "E-posta",
     login_passwordLabel: "Şifre",
     login_signIn: "Giriş Yap",
-    login_fill_both: "Lütfen e-posta ve şifre alanlarını doldurun.",
-    login_demo_ok_prefix: "Giriş başarılı. Hoş geldin, ",
-    login_error_credentials: "Giriş Başarısız. Lütfen e-posta ve şifrenizi kontrol edin.", // Yeni Hata Mesajı
-    
-    nav_logout: "Çıkış Yap",
-    // Diğer çeviriler eksikse buraya eklenecektir.
+    login_error_credentials: "Giriş başarısız. Bilgileri kontrol et.",
+    top_subtitle: "Tam kapsamlı yönetim paneli",
+    kpi_today: "Bugün",
+    dashboard_pipelineTitle: "İş Akışı Özeti",
+    dashboard_statClients: "Aktif Müşteri",
+    dashboard_statCases: "Aktif Dosya",
+    dashboard_statAdspend: "Reklam (₺)",
+    clients_title: "Müşteriler",
+    clients_addClient: "+ Ekle",
+    clients_clientsTable: "Liste",
+    clients_colName: "İsim",
+    clients_colCountry: "Ülke",
+    clients_colStatus: "Durum",
+    marketing_title: "Pazarlama",
+    marketing_addCampaign: "+ Kampanya",
+    marketing_campaignsTable: "Aktif Kampanyalar",
+    clients_addClientModalTitle: "Yeni Müşteri Kaydı",
+    clients_clientInfoTitle: "Kişisel Bilgiler",
+    clients_clientNameLabel: "Ad Soyad",
+    clients_clientEmailLabel: "E-posta",
+    clients_clientPhoneLabel: "Telefon",
+    clients_clientCountryLabel: "Ülke",
+    clients_caseInfoTitle: "Başvuru",
+    clients_visaTypeLabel: "Vize Tipi",
+    clients_cancelBtn: "İptal",
+    clients_saveClientBtn: "Kaydet",
+    footer_demoNote: "Vizerio v1.0"
   },
-
   en: {
     app_name: "Vizerio Office Hub",
-    dashboard_title: "Dashboard",
-    clients_title: "Clients & Cases",
-    visa_title: "Visa Appointments",
-    accounting_title: "Accounting",
-    marketing_title: "Marketing & Ads",
-    activity_title: "Activity Logs",
-    settings_title: "Settings",
-
-    // Login screen examples
-    login_title: "Welcome to Vizerio Office Hub",
-    login_subtitle: "Internal operations panel",
+    nav_dashboard: "Dashboard",
+    nav_clients: "Clients & Cases",
+    nav_visa: "Visa Appointments",
+    nav_accounting: "Accounting",
+    nav_marketing: "Marketing & Ads",
+    nav_activity: "Activity Logs",
+    nav_settings: "Settings",
+    nav_logout: "Logout",
+    login_subtitle: "Internal Operations Panel",
     login_emailLabel: "Email",
     login_passwordLabel: "Password",
     login_signIn: "Sign In",
-    login_fill_both: "Please fill in both email and password.",
-    login_demo_ok_prefix: "Login successful. Welcome, ",
-    login_error_credentials: "Login Failed. Please check your email and password.",
-
-    nav_logout: "Log out",
-    // Diğer çeviriler eksikse buraya eklenecektir.
-  },
+    login_error_credentials: "Login failed.",
+    top_subtitle: "Management Panel",
+    kpi_today: "Today",
+    dashboard_pipelineTitle: "Pipeline Overview",
+    dashboard_statClients: "Active Clients",
+    dashboard_statCases: "Active Cases",
+    dashboard_statAdspend: "Ad Spend",
+    clients_title: "Clients",
+    clients_addClient: "+ Add",
+    clients_clientsTable: "List",
+    clients_colName: "Name",
+    clients_colCountry: "Country",
+    clients_colStatus: "Status",
+    marketing_title: "Marketing",
+    marketing_addCampaign: "+ Campaign",
+    marketing_campaignsTable: "Active Campaigns",
+    clients_addClientModalTitle: "New Client",
+    clients_clientInfoTitle: "Personal Info",
+    clients_clientNameLabel: "Full Name",
+    clients_clientEmailLabel: "Email",
+    clients_clientPhoneLabel: "Phone",
+    clients_clientCountryLabel: "Country",
+    clients_caseInfoTitle: "Case",
+    clients_visaTypeLabel: "Visa Type",
+    clients_cancelBtn: "Cancel",
+    clients_saveClientBtn: "Save",
+    footer_demoNote: "Vizerio v1.0"
+  }
 };
+
 const DEFAULT_LANG = "tr";
 let currentLang = (localStorage.getItem("vizerio_lang") || DEFAULT_LANG);
-if (!["tr", "en"].includes(currentLang)) currentLang = DEFAULT_LANG;
 
 function i18n(key) {
-    const parts = key.split('.');
-    let translation = TRANSLATIONS[currentLang];
-    
-    for (const part of parts) {
-        translation = translation ? translation[part] : undefined;
-    }
-    return translation || "";
+    return TRANSLATIONS[currentLang][key] || key;
 }
 
 function applyTranslations() {
-    const nodes = document.querySelectorAll("[data-i18n]");
-    nodes.forEach((el) => {
+    document.querySelectorAll("[data-i18n]").forEach(el => {
         const key = el.getAttribute("data-i18n");
-        if (!key) return;
         const text = i18n(key);
-        if (!text) return;
-
+        
         if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
-            // Placeholder kullan
-            el.setAttribute("placeholder", text); 
-        } else if (el.tagName === "SPAN" && el.closest('button')) {
-             // Buton içindeki span'leri güncelle
-             el.textContent = text;
+            el.setAttribute("placeholder", text);
         } else {
             el.textContent = text;
         }
     });
-
-    if (langToggleBtn) {
-        langToggleBtn.textContent = currentLang.toUpperCase();
-    }
+    if(langToggleBtn) langToggleBtn.textContent = currentLang.toUpperCase();
 }
 
 function toggleLanguage() {
@@ -116,91 +145,105 @@ function toggleLanguage() {
     localStorage.setItem("vizerio_lang", currentLang);
     applyTranslations();
     
-    // Menü başlığını dil değişince güncelle
-    const activeNavItem = document.querySelector('.sidebar-nav .nav-item.active');
-    if (activeNavItem) {
-        updatePageTitle(activeNavItem);
-    }
+    const activeItem = document.querySelector('.sidebar-nav .nav-item.active');
+    if(activeItem) updatePageTitle(activeItem);
 }
 
 // ===============================================
-// 2) ROL TABANLI ERİŞİM KONTROLÜ
+// 4. YETKİLENDİRME (ROL YÖNETİMİ)
 // ===============================================
 
-/**
- * Kullanıcının rolüne göre menüleri gizler/gösterir ve arayüzü ayarlar.
- * @param {object} user - Supabase'den gelen kullanıcı objesi.
- */
 async function applyRolePermissions(user) {
     if (!user) return;
 
-    // Supabase'den kullanıcının rolünü ve adını profiles tablosundan çek
-    const { data, error } = await supabaseClient
+    // 1. Profil ve Rolü Çek
+    let { data, error } = await supabaseClient
         .from('profiles')
         .select('role, name')
         .eq('id', user.id)
         .single();
 
     if (error || !data) {
-        console.error("Profil/Rol alınamadı, varsayılan rol atanıyor: case_manager", error);
-        // Hata durumunda (profiles tablosunda kayıt yoksa) default rol ata
-        const userRole = 'case_manager';
-        userRoleEl.textContent = userRole.toUpperCase().replace('_', ' ');
-
-    } else {
-        const userRole = data.role; 
-        const userName = data.name || user.email;
-        
-        // Kullanıcı Adı ve Rolünü Arayüze Yaz
-        document.querySelector('.user-name').textContent = userName;
-        userRoleEl.textContent = userRole.toUpperCase().replace('_', ' ');
-
-        // Rol-Yetki Eşleşmesi (Kullanıcı Tarafından Belirtilen Kurallar)
-        // Marketing: Sadece Marketing
-        // Diğerleri (admin, case_manager, accountant): Daha fazla menü
-        
-        const requiredRoles = {
-            'dashboard': ['admin', 'case_manager', 'accountant', 'marketing'],
-            'clients': ['admin', 'case_manager', 'accountant'],
-            'visa': ['admin', 'case_manager', 'accountant'],
-            'accounting': ['admin', 'accountant'],
-            'marketing': ['admin', 'marketing', 'case_manager'], // Case manager'ın da görmesi mantıklı
-            'activity': ['admin'],
-            'settings': ['admin']
-        };
-
-        // Sidebar menülerini kontrol et
-        const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
-        navItems.forEach(item => {
-            const pageId = item.getAttribute('data-page');
-
-            // Eğer kullanıcının rolü, bu sayfanın izin verilen rolleri arasında varsa
-            if (requiredRoles[pageId] && requiredRoles[pageId].includes(userRole)) {
-                item.style.display = 'flex'; // Göster
-            } else {
-                item.style.display = 'none'; // Gizle
-            }
-        });
-
-        // Admin, geliştirici ve kontrol amaçlı her şeyi görür.
-        if (userRole === 'admin') {
-            navItems.forEach(item => item.style.display = 'flex');
-        }
+        console.log("Profil bulunamadı.");
+        data = { role: 'case_manager', name: user.email };
     }
+
+    const role = data.role;
+    currentUser = { id: user.id, role: role, name: data.name };
+
+    // 2. UI Güncelle
+    document.querySelector('.user-name').textContent = data.name || "Kullanıcı";
+    userRoleEl.textContent = role.toUpperCase().replace('_', ' ');
+
+    // 3. Menüleri Gizle/Göster
+    const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
+    
+    navItems.forEach(item => {
+        const page = item.getAttribute('data-page');
+        
+        // Önce hepsini gizle
+        item.style.display = 'none';
+
+        if (role === 'admin') {
+            item.style.display = 'flex'; // Admin hepsini görür
+        } 
+        else if (role === 'marketing') {
+            // Marketing: SADECE Dashboard ve Marketing
+            if (page === 'dashboard' || page === 'marketing') {
+                item.style.display = 'flex';
+            }
+        }
+        else {
+            // Diğerleri: Marketing ve Ayarlar hariç
+            if (page !== 'marketing' && page !== 'settings') {
+                item.style.display = 'flex';
+            }
+        }
+    });
 }
 
 // ===============================================
-// 3) AUTH & YÖNLENDİRME MANTIĞI
+// 5. GİRİŞ / ÇIKIŞ İŞLEMLERİ
 // ===============================================
 
-function showStatus(message, type) {
-    if (!statusEl) return;
-    statusEl.textContent = message;
-    statusEl.classList.remove("ok", "error");
-    if (type) statusEl.classList.add(type);
+async function handleLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    statusEl.textContent = "Giriş yapılıyor...";
+    statusEl.className = "status";
+
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email, password
+    });
+
+    if (error) {
+        statusEl.textContent = i18n('login_error_credentials');
+        statusEl.classList.add('error');
+        return;
+    }
+
+    statusEl.textContent = "Başarılı!";
+    statusEl.classList.add('ok');
+    
+    setAppVisibility(true);
+    await applyRolePermissions(data.user);
+    
+    // İlk görünür menüye otomatik tıkla
+    setTimeout(() => {
+        const first = document.querySelector('.sidebar-nav .nav-item[style="display: flex;"]');
+        if(first) first.click();
+    }, 100);
 }
 
-function setAppVisibility(isLoggedIn, user) {
+async function handleLogout() {
+    await supabaseClient.auth.signOut();
+    setAppVisibility(false);
+    window.location.reload(); 
+}
+
+function setAppVisibility(isLoggedIn) {
     if (isLoggedIn) {
         loginScreen.classList.add('hidden');
         appShell.classList.remove('hidden');
@@ -210,89 +253,21 @@ function setAppVisibility(isLoggedIn, user) {
     }
 }
 
-async function handleLogin(e) {
-    e.preventDefault();
-
-    const emailInput = document.getElementById("email");
-    const passwordInput = document.getElementById("password");
-
-    const email = emailInput ? emailInput.value.trim() : "";
-    const password = passwordInput ? passwordInput.value.trim() : "";
-
-    if (!email || !password) {
-        showStatus(i18n("login_fill_both") || "Lütfen e-posta ve şifre alanlarını doldurun.", "error");
-        return;
-    }
-
-    showStatus("Giriş yapılıyor...", "ok");
-
-    // Supabase Kimlik Doğrulama
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
-        email: email,
-        password: password,
-    });
-
-    if (error) {
-        // HATA DURUMU: Kırmızı uyarıyı göster
-        showStatus(i18n("login_error_credentials"), "error"); 
-        console.error("Giriş Hatası:", error.message);
-        return;
-    }
-
-    // Başarılı giriş
-    showStatus(i18n("login_demo_ok_prefix") + email + "!", "ok");
-    setAppVisibility(true, data.user);
-    await applyRolePermissions(data.user); 
-    updatePageTitle(document.querySelector('.sidebar-nav .nav-item.active'));
-}
-
-async function handleLogout() {
-    const { error } = await supabaseClient.auth.signOut();
-
-    if (error) {
-        console.error("Çıkış Hatası:", error);
-        // alert yerine status ile göster
-        showStatus("Çıkış yapılırken bir hata oluştu.", "error");
-        return;
-    }
-
-    setAppVisibility(false, null);
-    showStatus("Oturum kapatıldı. Lütfen tekrar giriş yapın.", "ok");
-}
-
-async function checkAuthStatus() {
+async function checkAuth() {
     const { data: { session } } = await supabaseClient.auth.getSession();
-    
     if (session) {
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        setAppVisibility(true, user);
+        setAppVisibility(true);
+        await applyRolePermissions(session.user);
         
-        // KRİTİK: Rol Kontrolünü Çalıştır
-        await applyRolePermissions(user); 
-        
-        // Başlığı ayarla
-        const activeNavItem = document.querySelector('.sidebar-nav .nav-item.active');
-        if (activeNavItem) {
-            updatePageTitle(activeNavItem);
-        }
-        
+        // Tarihi yaz
+        document.getElementById('todayDate').textContent = new Date().toLocaleDateString('tr-TR');
     } else {
-        setAppVisibility(false, null);
-    }
-}
-
-// Menü Başlığını Güncelle
-function updatePageTitle(item) {
-    const targetPageId = item.getAttribute('data-page');
-    const titleKey = `${targetPageId}_title`; 
-    const newTitle = i18n(titleKey) || targetPageId.toUpperCase();
-    if(pageTitleEl) {
-        pageTitleEl.textContent = newTitle;
+        setAppVisibility(false);
     }
 }
 
 // ===============================================
-// 4) SAYFA GEZİNTİSİ VE BAŞLATMA
+// 6. SAYFA GEZİNTİSİ & MODAL
 // ===============================================
 
 function setupNavigation() {
@@ -301,50 +276,70 @@ function setupNavigation() {
 
     navItems.forEach(item => {
         item.addEventListener('click', () => {
-            const targetPageId = item.getAttribute('data-page');
-            
-            // Tüm sayfaları gizle
-            pages.forEach(page => page.classList.remove('active'));
-            const targetPage = document.getElementById(`page-${targetPageId}`);
-            if (targetPage) {
-                targetPage.classList.add('active');
-            }
-            
-            // Sidebar aktifliğini güncelle
-            navItems.forEach(nav => nav.classList.remove('active'));
+            navItems.forEach(n => n.classList.remove('active'));
             item.classList.add('active');
-            
-            // Başlığı güncelle
+
+            const targetId = item.getAttribute('data-page');
+            pages.forEach(p => p.classList.remove('active'));
+            document.getElementById(`page-${targetId}`).classList.add('active');
+
             updatePageTitle(item);
         });
     });
 }
 
+function updatePageTitle(item) {
+    const key = `nav_${item.getAttribute('data-page')}`;
+    pageTitleEl.textContent = i18n(key);
+}
+
+// MÜŞTERİ EKLEME İŞLEMİ
+async function handleAddClient(e) {
+    e.preventDefault();
+    if(!currentUser) return;
+
+    clientFormStatus.textContent = "Kaydediliyor...";
+    clientFormStatus.className = "status";
+
+    const name = document.getElementById('client-name').value;
+    const email = document.getElementById('client-email').value;
+    const phone = document.getElementById('client-phone').value;
+    const country = document.getElementById('client-country').value;
+    
+    // Müşteriyi Kaydet
+    const { data: client, error: err1 } = await supabaseClient
+        .from('clients')
+        .insert([{ full_name: name, email, phone, country, assigned_user: currentUser.id }])
+        .select()
+        .single();
+
+    if(err1) {
+        clientFormStatus.textContent = "Hata: " + err1.message;
+        clientFormStatus.classList.add('error');
+        return;
+    }
+
+    clientFormStatus.textContent = "Kaydedildi!";
+    clientFormStatus.classList.add('ok');
+    
+    setTimeout(() => {
+        addClientModal.classList.add('hidden');
+        document.getElementById('form-add-client').reset();
+        clientFormStatus.textContent = "";
+    }, 1500);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. Footer Yılını Ayarla
-    const yearEl = document.getElementById("year");
-    if (yearEl) {
-        yearEl.textContent = new Date().getFullYear();
-    }
-
-    // 2. Güvenlik Kontrolü ve Başlatma
-    checkAuthStatus();
-
-    // 3. Olay Dinleyicileri
-    if (loginForm) {
-        loginForm.addEventListener("submit", handleLogin);
-    }
-    if (logoutBtn) {
-        logoutBtn.addEventListener("click", handleLogout);
-    }
-    // DİL BUTONU DİNLEYİCİSİ
-    if (langToggleBtn) {
-        langToggleBtn.addEventListener("click", toggleLanguage);
-    }
-
-    // 4. Gezintiyi Kur
+    checkAuth();
     setupNavigation();
     
-    // 5. İlk Çeviriyi Uygula
+    if(loginForm) loginForm.addEventListener('submit', handleLogin);
+    if(logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+    if(langToggleBtn) langToggleBtn.addEventListener('click', toggleLanguage);
+
+    if(addClientBtn) addClientBtn.addEventListener('click', () => addClientModal.classList.remove('hidden'));
+    if(closeClientModalBtn) closeClientModalBtn.addEventListener('click', () => addClientModal.classList.add('hidden'));
+    if(formAddClient) formAddClient.addEventListener('submit', handleAddClient);
+
     applyTranslations();
 });
