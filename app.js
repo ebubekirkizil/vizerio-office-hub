@@ -1,11 +1,6 @@
-function toggleLanguage() {
-    console.log("Dil değiştirme fonksiyonu çalıştı!"); // <--- BU SATIRI EKLEYİN
-    currentLang = currentLang === "tr" ? "en" : "tr";
-    // ... [diğer kodlar devam ediyor]
-}
 // ===============================================
 // VIZERIO OFFICE HUB - APP.JS (FULL REVİZYON)
-// Supabase Auth, Rol Kontrolü ve Çeviri Mantığı
+// Supabase Auth, Rol Kontrolü, Giriş Hata Bildirimi ve Çeviri Mantığı
 // ===============================================
 
 // Supabase Bilgileri (Sizden alınan anahtarlar)
@@ -23,6 +18,7 @@ const appShell = document.getElementById("app-shell");
 const logoutBtn = document.getElementById("logoutBtn");
 const userRoleEl = document.querySelector('.user-role');
 const pageTitleEl = document.getElementById('page-title');
+const langToggleBtn = document.getElementById("langToggle"); // Dil butonu DOM objesi
 
 // ===============================================
 // 1) ÇEVİRİ MANTIĞI (i18n)
@@ -40,12 +36,17 @@ const TRANSLATIONS = {
     settings_title: "Ayarlar",
 
     // Login ekranı
+    login_title: "Vizerio Office Hub'a Hoş Geldin",
+    login_subtitle: "Dahili operasyon paneli",
+    login_emailLabel: "E-posta",
+    login_passwordLabel: "Şifre",
+    login_signIn: "Giriş Yap",
     login_fill_both: "Lütfen e-posta ve şifre alanlarını doldurun.",
     login_demo_ok_prefix: "Giriş başarılı. Hoş geldin, ",
-    nav_logout: "Çıkış Yap",
+    login_error_credentials: "Giriş Başarısız. Lütfen e-posta ve şifrenizi kontrol edin.", // Yeni Hata Mesajı
     
-    // Diğer çeviriler (sizin orijinal kodunuzdan)
-    // ...
+    nav_logout: "Çıkış Yap",
+    // Diğer çeviriler eksikse buraya eklenecektir.
   },
 
   en: {
@@ -59,12 +60,17 @@ const TRANSLATIONS = {
     settings_title: "Settings",
 
     // Login screen examples
+    login_title: "Welcome to Vizerio Office Hub",
+    login_subtitle: "Internal operations panel",
+    login_emailLabel: "Email",
+    login_passwordLabel: "Password",
+    login_signIn: "Sign In",
     login_fill_both: "Please fill in both email and password.",
     login_demo_ok_prefix: "Login successful. Welcome, ",
+    login_error_credentials: "Login Failed. Please check your email and password.",
+
     nav_logout: "Log out",
-    
-    // Diğer çeviriler (sizin orijinal kodunuzdan)
-    // ...
+    // Diğer çeviriler eksikse buraya eklenecektir.
   },
 };
 const DEFAULT_LANG = "tr";
@@ -90,19 +96,18 @@ function applyTranslations() {
         if (!text) return;
 
         if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
-            if (el.hasAttribute("placeholder")) {
-                el.setAttribute("placeholder", text);
-            } else {
-                el.value = text;
-            }
+            // Placeholder kullan
+            el.setAttribute("placeholder", text); 
+        } else if (el.tagName === "SPAN" && el.closest('button')) {
+             // Buton içindeki span'leri güncelle
+             el.textContent = text;
         } else {
             el.textContent = text;
         }
     });
 
-    const langBtn = document.getElementById("langToggle");
-    if (langBtn) {
-        langBtn.textContent = currentLang === "tr" ? "TR" : "EN";
+    if (langToggleBtn) {
+        langToggleBtn.textContent = currentLang.toUpperCase();
     }
 }
 
@@ -129,7 +134,7 @@ function toggleLanguage() {
 async function applyRolePermissions(user) {
     if (!user) return;
 
-    // Supabase'den kullanıcının rolünü al
+    // Supabase'den kullanıcının rolünü ve adını profiles tablosundan çek
     const { data, error } = await supabaseClient
         .from('profiles')
         .select('role, name')
@@ -137,43 +142,50 @@ async function applyRolePermissions(user) {
         .single();
 
     if (error || !data) {
-        console.error("Profil/Rol alınamadı:", error);
-        return;
-    }
+        console.error("Profil/Rol alınamadı, varsayılan rol atanıyor: case_manager", error);
+        // Hata durumunda (profiles tablosunda kayıt yoksa) default rol ata
+        const userRole = 'case_manager';
+        userRoleEl.textContent = userRole.toUpperCase().replace('_', ' ');
 
-    const userRole = data.role; 
-    const userName = data.name || user.email;
-    
-    // Kullanıcı Adı ve Rolünü Arayüze Yaz
-    document.querySelector('.user-name').textContent = userName;
-    userRoleEl.textContent = userRole.toUpperCase().replace('_', ' ');
+    } else {
+        const userRole = data.role; 
+        const userName = data.name || user.email;
+        
+        // Kullanıcı Adı ve Rolünü Arayüze Yaz
+        document.querySelector('.user-name').textContent = userName;
+        userRoleEl.textContent = userRole.toUpperCase().replace('_', ' ');
 
-    // Rol-Yetki Eşleşmesi
-    const requiredRoles = {
-        'dashboard': ['admin', 'case_manager', 'accountant', 'marketing'],
-        'clients': ['admin', 'case_manager'],
-        'visa': ['admin', 'case_manager'],
-        'accounting': ['admin', 'accountant'],
-        'marketing': ['admin', 'marketing'],
-        'activity': ['admin'],
-        'settings': ['admin']
-    };
+        // Rol-Yetki Eşleşmesi (Kullanıcı Tarafından Belirtilen Kurallar)
+        // Marketing: Sadece Marketing
+        // Diğerleri (admin, case_manager, accountant): Daha fazla menü
+        
+        const requiredRoles = {
+            'dashboard': ['admin', 'case_manager', 'accountant', 'marketing'],
+            'clients': ['admin', 'case_manager', 'accountant'],
+            'visa': ['admin', 'case_manager', 'accountant'],
+            'accounting': ['admin', 'accountant'],
+            'marketing': ['admin', 'marketing', 'case_manager'], // Case manager'ın da görmesi mantıklı
+            'activity': ['admin'],
+            'settings': ['admin']
+        };
 
-    // Sidebar menülerini kontrol et
-    const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
-    navItems.forEach(item => {
-        const pageId = item.getAttribute('data-page');
+        // Sidebar menülerini kontrol et
+        const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
+        navItems.forEach(item => {
+            const pageId = item.getAttribute('data-page');
 
-        if (requiredRoles[pageId] && requiredRoles[pageId].includes(userRole)) {
-            item.style.display = 'flex'; // Göster
-        } else {
-            item.style.display = 'none'; // Gizle
+            // Eğer kullanıcının rolü, bu sayfanın izin verilen rolleri arasında varsa
+            if (requiredRoles[pageId] && requiredRoles[pageId].includes(userRole)) {
+                item.style.display = 'flex'; // Göster
+            } else {
+                item.style.display = 'none'; // Gizle
+            }
+        });
+
+        // Admin, geliştirici ve kontrol amaçlı her şeyi görür.
+        if (userRole === 'admin') {
+            navItems.forEach(item => item.style.display = 'flex');
         }
-    });
-
-    // Admin her şeyi görür.
-    if (userRole === 'admin') {
-        navItems.forEach(item => item.style.display = 'flex');
     }
 }
 
@@ -221,7 +233,9 @@ async function handleLogin(e) {
     });
 
     if (error) {
-        showStatus(`Giriş Başarısız: ${error.message}`, "error");
+        // HATA DURUMU: Kırmızı uyarıyı göster
+        showStatus(i18n("login_error_credentials"), "error"); 
+        console.error("Giriş Hatası:", error.message);
         return;
     }
 
@@ -237,12 +251,13 @@ async function handleLogout() {
 
     if (error) {
         console.error("Çıkış Hatası:", error);
-        alert("Çıkış yapılırken bir hata oluştu.");
+        // alert yerine status ile göster
+        showStatus("Çıkış yapılırken bir hata oluştu.", "error");
         return;
     }
 
     setAppVisibility(false, null);
-    showStatus("Oturum kapatıldı.", "ok");
+    showStatus("Oturum kapatıldı. Lütfen tekrar giriş yapın.", "ok");
 }
 
 async function checkAuthStatus() {
@@ -288,7 +303,7 @@ function setupNavigation() {
         item.addEventListener('click', () => {
             const targetPageId = item.getAttribute('data-page');
             
-            // Sayfaları değiştir
+            // Tüm sayfaları gizle
             pages.forEach(page => page.classList.remove('active'));
             const targetPage = document.getElementById(`page-${targetPageId}`);
             if (targetPage) {
@@ -312,4 +327,24 @@ document.addEventListener("DOMContentLoaded", () => {
         yearEl.textContent = new Date().getFullYear();
     }
 
-    // 2. Güvenlik Kontrol
+    // 2. Güvenlik Kontrolü ve Başlatma
+    checkAuthStatus();
+
+    // 3. Olay Dinleyicileri
+    if (loginForm) {
+        loginForm.addEventListener("submit", handleLogin);
+    }
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", handleLogout);
+    }
+    // DİL BUTONU DİNLEYİCİSİ
+    if (langToggleBtn) {
+        langToggleBtn.addEventListener("click", toggleLanguage);
+    }
+
+    // 4. Gezintiyi Kur
+    setupNavigation();
+    
+    // 5. İlk Çeviriyi Uygula
+    applyTranslations();
+});
