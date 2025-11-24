@@ -186,4 +186,191 @@
                     <th data-i18n="clients.colClient">Client</th>
                     <th data-i18n="clients.colVisaType">Visa Type</th>
                     <th data-i18n="clients.colStage">Stage</th>
-                    <th data-i18n="clients.
+                    <th data-i18n="clients.colOwner">Owner</th>
+                  </tr>
+                </thead>
+                <tbody id="tbl-cases"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="page-visa" class="page">
+          <div class="page-header-row">
+            <div>
+              <h2 data-i18n="visa.title">Visa Appointments & Tracking</h2>
+              <p class="card-subtitle" data-i18n="visa.subtitle">
+                Track embassy appointments and visa decisions.
+              </p>
+            </div>
+            <button id="btn-add-visa" class="btn-primary-sm">
+              <span data-i18n="visa.addAppointment">+ Add Appointment</span>
+            </button>
+          </div>
+
+          <div class="card">
+            <h3 data-i18n="visa.tableTitle">Upcoming Appointments</h3>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th data-i18n="visa.colDate">Date</th>
+                  <th data-i18n="visa.colClient">Client</th>
+                  <th data-i18n="visa.colCountry">Country</th>
+                  <th data-i18n="visa.colCenter">Center</th>
+                  <th data-i18n="visa.colStatus">Status</th>
+                </tr>
+              </thead>
+              <tbody id="tbl-visas"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="page-accounting" class="page">
+          <div class="page-header-row">
+            <div>
+              <h2 data-i18n="accounting.title">Accounting</h2>
+              <p class="card-subtitle" data-i18n="accounting.subtitle">
+                Invoices, payments and commission tracking for each client.
+              </p>
+            </div>
+            <button id="btn-add-invoice" class="btn-primary-sm">
+              <span data-i18n="accounting.addInvoice">+ Add Invoice</span>
+            </button>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <h3 data-i18n="accounting.invoicesTable">Invoices</h3>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th data-i18n="accounting.colDate">Date</th>
+                    <th data-i18n="accounting.colClient">Client</th>
+                    <th data-i18n="accounting.colAmount">Amount (₺)</th>
+                    <th data-i18n="accounting.colStatus">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="tbl-invoices"></tbody>
+              </table>
+            </div>
+
+            <div class="card">
+              <h3 data-i18n="accounting.summaryTitle">Summary</h3>
+              <ul class="simple-list" id="accounting-summary"></ul>
+            </div>
+          </div>
+        </section>
+
+        <section id="page-marketing" class="page">
+          <div class="page-header-row">
+            <div>
+              <h2 data-i18n="marketing.title">Marketing & Ad Campaigns</h2>
+              <p class="card-subtitle" data-i18n="marketing.subtitle">
+                Track campaign performance across Google, Meta and YouTube.
+              </p>
+            </div>
+            <button id="btn-add-campaign" class="btn-primary-sm">
+              <span data-i18n="marketing.addCampaign">+ Add Campaign</span>
+            </button>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <h3 data-i18n="marketing.campaignsTable">Campaigns</h3>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th data-i18n="marketing.colChannel">Channel</th>
+                    <th data-i18n="marketing.colName">Name</th>
+                    <th data-i18n="marketing.colSpend">Spend (₺)</th>
+                    <th data-i18n="marketing.colLeads">Leads</th>
+                    <th data-i18n="marketing.colSource">Source</th>
+                  </tr>
+                </thead>
+                <tbody id="tbl-campaigns"></tbody>
+              </table>
+            </div>
+
+            <div class="card">
+              <h3 data-i18n="marketing.summaryTitle">Funnel Snapshot</h3>
+              <ul class="simple-list" id="marketing-summary"></ul>
+            </div>
+          </div>
+        </section>
+
+        <section id="page-activity" class="page">
+          <h2 data-i18n="activity.title">Activity Logs</h2>
+          <p class="card-subtitle" data-i18n="activity.subtitle">
+            Automatic log of key operations (created client, case, invoice, visa, etc.).
+          </p>
+
+          <div class="card">
+            <ul id="activity-list" class="activity-list"></ul>
+          </div>
+        </section>
+
+        <section id="page-settings" class="page">
+          <h2 data-i18n="settings.title">Settings</h2>
+          <p class="card-subtitle" data-i18n="settings.subtitle">
+            Localization, defaults and security preferences. (Demo only, no real backend yet.)
+          </p>
+
+          <div class="grid-2">
+            <div class="card">
+              <h3 data-i18n="settings.localizationTitle">Localization</h3>
+              <div class="field">
+                <label data-i18n="settings.langLabel">Default language</label>
+                <select id="langSelect">
+                  <option value="en">English</option>
+                  <option value="tr">Türkçe</option>
+                </select>
+              </div>
+              <div class="field">
+                <label data-i18n="settings.currencyLabel">Currency</label>
+                <select id="currencySelect">
+                  <option value="TRY">TRY (₺)</option>
+                  <option value="EUR">EUR (€)</option>
+                  <option value="USD">USD ($)</option>
+                </select>
+              </div>
+              <button id="btn-save-settings" class="btn-primary-sm">
+                <span data-i18n="settings.saveBtn">Save settings</span>
+              </button>
+              <p id="settings-status" class="status"></p>
+            </div>
+
+            <div class="card">
+              <h3 data-i18n="settings.securityTitle">Security</h3>
+              <p class="hint" data-i18n="settings.securityHint">
+                In a real system this section would control user permissions, 2FA and API keys.
+              </p>
+              <ul class="simple-list">
+                <li data-i18n="settings.securityItem1">
+                  Role based access (Admin / Case Manager / Accountant / Marketing)
+                </li>
+                <li data-i18n="settings.securityItem2">Audit logs &amp; export</li>
+                <li data-i18n="settings.securityItem3">
+                  API access for external automations (Zapier, Make, custom scripts)
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+      <footer class="footer">
+        <span>© <span id="year"></span> Vizerio Office Hub</span>
+        <span class="footer-right" data-i18n="footer.demoNote">
+          Built for internal use – demo version (no real data).
+        </span>
+      </footer>
+    </div>
+  </div>
+  </div>
+
+    <button id="langToggle" class="lang-toggle">TR</button>
+
+    <script src="app.js"></script>
+  </body>
+</html>
