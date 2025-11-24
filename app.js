@@ -1,3 +1,8 @@
+function toggleLanguage() {
+    console.log("Dil değiştirme fonksiyonu çalıştı!"); // <--- BU SATIRI EKLEYİN
+    currentLang = currentLang === "tr" ? "en" : "tr";
+    // ... [diğer kodlar devam ediyor]
+}
 // ===============================================
 // VIZERIO OFFICE HUB - APP.JS (FULL REVİZYON)
 // Supabase Auth, Rol Kontrolü ve Çeviri Mantığı
