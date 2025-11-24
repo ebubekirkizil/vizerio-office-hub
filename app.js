@@ -574,3 +574,4 @@ document.addEventListener("DOMContentLoaded", () => {
     <script src="app.js"></script>
   </body>
 </html>
+applyRolePermissions('marketing');
