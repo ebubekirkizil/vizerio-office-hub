@@ -585,3 +585,52 @@ select:focus {
     flex-wrap: wrap;
   }
 }
+/* ===========================
+   Dil değiştirme butonu
+   =========================== */
+
+.lang-toggle {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+
+    z-index: 9999;
+
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: none;
+    outline: none;
+
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+
+    background: rgba(15, 23, 42, 0.9);
+    color: #e5e7eb;
+    cursor: pointer;
+    box-shadow:
+        0 10px 25px rgba(0, 0, 0, 0.45),
+        0 0 0 1px rgba(148, 163, 184, 0.5);
+    backdrop-filter: blur(12px);
+    transition:
+        transform 0.12s ease,
+        box-shadow 0.12s ease,
+        background 0.12s ease,
+        color 0.12s ease;
+}
+
+.lang-toggle:hover {
+    transform: translateY(-1px);
+    background: rgba(37, 99, 235, 0.95);
+    color: #f9fafb;
+    box-shadow:
+        0 14px 30px rgba(37, 99, 235, 0.45),
+        0 0 0 1px rgba(191, 219, 254, 0.7);
+}
+
+.lang-toggle:active {
+    transform: translateY(0);
+    box-shadow:
+        0 6px 12px rgba(15, 23, 42, 0.7),
+        0 0 0 1px rgba(148, 163, 184, 0.8);
+}
