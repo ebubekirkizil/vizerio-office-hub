@@ -3,193 +3,420 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vizerio Office Hub</title>
-    <!-- Tasarım Dosyası -->
+    <title>Vizerio ERP | Bütünleşik Vize Yönetimi</title>
+    <!-- İkon Seti (FontAwesome) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- CSS Dosyası -->
     <link rel="stylesheet" href="style.css">
-    <!-- Supabase Kütüphanesi -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Grafik Kütüphanesi (Chart.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    
-    <!-- GİRİŞ EKRANI -->
-    <div id="login-screen" class="login-screen">
-        <div class="login-card">
-            <div class="login-logo">VIZERIO OFFICE</div>
-            <div class="login-subtitle" data-i18n="login_subtitle">Dahili Yönetim Paneli</div>
-            <form id="loginForm">
-                <div class="field">
-                    <label data-i18n="login_emailLabel">E-posta</label>
-                    <input type="email" id="email" required>
-                </div>
-                <div class="field">
-                    <label data-i18n="login_passwordLabel">Şifre</label>
-                    <input type="password" id="password" required>
-                </div>
-                <button type="submit" class="btn-primary" data-i18n="login_signIn">Giriş Yap</button>
-                <p id="status" class="status"></p>
-            </form>
-        </div>
-    </div>
 
-    <!-- ANA UYGULAMA -->
-    <div id="app-shell" class="app-shell hidden">
+    <!-- ANA YERLEŞİM (LAYOUT) -->
+    <div class="app-container">
         
-        <!-- SOL MENÜ -->
+        <!-- SOL MENÜ (SIDEBAR) -->
         <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-logo">VIZERIO TR</div>
-                <div class="sidebar-tagline">Office Hub</div>
+            <div class="brand">
+                <div class="logo-icon"><i class="fa-solid fa-plane-departure"></i></div>
+                <span class="logo-text">VIZERIO</span>
             </div>
             
-            <nav class="sidebar-nav">
-                <button class="nav-item active" data-page="dashboard">
-                    <span data-i18n="nav_dashboard">Panel</span>
-                </button>
-                <button class="nav-item" data-page="clients">
-                    <span data-i18n="nav_clients">Müşteriler</span>
-                </button>
-                <button class="nav-item" data-page="visa">
-                    <span data-i18n="nav_visa">Vize</span>
-                </button>
-                <button class="nav-item" data-page="accounting">
-                    <span data-i18n="nav_accounting">Muhasebe</span>
-                </button>
-                <button class="nav-item" data-page="marketing">
-                    <span data-i18n="nav_marketing">Pazarlama</span>
-                </button>
-                <button class="nav-item" data-page="activity">
-                    <span data-i18n="nav_activity">Loglar</span>
-                </button>
-                <button class="nav-item" data-page="settings">
-                    <span data-i18n="nav_settings">Ayarlar</span>
-                </button>
+            <nav class="menu">
+                <a href="#" class="menu-item active" data-target="dashboard">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Finansal Özet</span>
+                </a>
+                <a href="#" class="menu-item" data-target="crm">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Operasyon & CRM</span>
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>Muhasebe</span>
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Ayarlar</span>
+                </a>
             </nav>
 
-            <div class="sidebar-footer">
-                <div class="user-mini">
-                    <div class="user-avatar">U</div>
-                    <div class="user-meta">
-                        <div class="user-name">Kullanıcı</div>
-                        <div class="user-role">Rol</div>
-                    </div>
+            <div class="user-profile">
+                <div class="avatar">YK</div>
+                <div class="info">
+                    <span class="name">Yönetici</span>
+                    <span class="role">Admin</span>
                 </div>
-                <button id="logoutBtn" class="btn-ghost" data-i18n="nav_logout">Çıkış</button>
             </div>
         </aside>
 
-        <!-- SAĞ İÇERİK -->
-        <div class="main">
-            <header class="top-bar">
-                <div class="top-left">
-                    <h1 id="page-title">Dashboard</h1>
-                    <p class="top-subtitle" data-i18n="top_subtitle">Yönetim Paneli</p>
+        <!-- SAĞ İÇERİK (MAIN CONTENT) -->
+        <main class="main-content">
+            
+            <!-- ÜST BAŞLIK VE ARAÇLAR (HEADER) -->
+            <header class="top-header">
+                <div class="page-title">
+                    <h1 id="page-header-title">Finansal Dashboard</h1>
+                    <span class="date-badge" id="current-date">25 Kasım 2025</span>
                 </div>
-                <div class="top-right">
-                    <div class="kpi">
-                        <div class="kpi-label" data-i18n="kpi_today">Bugün</div>
-                        <div class="kpi-value" id="todayDate"></div>
+
+                <div class="header-tools">
+                    <!-- Döviz Çevirici -->
+                    <div class="currency-selector">
+                        <select id="currency-switch">
+                            <option value="TRY" selected>₺ TRY</option>
+                            <option value="USD">$ USD</option>
+                            <option value="EUR">€ EUR</option>
+                        </select>
+                    </div>
+
+                    <!-- Takvim ve Bildirim -->
+                    <button class="icon-btn" id="btn-calendar-toggle"><i class="fa-regular fa-calendar"></i></button>
+                    <button class="icon-btn"><i class="fa-regular fa-bell"></i><span class="badge">3</span></button>
+                    
+                    <!-- Hızlı İşlem Butonları -->
+                    <button class="btn btn-danger" onclick="openModal('modal-expense')"><i class="fa-solid fa-minus"></i> Gider Ekle</button>
+                    <button class="btn btn-success" onclick="openModal('modal-income-type')"><i class="fa-solid fa-plus"></i> Gelir Ekle</button>
+                </div>
+
+                <!-- GİZLİ TAKVİM (POPOVER - Tıklanınca Açılır) -->
+                <div id="calendar-popover" class="calendar-popover hidden">
+                    <div class="cal-header">
+                        <span>Kasım 2025</span>
+                        <div class="cal-nav">
+                            <i class="fa-solid fa-chevron-left"></i>
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    <div class="cal-body">
+                        <div class="cal-grid">
+                            <div class="day">1</div><div class="day">2</div><div class="day">3</div><div class="day">4</div>
+                            <div class="day today">25</div><div class="day event">26</div><div class="day">27</div>
+                        </div>
+                    </div>
+                    <div class="cal-footer">
+                        <strong>Bugün:</strong> 2 Randevu Var
                     </div>
                 </div>
             </header>
 
-            <main class="pages">
-                <!-- DASHBOARD -->
-                <section id="page-dashboard" class="page active">
-                    <div class="grid-2">
-                        <div class="card">
-                            <h2 data-i18n="dashboard_pipelineTitle">Özet</h2>
-                            <div class="stats-row">
-                                <div class="stat"><div class="stat-label" data-i18n="dashboard_statClients">Müşteri</div><div class="stat-value">--</div></div>
-                                <div class="stat"><div class="stat-label" data-i18n="dashboard_statCases">Dosya</div><div class="stat-value">--</div></div>
-                                <div class="stat"><div class="stat-label" data-i18n="dashboard_statAdspend">Reklam</div><div class="stat-value">--</div></div>
+            <!-- SAYFA GÖRÜNÜMLERİ (VIEWS) -->
+            <div id="view-container">
+                
+                <!-- GÖRÜNÜM 1: FİNANSAL DASHBOARD -->
+                <div id="view-dashboard" class="view-section active">
+                    
+                    <!-- KPI Kartları (Özet Rakamlar) -->
+                    <div class="kpi-grid">
+                        <div class="kpi-card kpi-green">
+                            <div class="icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                            <div class="data">
+                                <span class="label">NET KÂR</span>
+                                <h3 class="value val-profit">₺0</h3>
+                            </div>
+                        </div>
+                        <div class="kpi-card kpi-blue">
+                            <div class="icon"><i class="fa-solid fa-wallet"></i></div>
+                            <div class="data">
+                                <span class="label">TOPLAM CİRO</span>
+                                <h3 class="value val-revenue">₺0</h3>
+                            </div>
+                        </div>
+                        <div class="kpi-card kpi-red">
+                            <div class="icon"><i class="fa-solid fa-file-invoice"></i></div>
+                            <div class="data">
+                                <span class="label">TOPLAM GİDER</span>
+                                <h3 class="value val-expense">₺0</h3>
+                            </div>
+                        </div>
+                        <div class="kpi-card kpi-orange">
+                            <div class="icon"><i class="fa-solid fa-piggy-bank"></i></div>
+                            <div class="data">
+                                <span class="label">ANLIK EMANET</span>
+                                <h3 class="value val-escrow">₺0</h3>
                             </div>
                         </div>
                     </div>
-                </section>
 
-                <!-- CLIENTS -->
-                <section id="page-clients" class="page">
-                    <div class="page-header-row">
-                        <h2 data-i18n="clients_title">Müşteriler</h2>
-                        <button id="btn-add-client" class="btn-primary-sm" data-i18n="clients_addClient">+ Ekle</button>
+                    <!-- Ana Grafik Alanı -->
+                    <div class="chart-section">
+                        <div class="chart-header">
+                            <h3>Finansal Akış</h3>
+                            <div class="chart-controls">
+                                <!-- Grafik Filtreleri -->
+                                <div class="toggles">
+                                    <button class="toggle-btn active" data-dataset="0" style="--c: #10b981">Kâr</button>
+                                    <button class="toggle-btn active" data-dataset="1" style="--c: #3b82f6">Ciro</button>
+                                    <button class="toggle-btn active" data-dataset="2" style="--c: #ef4444">Gider</button>
+                                </div>
+                                <!-- Zaman Filtreleri -->
+                                <div class="time-filters">
+                                    <button class="time-btn">1H</button>
+                                    <button class="time-btn active">1A</button>
+                                    <button class="time-btn">3A</button>
+                                    <button class="time-btn">1Y</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-canvas-wrapper">
+                            <canvas id="mainFinanceChart"></canvas>
+                        </div>
                     </div>
-                    <div class="card">
-                        <h3 data-i18n="clients_clientsTable">Liste</h3>
-                        <table class="data-table">
+                </div>
+
+                <!-- GÖRÜNÜM 2: OPERASYON VE CRM -->
+                <div id="view-crm" class="view-section">
+                    
+                    <!-- CRM Filtre Sekmeleri (Tabs) -->
+                    <div class="crm-filters">
+                        <button class="crm-tab active" data-filter="all">
+                            <span class="count">24</span>
+                            <span class="text">TÜM DOSYALAR</span>
+                        </button>
+                        <button class="crm-tab" data-filter="new">
+                            <span class="count">5</span>
+                            <span class="text">YENİ KAYIT</span>
+                        </button>
+                        <button class="crm-tab" data-filter="docs_pending">
+                            <span class="count">8</span>
+                            <span class="text">EVRAK BEKLEYEN</span>
+                        </button>
+                        <button class="crm-tab danger" data-filter="app_pending">
+                            <span class="count">3</span>
+                            <span class="text">RANDEVU BEKLEYEN</span>
+                        </button>
+                        <button class="crm-tab" data-filter="app_scheduled">
+                            <span class="count">4</span>
+                            <span class="text">RANDEVUSU ALINAN</span>
+                        </button>
+                        <button class="crm-tab" data-filter="processing">
+                            <span class="count">2</span>
+                            <span class="text">İŞLEMDE</span>
+                        </button>
+                        <button class="crm-tab success" data-filter="completed">
+                            <span class="count">2</span>
+                            <span class="text">SONUÇLANAN</span>
+                        </button>
+                    </div>
+
+                    <!-- Müşteri Listesi Tablosu -->
+                    <div class="table-container">
+                        <table class="data-table" id="crm-table">
                             <thead>
                                 <tr>
-                                    <th data-i18n="clients_colName">İsim</th>
-                                    <th data-i18n="clients_colCountry">Ülke</th>
-                                    <th data-i18n="clients_colStatus">Durum</th>
+                                    <th>Müşteri</th>
+                                    <th>Ülke / Vize</th>
+                                    <th>Durum</th>
+                                    <th>Finans</th>
+                                    <th>Detay</th> <!-- Dinamik Değişen Sütun -->
+                                    <th>Temsilci</th>
                                 </tr>
                             </thead>
-                            <tbody id="tbl-clients"><!-- Müşteri verileri buraya gelecek --></tbody>
+                            <tbody id="crm-table-body">
+                                <!-- JS ile doldurulacak -->
+                            </tbody>
                         </table>
                     </div>
-                </section>
+                </div>
 
-                <!-- MARKETING -->
-                <section id="page-marketing" class="page">
-                    <div class="page-header-row">
-                        <h2 data-i18n="marketing_title">Pazarlama</h2>
-                        <button class="btn-primary-sm" data-i18n="marketing_addCampaign">+ Kampanya</button>
-                    </div>
-                    <div class="card">
-                        <h3 data-i18n="marketing_campaignsTable">Kampanyalar</h3>
-                        <!-- Pazarlama Grafikleri Buraya -->
-                    </div>
-                </section>
-                
-                <!-- Diğer sayfalar -->
-                <section id="page-visa" class="page"><h2>Visa</h2></section>
-                <section id="page-accounting" class="page"><h2>Accounting</h2></section>
-                <section id="page-activity" class="page"><h2>Activity</h2></section>
-                <section id="page-settings" class="page"><h2>Settings</h2></section>
+            </div>
+        </main>
+    </div>
 
-            </main>
+    <!-- ================= MODALLER (AÇILIR PENCERELER) ================= -->
 
-            <footer class="footer">
-                <span>© 2025 VizerioTR</span>
-                <span data-i18n="footer_demoNote">v1.0</span>
-            </footer>
+    <!-- 1. GELİR TİPİ SEÇİMİ MODALI -->
+    <div id="modal-income-type" class="modal-overlay hidden">
+        <div class="modal-card sm">
+            <div class="modal-header">
+                <h3>İşlem Türü Seçiniz</h3>
+                <button class="close-btn" onclick="closeModal('modal-income-type')">&times;</button>
+            </div>
+            <div class="modal-body grid-menu">
+                <button class="big-btn blue" onclick="switchModal('modal-income-type', 'modal-visa-wizard')">
+                    <i class="fa-solid fa-passport"></i>
+                    <span>Vize Dosyası Oluştur</span>
+                </button>
+                <button class="big-btn orange" onclick="switchModal('modal-income-type', 'modal-escrow')">
+                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                    <span>Emanet / Harç Girişi</span>
+                </button>
+                <button class="big-btn green" onclick="switchModal('modal-income-type', 'modal-service')">
+                    <i class="fa-solid fa-ticket"></i>
+                    <span>Ek Hizmet / Satış</span>
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- MODAL: MÜŞTERİ EKLEME -->
-    <div id="modal-add-client" class="modal-overlay hidden">
-        <div class="modal-card">
-            <h3 class="modal-title" data-i18n="clients_addClientModalTitle">Yeni Müşteri</h3>
-            <form id="form-add-client">
-                <div class="field-group">
-                    <h4 data-i18n="clients_clientInfoTitle">Bilgiler</h4>
-                    <div class="field"><label data-i18n="clients_clientNameLabel">İsim</label><input type="text" id="client-name" required></div>
-                    <div class="field"><label data-i18n="clients_clientEmailLabel">E-posta</label><input type="email" id="client-email" required></div>
-                    <div class="field"><label data-i18n="clients_clientPhoneLabel">Telefon</label><input type="text" id="client-phone"></div>
-                    <div class="field"><label data-i18n="clients_clientCountryLabel">Ülke</label><input type="text" id="client-country"></div>
+    <!-- 2. VİZE DOSYASI SİHİRBAZI (WIZARD - 3 ADIMLI) -->
+    <div id="modal-visa-wizard" class="modal-overlay hidden">
+        <div class="modal-card md">
+            <div class="modal-header">
+                <h3>Yeni Vize Dosyası</h3>
+                <div class="wizard-steps">
+                    <span class="step active">1. Kimlik</span>
+                    <span class="step">2. Finans</span>
+                    <span class="step">3. Evrak</span>
                 </div>
-                <div class="field-group">
-                    <h4 data-i18n="clients_caseInfoTitle">Dosya</h4>
+            </div>
+            <div class="modal-body">
+                <form id="form-visa-wizard">
+                    <!-- ADIM 1: KİMLİK -->
+                    <div class="wizard-page" id="wiz-step-1">
+                        <div class="form-row">
+                            <div class="field">
+                                <label>Ad Soyad</label>
+                                <input type="text" required placeholder="Müşteri Adı">
+                            </div>
+                            <div class="field">
+                                <label>TC Kimlik No</label>
+                                <input type="text" placeholder="11 Haneli">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="field">
+                                <label>Gidilecek Ülke</label>
+                                <select><option>Schengen (Genel)</option><option>Almanya</option><option>ABD</option></select>
+                            </div>
+                            <div class="field">
+                                <label>Vize Tipi</label>
+                                <select><option>Turistik</option><option>Ticari</option><option>Öğrenci</option></select>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ADIM 2: FİNANS (Otomatik Kar Hesabı) -->
+                    <div class="wizard-page hidden" id="wiz-step-2">
+                        <div class="form-row">
+                            <div class="field">
+                                <label>Müşteriye Verilen Fiyat</label>
+                                <input type="number" id="wiz-price" placeholder="0.00">
+                            </div>
+                            <div class="field">
+                                <label>Tahmini Maliyet</label>
+                                <input type="number" id="wiz-cost" placeholder="0.00">
+                            </div>
+                        </div>
+                        <div class="profit-preview">
+                            Tahmini Net Kâr: <span class="val-green">₺0.00</span>
+                        </div>
+                    </div>
+                    <!-- ADIM 3: EVRAK -->
+                    <div class="wizard-page hidden" id="wiz-step-3">
+                        <div class="upload-area">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <p>Pasaport ve Evrakları buraya sürükleyin</p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="wizardPrev()">Geri</button>
+                <button class="btn btn-primary" onclick="wizardNext()">İleri</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. GİDER GİRİŞİ MODALI -->
+    <div id="modal-expense" class="modal-overlay hidden">
+        <div class="modal-card sm">
+            <div class="modal-header">
+                <h3>Hızlı Gider Girişi</h3>
+                <button class="close-btn" onclick="closeModal('modal-expense')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form>
                     <div class="field">
-                        <label data-i18n="clients_visaTypeLabel">Vize</label>
-                        <select id="case-visa-type">
-                            <option value="Schengen">Schengen</option>
-                            <option value="Student">Öğrenci</option>
+                        <label>Kategori</label>
+                        <select>
+                            <option>Ofis Kirası</option>
+                            <option>Personel Yemek</option>
+                            <option>Reklam (Meta/Google)</option>
+                            <option>Diğer</option>
                         </select>
                     </div>
-                </div>
-                <p id="client-form-status" class="status"></p>
-                <div class="btn-group-footer">
-                    <button type="button" id="btn-close-client-modal" class="btn-secondary-sm" data-i18n="clients_cancelBtn">İptal</button>
-                    <button type="submit" class="btn-primary-sm" data-i18n="clients_saveClientBtn">Kaydet</button>
-                </div>
-            </form>
+                    <div class="field">
+                        <label>Tutar</label>
+                        <div class="input-group">
+                            <input type="number" placeholder="0.00">
+                            <select style="width: 80px;"><option>TRY</option><option>USD</option></select>
+                        </div>
+                    </div>
+                    <div class="field-checkbox">
+                        <input type="checkbox" id="recurring">
+                        <label for="recurring">Her ay tekrarla (Sabit Gider)</label>
+                    </div>
+                    <div class="field">
+                        <label>Fiş / Fatura Fotoğrafı</label>
+                        <input type="file">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger w-100">Gideri İşle</button>
+            </div>
         </div>
     </div>
 
-    <!-- DİL BUTONU -->
-    <button id="langToggle" class="lang-toggle">TR</button>
+    <!-- 4. EMANET / HARÇ GİRİŞİ MODALI -->
+    <div id="modal-escrow" class="modal-overlay hidden">
+        <div class="modal-card sm border-orange">
+            <div class="modal-header bg-orange-light">
+                <h3 style="color: var(--orange-dark)">Emanet Girişi</h3>
+                <button class="close-btn" onclick="closeModal('modal-escrow')">&times;</button>
+            </div>
+            <div class="warning-banner">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                Bu tutar şirket geliri değildir, emanet hesabıdır.
+            </div>
+            <div class="modal-body">
+                <div class="field">
+                    <label>Müşteri Seç</label>
+                    <input type="text" placeholder="İsim arayın...">
+                </div>
+                <div class="field">
+                    <label>Tutar</label>
+                    <input type="number" placeholder="0.00">
+                </div>
+                <div class="field">
+                    <label>Açıklama</label>
+                    <textarea placeholder="Örn: Konsolosluk harcı için alındı"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-warning w-100">Emanete Al</button>
+            </div>
+        </div>
+    </div>
 
-    <!-- JS Dosyası -->
+    <!-- 5. MÜŞTERİ DETAY MODALI (Çift Tıklayınca Açılır) -->
+    <div id="modal-customer-detail" class="modal-overlay hidden">
+        <div class="modal-card lg">
+            <div class="modal-header">
+                <div class="customer-header-info">
+                    <h3>Ahmet Yılmaz</h3>
+                    <span class="status-badge badge-warning">Randevu Bekliyor</span>
+                </div>
+                <button class="close-btn" onclick="closeModal('modal-customer-detail')">&times;</button>
+            </div>
+            <div class="modal-tabs">
+                <button class="tab-btn active">Kimlik</button>
+                <button class="tab-btn">Vize Durumu</button>
+                <button class="tab-btn">Finans</button>
+                <button class="tab-btn">Evraklar</button>
+                <button class="tab-btn">Log</button>
+            </div>
+            <div class="modal-body" style="min-height: 300px;">
+                <!-- Tab içerikleri JS ile değişecek -->
+                <p style="color: #666; padding: 20px;">Müşteri detay bilgileri, pasaport fotokopisi ve geçmiş işlemleri burada listelenir.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Bağlantısı -->
     <script src="app.js"></script>
 </body>
 </html>
