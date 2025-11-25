@@ -82,7 +82,7 @@
                     <button class="btn btn-success" onclick="openModal('modal-income-type')"><i class="fa-solid fa-plus"></i> Gelir Ekle</button>
                 </div>
 
-                <!-- GİZLİ TAKVİM (POPOVER - Tıklanınca Açılır) -->
+                <!-- GİZLİ TAKVİM (POPOVER) -->
                 <div id="calendar-popover" class="calendar-popover hidden">
                     <div class="cal-header">
                         <span>Kasım 2025</span>
@@ -109,7 +109,7 @@
                 <!-- GÖRÜNÜM 1: FİNANSAL DASHBOARD -->
                 <div id="view-dashboard" class="view-section active">
                     
-                    <!-- KPI Kartları (Özet Rakamlar) -->
+                    <!-- KPI Kartları -->
                     <div class="kpi-grid">
                         <div class="kpi-card kpi-green">
                             <div class="icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
@@ -146,13 +146,11 @@
                         <div class="chart-header">
                             <h3>Finansal Akış</h3>
                             <div class="chart-controls">
-                                <!-- Grafik Filtreleri -->
                                 <div class="toggles">
                                     <button class="toggle-btn active" data-dataset="0" style="--c: #10b981">Kâr</button>
                                     <button class="toggle-btn active" data-dataset="1" style="--c: #3b82f6">Ciro</button>
                                     <button class="toggle-btn active" data-dataset="2" style="--c: #ef4444">Gider</button>
                                 </div>
-                                <!-- Zaman Filtreleri -->
                                 <div class="time-filters">
                                     <button class="time-btn">1H</button>
                                     <button class="time-btn active">1A</button>
@@ -170,34 +168,34 @@
                 <!-- GÖRÜNÜM 2: OPERASYON VE CRM -->
                 <div id="view-crm" class="view-section">
                     
-                    <!-- CRM Filtre Sekmeleri (Tabs) -->
+                    <!-- CRM Filtre Sekmeleri -->
                     <div class="crm-filters">
                         <button class="crm-tab active" data-filter="all">
-                            <span class="count">24</span>
+                            <span class="count">--</span>
                             <span class="text">TÜM DOSYALAR</span>
                         </button>
                         <button class="crm-tab" data-filter="new">
-                            <span class="count">5</span>
+                            <span class="count">--</span>
                             <span class="text">YENİ KAYIT</span>
                         </button>
                         <button class="crm-tab" data-filter="docs_pending">
-                            <span class="count">8</span>
+                            <span class="count">--</span>
                             <span class="text">EVRAK BEKLEYEN</span>
                         </button>
                         <button class="crm-tab danger" data-filter="app_pending">
-                            <span class="count">3</span>
+                            <span class="count">--</span>
                             <span class="text">RANDEVU BEKLEYEN</span>
                         </button>
                         <button class="crm-tab" data-filter="app_scheduled">
-                            <span class="count">4</span>
+                            <span class="count">--</span>
                             <span class="text">RANDEVUSU ALINAN</span>
                         </button>
                         <button class="crm-tab" data-filter="processing">
-                            <span class="count">2</span>
+                            <span class="count">--</span>
                             <span class="text">İŞLEMDE</span>
                         </button>
                         <button class="crm-tab success" data-filter="completed">
-                            <span class="count">2</span>
+                            <span class="count">--</span>
                             <span class="text">SONUÇLANAN</span>
                         </button>
                     </div>
@@ -211,7 +209,7 @@
                                     <th>Ülke / Vize</th>
                                     <th>Durum</th>
                                     <th>Finans</th>
-                                    <th>Detay</th> <!-- Dinamik Değişen Sütun -->
+                                    <th>Detay</th>
                                     <th>Temsilci</th>
                                 </tr>
                             </thead>
@@ -226,9 +224,9 @@
         </main>
     </div>
 
-    <!-- ================= MODALLER (AÇILIR PENCERELER) ================= -->
+    <!-- ================= MODALLER ================= -->
 
-    <!-- 1. GELİR TİPİ SEÇİMİ MODALI -->
+    <!-- 1. GELİR TİPİ SEÇİMİ -->
     <div id="modal-income-type" class="modal-overlay hidden">
         <div class="modal-card sm">
             <div class="modal-header">
@@ -252,7 +250,7 @@
         </div>
     </div>
 
-    <!-- 2. VİZE DOSYASI SİHİRBAZI (WIZARD - 3 ADIMLI) -->
+    <!-- 2. VİZE DOSYASI SİHİRBAZI (BURAYA KAPATMA BUTONU EKLENDİ) -->
     <div id="modal-visa-wizard" class="modal-overlay hidden">
         <div class="modal-card md">
             <div class="modal-header">
@@ -262,10 +260,12 @@
                     <span class="step">2. Finans</span>
                     <span class="step">3. Evrak</span>
                 </div>
+                <!-- YENİ EKLENEN KAPATMA BUTONU -->
+                <button class="close-btn" onclick="closeModal('modal-visa-wizard')">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="form-visa-wizard">
-                    <!-- ADIM 1: KİMLİK -->
+                    <!-- STEP 1 -->
                     <div class="wizard-page" id="wiz-step-1">
                         <div class="form-row">
                             <div class="field">
@@ -288,7 +288,7 @@
                             </div>
                         </div>
                     </div>
-                    <!-- ADIM 2: FİNANS (Otomatik Kar Hesabı) -->
+                    <!-- STEP 2 -->
                     <div class="wizard-page hidden" id="wiz-step-2">
                         <div class="form-row">
                             <div class="field">
@@ -304,7 +304,7 @@
                             Tahmini Net Kâr: <span class="val-green">₺0.00</span>
                         </div>
                     </div>
-                    <!-- ADIM 3: EVRAK -->
+                    <!-- STEP 3 -->
                     <div class="wizard-page hidden" id="wiz-step-3">
                         <div class="upload-area">
                             <i class="fa-solid fa-cloud-arrow-up"></i>
@@ -320,7 +320,7 @@
         </div>
     </div>
 
-    <!-- 3. GİDER GİRİŞİ MODALI -->
+    <!-- 3. GİDER GİRİŞİ -->
     <div id="modal-expense" class="modal-overlay hidden">
         <div class="modal-card sm">
             <div class="modal-header">
@@ -361,7 +361,7 @@
         </div>
     </div>
 
-    <!-- 4. EMANET / HARÇ GİRİŞİ MODALI -->
+    <!-- 4. EMANET / HARÇ -->
     <div id="modal-escrow" class="modal-overlay hidden">
         <div class="modal-card sm border-orange">
             <div class="modal-header bg-orange-light">
@@ -392,7 +392,7 @@
         </div>
     </div>
 
-    <!-- 5. MÜŞTERİ DETAY MODALI (Çift Tıklayınca Açılır) -->
+    <!-- 5. MÜŞTERİ DETAY PENCERESİ -->
     <div id="modal-customer-detail" class="modal-overlay hidden">
         <div class="modal-card lg">
             <div class="modal-header">
@@ -410,13 +410,11 @@
                 <button class="tab-btn">Log</button>
             </div>
             <div class="modal-body" style="min-height: 300px;">
-                <!-- Tab içerikleri JS ile değişecek -->
-                <p style="color: #666; padding: 20px;">Müşteri detay bilgileri, pasaport fotokopisi ve geçmiş işlemleri burada listelenir.</p>
+                <p style="color: #666; padding: 20px;">Müşteri detay bilgileri burada listelenir.</p>
             </div>
         </div>
     </div>
 
-    <!-- JS Bağlantısı -->
     <script src="app.js"></script>
 </body>
 </html>
