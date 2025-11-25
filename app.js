@@ -1,349 +1,223 @@
-// ===============================================
-// VIZERIO OFFICE HUB - APP.JS (GÜNCEL İSİMLENDİRMELER)
-// ===============================================
+// ==========================================
+// VIZERIO ERP v3.0 - FRONTEND LOGIC
+// Supabase Entegrasyonu ve Dashboard Yönetimi
+// ==========================================
 
 // 1. SUPABASE BAĞLANTISI
 const SUPABASE_URL = "https://dgvxzlfeagwzmyjqhupu.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRndnh6bGZlYWd3em15anFodXB1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDEyNDEsImV4cCI6MjA3OTU3NzI0MX0.rwVR89JBTeue0cAtbujkoIBbqg3VjAEsLesXPlcr078";
 
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// 2. ELEMENTLER
-const loginForm = document.getElementById("loginForm");
-const statusEl = document.getElementById("status");
-const loginScreen = document.getElementById("login-screen");
-const appShell = document.getElementById("app-shell");
-const logoutBtn = document.getElementById("logoutBtn");
-const userRoleEl = document.querySelector('.user-role');
-const pageTitleEl = document.getElementById('page-title');
-const langToggleBtn = document.getElementById("langToggle"); 
+// 2. DOM ELEMENTLERİ
+const crmTableBody = document.getElementById('crm-table-body');
+const currencySelect = document.getElementById('currency-switch');
+const menuItems = document.querySelectorAll('.menu-item');
+const views = document.querySelectorAll('.view-section');
+const crmTabs = document.querySelectorAll('.crm-tab');
+const calendarBtn = document.getElementById('btn-calendar-toggle');
+const calendarPopover = document.getElementById('calendar-popover');
 
-// Tablo ve KPI Elementleri
-const casesTableBody = document.getElementById('tbl-cases'); 
-const statClientsEl = document.getElementById('stat-clients');
-const statCasesEl = document.getElementById('stat-cases');
-const statAdspendEl = document.getElementById('stat-adspend');
-
-let currentUser = null;
-
-// ===============================================
-// 3. ÇEVİRİ SİSTEMİ (GÜNCELLENDİ)
-// ===============================================
-
-const TRANSLATIONS = {
-  tr: {
-    app_name: "Vizerio Office Hub",
-    
-    // --- MENÜ İSİMLERİ (GÜNCELLENDİ) ---
-    nav_dashboard: "Gösterge Paneli",
-    nav_clients: "Müşteri Takip",       // Eski: Müşteriler & Dosyalar
-    nav_visa: "Vize Randevuları",
-    nav_accounting: "Muhasebe & Finans", // Eski: Muhasebe
-    nav_marketing: "Pazarlama & Reklam",
-    nav_activity: "Aktivite Kayıtları",
-    nav_settings: "Ayarlar",
-    nav_logout: "Çıkış Yap",
-
-    // Login
-    login_subtitle: "Dahili Operasyon Paneli",
-    login_emailLabel: "E-posta",
-    login_passwordLabel: "Şifre",
-    login_signIn: "Giriş Yap",
-    login_error_credentials: "Giriş başarısız. Bilgileri kontrol et.",
-    
-    // Başlıklar
-    top_subtitle: "Tam kapsamlı yönetim paneli",
-    kpi_today: "Bugün",
-    dashboard_pipelineTitle: "İş Akışı Özeti",
-    dashboard_statClients: "Aktif Müşteri",
-    dashboard_statCases: "Aktif Dosya",
-    dashboard_statAdspend: "Reklam (₺)",
-    
-    // Sayfa Başlıkları (Tutarlılık için güncellendi)
-    clients_title: "Müşteri Takip", 
-    clients_clientsTable: "Aktif Vize Dosyaları",
-    clients_colName: "Müşteri Adı",
-    visa_colCountry: "Vize Ülkesi",
-    visa_colDate: "Randevu Tarihi",
-    visa_colCenter: "Başvuru Merkezi",
-    clients_colStatus: "Durum",
-    
-    marketing_title: "Pazarlama",
-    marketing_campaignsTable: "Aktif Kampanyalar",
-    footer_demoNote: "Vizerio v1.0"
-  },
-  en: {
-    app_name: "Vizerio Office Hub",
-    
-    // --- MENU NAMES (UPDATED) ---
-    nav_dashboard: "Dashboard",
-    nav_clients: "Client Tracking",      // Updated
-    nav_visa: "Visa Appointments",
-    nav_accounting: "Accounting & Finance", // Updated
-    nav_marketing: "Marketing & Ads",
-    nav_activity: "Activity Logs",
-    nav_settings: "Settings",
-    nav_logout: "Logout",
-
-    login_subtitle: "Internal Operations Panel",
-    login_emailLabel: "Email",
-    login_passwordLabel: "Password",
-    login_signIn: "Sign In",
-    login_error_credentials: "Login failed.",
-    top_subtitle: "Management Panel",
-    kpi_today: "Today",
-    dashboard_pipelineTitle: "Pipeline Overview",
-    dashboard_statClients: "Active Clients",
-    dashboard_statCases: "Active Cases",
-    dashboard_statAdspend: "Ad Spend",
-    clients_title: "Client Tracking",
-    clients_clientsTable: "Active Visa Cases",
-    clients_colName: "Client Name",
-    visa_colCountry: "Visa Country",
-    visa_colDate: "Appointment Date",
-    visa_colCenter: "Application Center",
-    clients_colStatus: "Status",
-    marketing_title: "Marketing",
-    marketing_campaignsTable: "Active Campaigns",
-    footer_demoNote: "Vizerio v1.0"
-  }
+// Durum Yönetimi
+const state = {
+    currency: 'TRY',
+    rates: { TRY: 1, USD: 0.035, EUR: 0.032 }, // Güncel kurlar API'den çekilebilir
+    filter: 'all'
 };
 
-const DEFAULT_LANG = "tr";
-let currentLang = (localStorage.getItem("vizerio_lang") || DEFAULT_LANG);
-
-function i18n(key) {
-    return TRANSLATIONS[currentLang][key] || key;
-}
-
-function applyTranslations() {
-    document.querySelectorAll("[data-i18n]").forEach(el => {
-        const key = el.getAttribute("data-i18n");
-        const text = i18n(key);
-        
-        if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
-            el.setAttribute("placeholder", text);
-        } else {
-            el.textContent = text;
-        }
-    });
-    // Sidebar menülerini güncelle (ikon varsa koru)
-    document.querySelectorAll('.sidebar-nav .nav-item span').forEach(span => {
-        const parent = span.closest('.nav-item');
-        if(parent) {
-            const page = parent.getAttribute('data-page');
-            // Eğer çeviri varsa güncelle
-            const translation = i18n('nav_' + page);
-            if (translation) span.textContent = translation;
-        }
-    });
-
-    if(langToggleBtn) langToggleBtn.textContent = currentLang.toUpperCase();
-}
-
-function toggleLanguage() {
-    currentLang = currentLang === "tr" ? "en" : "tr";
-    localStorage.setItem("vizerio_lang", currentLang);
-    applyTranslations();
+// ================= BAŞLATMA =================
+document.addEventListener('DOMContentLoaded', async () => {
+    // Önce anonim giriş yap (Veri okumak için)
+    await supabase.auth.signInAnonymously();
     
-    const activeItem = document.querySelector('.sidebar-nav .nav-item.active');
-    if(activeItem) updatePageTitle(activeItem);
-}
-
-// ===============================================
-// 4. TAM YETKİ FONKSİYONU
-// ===============================================
-
-async function forceAdminAccess(user) {
-    if (!user) return;
-    currentUser = user;
-
-    let { data } = await supabaseClient
-        .from('profiles')
-        .select('name')
-        .eq('id', user.id)
-        .single();
-        
-    const displayName = (data && data.name) ? data.name : user.email;
+    initDashboard();
+    initCRM();
+    setupEventListeners();
     
-    if(document.querySelector('.user-name')) document.querySelector('.user-name').textContent = displayName;
-    if(document.querySelector('.user-role')) document.querySelector('.user-role').textContent = "YÖNETİCİ";
+    // Tarihi ayarla
+    document.getElementById('current-date').innerText = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+});
 
-    const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
-    navItems.forEach(item => {
-        item.style.display = 'flex';
-        item.style.visibility = 'visible';
-    });
+// ================= DASHBOARD (FİNANS) =================
+async function initDashboard() {
+    // 1. Gelirleri Çek (Paid Invoices)
+    const { data: incomes } = await supabase
+        .from('invoices')
+        .select('amount')
+        .eq('payment_status', 'paid');
+
+    // 2. Giderleri Çek (Expenses tablosu yoksa hata vermemesi için try-catch)
+    let expenses = [];
+    try {
+        const res = await supabase.from('expenses').select('amount');
+        if(res.data) expenses = res.data;
+    } catch (e) { console.log("Gider tablosu henüz yok."); }
+
+    // 3. Emanetleri Çek
+    let escrows = [];
+    try {
+        const res = await supabase.from('escrow_transactions').select('amount');
+        if(res.data) escrows = res.data;
+    } catch (e) { console.log("Emanet tablosu henüz yok."); }
+
+    // Hesaplamalar
+    let totalRevenue = incomes ? incomes.reduce((acc, item) => acc + Number(item.amount), 0) : 0;
+    let totalExpense = expenses ? expenses.reduce((acc, item) => acc + Number(item.amount), 0) : 0;
+    let totalEscrow = escrows ? escrows.reduce((acc, item) => acc + Number(item.amount), 0) : 0;
+    let netProfit = totalRevenue - totalExpense;
+
+    updateKpiCards(netProfit, totalRevenue, totalExpense, totalEscrow);
+    renderChart(totalRevenue, totalExpense);
 }
 
-// ===============================================
-// 5. GİRİŞ / ÇIKIŞ İŞLEMLERİ
-// ===============================================
+function updateKpiCards(profit, revenue, expense, escrow) {
+    const symbol = state.currency === 'TRY' ? '₺' : (state.currency === 'USD' ? '$' : '€');
+    const rate = state.currency === 'TRY' ? 1 : state.rates[state.currency];
 
-async function handleLogin(e) {
-    e.preventDefault();
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    document.querySelector('.val-profit').innerText = formatMoney(profit * rate, symbol);
+    document.querySelector('.val-revenue').innerText = formatMoney(revenue * rate, symbol);
+    document.querySelector('.val-expense').innerText = formatMoney(expense * rate, symbol);
+    document.querySelector('.val-escrow').innerText = formatMoney(escrow * rate, symbol);
+}
 
-    statusEl.textContent = "Giriş yapılıyor...";
-    statusEl.className = "status";
+// ================= CRM (OPERASYON) =================
+async function initCRM() {
+    renderCRMTable('all');
+}
 
-    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+async function renderCRMTable(filterStatus) {
+    if(!crmTableBody) return;
+    crmTableBody.innerHTML = '<tr><td colspan="6">Yükleniyor...</td></tr>';
+
+    let query = supabase.from('clients').select('*');
+    
+    // Filtreleme Mantığı
+    if (filterStatus !== 'all') {
+        // Veritabanındaki statüler ile UI statülerini eşleştiriyoruz
+        if(filterStatus === 'new') query = query.eq('status', 'lead');
+        else if(filterStatus === 'completed') query = query.eq('status', 'completed');
+        else query = query.eq('status', 'active'); // Diğerleri için şimdilik active
+    }
+
+    const { data: clients, error } = await query;
 
     if (error) {
-        statusEl.textContent = i18n('login_error_credentials');
-        statusEl.classList.add('error');
+        crmTableBody.innerHTML = '<tr><td colspan="6" style="color:red">Veri çekilemedi.</td></tr>';
         return;
     }
 
-    statusEl.textContent = "Başarılı!";
-    statusEl.classList.add('ok');
-    
-    setAppVisibility(true);
-    await forceAdminAccess(data.user);
-    
-    loadDashboardKPIs();
-    loadClientAppointments();
-
-    setTimeout(() => {
-        const first = document.querySelector('.sidebar-nav .nav-item');
-        if(first) first.click();
-    }, 100);
-}
-
-async function handleLogout() {
-    await supabaseClient.auth.signOut();
-    setAppVisibility(false);
-    window.location.reload(); 
-}
-
-function setAppVisibility(isLoggedIn) {
-    if (isLoggedIn) {
-        loginScreen.classList.add('hidden');
-        appShell.classList.remove('hidden');
-    } else {
-        appShell.classList.add('hidden');
-        loginScreen.classList.remove('hidden');
+    if (!clients || clients.length === 0) {
+        crmTableBody.innerHTML = '<tr><td colspan="6">Kayıt bulunamadı.</td></tr>';
+        return;
     }
+
+    crmTableBody.innerHTML = '';
+    clients.forEach(client => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong>${client.full_name}</strong><br><span style="font-size:0.8em; color:#999">${client.email}</span></td>
+            <td><i class="fa-solid fa-location-dot" style="color:#aaa"></i> ${client.country || '-'}<br>Vize</td>
+            <td>${getStatusBadge(client.status)}</td>
+            <td style="font-weight:600;">-</td>
+            <td>${client.phone || '-'}</td>
+            <td><div class="avatar" style="width:28px; height:28px; font-size:0.7rem">YK</div></td>
+        `;
+        tr.addEventListener('dblclick', () => openModal('modal-customer-detail'));
+        crmTableBody.appendChild(tr);
+    });
 }
 
-async function checkAuth() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    if (session) {
-        setAppVisibility(true);
-        await forceAdminAccess(session.user);
-        
-        loadDashboardKPIs();
-        loadClientAppointments();
+// ================= GRAFİK =================
+let financeChart;
+function renderChart(revenue, expense) {
+    const ctx = document.getElementById('mainFinanceChart');
+    if(!ctx) return;
 
-        if(document.getElementById('todayDate')) {
-            document.getElementById('todayDate').textContent = new Date().toLocaleDateString('tr-TR');
+    if (financeChart) financeChart.destroy();
+
+    financeChart = new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: ['Bu Ay'], // Şimdilik tek sütun
+            datasets: [
+                { label: 'Ciro', data: [revenue], backgroundColor: '#3b82f6', borderRadius: 4 },
+                { label: 'Gider', data: [expense], backgroundColor: '#ef4444', borderRadius: 4 }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true } }
         }
-    } else {
-        setAppVisibility(false);
-    }
+    });
 }
 
-// ===============================================
-// 6. VERİ LİSTELEME
-// ===============================================
-
-async function loadClientAppointments() {
-    if (!casesTableBody) return;
-    casesTableBody.innerHTML = '<tr><td colspan="5">Yükleniyor...</td></tr>';
-    
-    const { data: appointments, error } = await supabaseClient
-        .from('appointments')
-        .select(`
-            appointment_id, appointment_date, visa_country, center, status,
-            client:clients (full_name) 
-        `)
-        .order('appointment_date', { ascending: true });
-
-    if (error) {
-        casesTableBody.innerHTML = `<tr><td colspan="5" style="color: #ff6b6b;">Hata oluştu.</td></tr>`;
-        return;
-    }
-
-    if (!appointments || appointments.length === 0) {
-        casesTableBody.innerHTML = `<tr><td colspan="5">Kayıt bulunamadı.</td></tr>`;
-        return;
-    }
-
-    const formatDate = (dateString) => new Date(dateString).toLocaleDateString('tr-TR');
-
-    casesTableBody.innerHTML = appointments.map(app => `
-        <tr>
-            <td>${app.client ? app.client.full_name : 'Bilinmiyor'}</td>
-            <td>${app.visa_country || '-'}</td>
-            <td>${formatDate(app.appointment_date)}</td>
-            <td>${app.center || '-'}</td>
-            <td><span class="status-tag status-${app.status ? app.status.toLowerCase() : 'lead'}">${app.status ? app.status.toUpperCase() : '-'}</span></td>
-        </tr>
-    `).join('');
+// ================= YARDIMCILAR =================
+function formatMoney(amount, symbol) {
+    return symbol + amount.toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
-async function loadDashboardKPIs() {
-    if(!statClientsEl) return;
-
-    const { count: clientCount } = await supabaseClient.from('clients').select('*', { count: 'exact', head: true });
-    const { count: activeCaseCount } = await supabaseClient.from('appointments').select('*', { count: 'exact', head: true });
-    
-    const { data: paidInvoices } = await supabaseClient.from('invoices').select('amount').eq('payment_status', 'paid');
-    let totalRevenue = 0;
-    if (paidInvoices) totalRevenue = paidInvoices.reduce((sum, inv) => sum + (Number(inv.amount) || 0), 0);
-    
-    // Marketing tablosu varsa oradan çekelim, yoksa sabit değer
-    let adSpend = 0;
-    const { data: ads } = await supabaseClient.from('marketing_campaigns').select('spend');
-    if (ads && ads.length > 0) {
-        adSpend = ads.reduce((sum, ad) => sum + (Number(ad.spend) || 0), 0);
-    } else {
-        adSpend = 12500; // Örnek veri (tablo boşsa)
-    }
-
-    if(statClientsEl) statClientsEl.textContent = (clientCount || 0).toLocaleString('tr-TR');
-    if(statCasesEl) statCasesEl.textContent = (activeCaseCount || 0).toLocaleString('tr-TR');
-    if(statAdspendEl) statAdspendEl.textContent = `₺${adSpend.toLocaleString('tr-TR')}`;
+function getStatusBadge(status) {
+    const map = {
+        'lead': '<span class="status-badge badge-info">Yeni Kayıt</span>',
+        'active': '<span class="status-badge badge-warning">İşlemde</span>',
+        'completed': '<span class="status-badge badge-success">Tamamlandı</span>'
+    };
+    return map[status] || '<span class="status-badge">Diğer</span>';
 }
 
-// ===============================================
-// 7. NAVİGASYON
-// ===============================================
+// ================= MODAL & NAVİGASYON =================
+function setupEventListeners() {
+    // Para Birimi
+    if(currencySelect) {
+        currencySelect.addEventListener('change', (e) => {
+            state.currency = e.target.value;
+            initDashboard(); // Yeniden hesapla
+        });
+    }
 
-function setupNavigation() {
-    const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
-    const pages = document.querySelectorAll('.pages .page');
-
-    navItems.forEach(item => {
-        item.addEventListener('click', () => {
-            navItems.forEach(n => n.classList.remove('active'));
+    // Menü Geçişleri
+    menuItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.querySelector('.menu-item.active').classList.remove('active');
             item.classList.add('active');
-
-            const targetId = item.getAttribute('data-page');
-            pages.forEach(p => p.classList.remove('active'));
             
-            const targetPage = document.getElementById(`page-${targetId}`);
-            if (targetPage) targetPage.classList.add('active');
-
-            updatePageTitle(item);
-            
-            if (targetId === 'clients') loadClientAppointments();
-            if (targetId === 'dashboard') loadDashboardKPIs();
+            const target = item.getAttribute('data-target');
+            if(target) {
+                views.forEach(v => v.classList.remove('active'));
+                document.getElementById('view-' + target).classList.add('active');
+            }
         });
     });
+
+    // CRM Tabları
+    crmTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelector('.crm-tab.active').classList.remove('active');
+            tab.classList.add('active');
+            renderCRMTable(tab.getAttribute('data-filter'));
+        });
+    });
+
+    // Takvim
+    if(calendarBtn) calendarBtn.addEventListener('click', () => calendarPopover.classList.toggle('hidden'));
 }
 
-function updatePageTitle(item) {
-    const key = item.getAttribute('data-page');
-    if(pageTitleEl) pageTitleEl.textContent = i18n('nav_' + key);
-}
+// Global Modal Fonksiyonları
+window.openModal = (id) => document.getElementById(id).classList.remove('hidden');
+window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
+window.switchModal = (current, next) => { closeModal(current); openModal(next); };
 
-document.addEventListener("DOMContentLoaded", () => {
-    checkAuth();
-    setupNavigation();
-    if(loginForm) loginForm.addEventListener('submit', handleLogin);
-    if(logoutBtn) logoutBtn.addEventListener('click', handleLogout);
-    if(langToggleBtn) langToggleBtn.addEventListener('click', toggleLanguage);
-    applyTranslations();
-});
+// Wizard İleri/Geri
+window.wizardNext = () => {
+    const s1 = document.getElementById('wiz-step-1');
+    const s2 = document.getElementById('wiz-step-2');
+    if(!s1.classList.contains('hidden')) { s1.classList.add('hidden'); s2.classList.remove('hidden'); }
+    else { alert("Bu özellik henüz demoda aktif değil."); closeModal('modal-visa-wizard'); }
+};
+window.wizardPrev = () => {
+    const s1 = document.getElementById('wiz-step-1');
+    const s2 = document.getElementById('wiz-step-2');
+    if(!s2.classList.contains('hidden')) { s2.classList.add('hidden'); s1.classList.remove('hidden'); }
+};
