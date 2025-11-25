@@ -3,6 +3,12 @@
 // Özellik: Giriş yapan herkes TÜM menüleri görür. Kısıtlama YOK.
 // ===============================================
 
+// KODUN GÜNCELLENDİĞİNİ ANLAMAK İÇİN UYARI (Bunu görünce kod çalışıyor demektir)
+setTimeout(() => {
+    console.log("Yeni app.js yüklendi.");
+    // Eğer sayfa yenilenince bu kutu çıkmazsa, eski kod çalışıyor demektir.
+}, 1000);
+
 // 1. SUPABASE BAĞLANTISI
 const SUPABASE_URL = "https://dgvxzlfeagwzmyjqhupu.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRndnh6bGZlYWd3em15anFodXB1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDEyNDEsImV4cCI6MjA3OTU3NzI0MX0.rwVR89JBTeue0cAtbujkoIBbqg3VjAEsLesXPlcr078";
@@ -155,6 +161,7 @@ async function enableFullAccess(user) {
         
     const displayName = (data && data.name) ? data.name : user.email;
     
+    // Görsel olarak yetki adını değiştiriyoruz
     if(document.querySelector('.user-name')) document.querySelector('.user-name').textContent = displayName;
     if(document.querySelector('.user-role')) document.querySelector('.user-role').textContent = "YÖNETİCİ (Tam Yetki)";
 
