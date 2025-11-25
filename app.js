@@ -1,420 +1,514 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vizerio ERP | Bütünleşik Vize Yönetimi</title>
-    <!-- İkon Seti (FontAwesome) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts (Inter) -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- CSS Dosyası -->
-    <link rel="stylesheet" href="style.css">
-    <!-- Grafik Kütüphanesi (Chart.js) -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
+// ==========================================
+// VIZERIO ERP v3.5 - SAFE MODE & INTERACTION FIX
+// Hata Korumalı, Etkileşim Öncelikli
+// ==========================================
 
-    <!-- ANA YERLEŞİM (LAYOUT) -->
-    <div class="app-container">
-        
-        <!-- SOL MENÜ (SIDEBAR) -->
-        <aside class="sidebar">
-            <div class="brand">
-                <div class="logo-icon"><i class="fa-solid fa-plane-departure"></i></div>
-                <span class="logo-text">VIZERIO</span>
-            </div>
+// 1. SUPABASE BAĞLANTISI (HATA KORUMALI)
+const SUPABASE_URL = "https://dgvxzlfeagwzmyjqhupu.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRndnh6bGZlYWd3em15anFodXB1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDEyNDEsImV4cCI6MjA3OTU3NzI0MX0.rwVR89JBTeue0cAtbujkoIBbqg3VjAEsLesXPlcr078";
+
+let supabase = null;
+try {
+    if (window.supabase) {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        console.log("Supabase bağlantısı başarılı.");
+    } else {
+        console.error("Supabase kütüphanesi yüklenemedi! (CDN hatası olabilir)");
+        alert("Sistem hatası: Veritabanı bağlantısı kurulamadı. Sayfayı yenileyin.");
+    }
+} catch (error) {
+    console.error("Supabase başlatma hatası:", error);
+}
+
+// 2. DOM ELEMENTLERİ (GÜVENLİ SEÇİM)
+const getEl = (id) => document.getElementById(id);
+const getAll = (sel) => document.querySelectorAll(sel);
+
+const crmTableBody = getEl('crm-table-body');
+const currencySelect = getEl('currency-switch');
+const menuItems = getAll('.menu-item');
+const views = getAll('.view-section');
+const crmTabs = getAll('.crm-tab');
+const calendarBtn = getEl('btn-calendar-toggle');
+const calendarPopover = getEl('calendar-popover');
+const toggleBtns = getAll('.toggle-btn'); 
+
+// Durum Yönetimi
+const state = {
+    currency: 'TRY',
+    rates: { TRY: 1, USD: 0.035, EUR: 0.032 },
+    currentUser: null,
+    chartInstance: null
+};
+
+// ================= BAŞLATMA (ÖNCELİK ETKİLEŞİMDE) =================
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log("Uygulama başlatılıyor...");
+    
+    // 1. Önce butonları ve menüleri çalışır hale getir (Veriyi bekleme)
+    setupEventListeners();
+    
+    // 2. Tarihi ayarla
+    const dateEl = getEl('current-date');
+    if(dateEl) dateEl.innerText = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    // 3. Verileri çekmeye başla (Arka planda)
+    if (supabase) {
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                await supabase.auth.signInAnonymously();
+            } else {
+                state.currentUser = session.user;
+                updateUserProfile(session.user);
+            }
+            // Verileri yükle
+            await initDashboard();
+            await initCRM();
+        } catch (err) {
+            console.error("Veri yükleme hatası (Kritik değil):", err);
+            // Hata olsa bile boş grafik çiz ki sayfa düzgün görünsün
+            renderChart(0, 0, 0);
+        }
+    }
+});
+
+// ================= ETKİLEŞİMLER & BUTONLAR =================
+function setupEventListeners() {
+    console.log("Etkileşimler kuruluyor...");
+
+    // 1. Para Birimi
+    if(currencySelect) {
+        currencySelect.addEventListener('change', (e) => {
+            state.currency = e.target.value;
+            initDashboard();
+        });
+    }
+
+    // 2. Menü Geçişleri (Sidebar)
+    menuItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
             
-            <nav class="menu">
-                <a href="#" class="menu-item active" data-target="dashboard">
-                    <i class="fa-solid fa-chart-pie"></i>
-                    <span>Finansal Özet</span>
-                </a>
-                <a href="#" class="menu-item" data-target="crm">
-                    <i class="fa-solid fa-users"></i>
-                    <span>Operasyon & CRM</span>
-                </a>
-                <a href="#" class="menu-item">
-                    <i class="fa-solid fa-file-invoice-dollar"></i>
-                    <span>Muhasebe</span>
-                </a>
-                <a href="#" class="menu-item">
-                    <i class="fa-solid fa-gear"></i>
-                    <span>Ayarlar</span>
-                </a>
-            </nav>
-
-            <div class="user-profile">
-                <div class="avatar">YK</div>
-                <div class="info">
-                    <span class="name">Yönetici</span>
-                    <span class="role">Admin</span>
-                </div>
-            </div>
-        </aside>
-
-        <!-- SAĞ İÇERİK (MAIN CONTENT) -->
-        <main class="main-content">
+            // Aktif sınıfını değiştir
+            menuItems.forEach(el => el.classList.remove('active'));
+            item.classList.add('active');
             
-            <!-- ÜST BAŞLIK VE ARAÇLAR (HEADER) -->
-            <header class="top-header">
-                <div class="page-title">
-                    <h1 id="page-header-title">Finansal Dashboard</h1>
-                    <span class="date-badge" id="current-date">25 Kasım 2025</span>
-                </div>
-
-                <div class="header-tools">
-                    <!-- Döviz Çevirici -->
-                    <div class="currency-selector">
-                        <select id="currency-switch">
-                            <option value="TRY" selected>₺ TRY</option>
-                            <option value="USD">$ USD</option>
-                            <option value="EUR">€ EUR</option>
-                        </select>
-                    </div>
-
-                    <!-- Takvim ve Bildirim -->
-                    <button class="icon-btn" id="btn-calendar-toggle"><i class="fa-regular fa-calendar"></i></button>
-                    <button class="icon-btn"><i class="fa-regular fa-bell"></i><span class="badge">3</span></button>
-                    
-                    <!-- Hızlı İşlem Butonları -->
-                    <button class="btn btn-danger" onclick="openModal('modal-expense')"><i class="fa-solid fa-minus"></i> Gider Ekle</button>
-                    <button class="btn btn-success" onclick="openModal('modal-income-type')"><i class="fa-solid fa-plus"></i> Gelir Ekle</button>
-                </div>
-
-                <!-- GİZLİ TAKVİM (POPOVER) -->
-                <div id="calendar-popover" class="calendar-popover hidden">
-                    <div class="cal-header">
-                        <span>Kasım 2025</span>
-                        <div class="cal-nav">
-                            <i class="fa-solid fa-chevron-left"></i>
-                            <i class="fa-solid fa-chevron-right"></i>
-                        </div>
-                    </div>
-                    <div class="cal-body">
-                        <div class="cal-grid">
-                            <div class="day">1</div><div class="day">2</div><div class="day">3</div><div class="day">4</div>
-                            <div class="day today">25</div><div class="day event">26</div><div class="day">27</div>
-                        </div>
-                    </div>
-                    <div class="cal-footer">
-                        <strong>Bugün:</strong> 2 Randevu Var
-                    </div>
-                </div>
-            </header>
-
-            <!-- SAYFA GÖRÜNÜMLERİ (VIEWS) -->
-            <div id="view-container">
+            // Sayfayı değiştir
+            const target = item.getAttribute('data-target');
+            if(target) {
+                views.forEach(v => v.classList.remove('active'));
+                const targetView = getEl('view-' + target);
+                if(targetView) targetView.classList.add('active');
                 
-                <!-- GÖRÜNÜM 1: FİNANSAL DASHBOARD -->
-                <div id="view-dashboard" class="view-section active">
-                    
-                    <!-- KPI Kartları -->
-                    <div class="kpi-grid">
-                        <div class="kpi-card kpi-green">
-                            <div class="icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
-                            <div class="data">
-                                <span class="label">NET KÂR</span>
-                                <h3 class="value val-profit">₺0</h3>
-                            </div>
-                        </div>
-                        <div class="kpi-card kpi-blue">
-                            <div class="icon"><i class="fa-solid fa-wallet"></i></div>
-                            <div class="data">
-                                <span class="label">TOPLAM CİRO</span>
-                                <h3 class="value val-revenue">₺0</h3>
-                            </div>
-                        </div>
-                        <div class="kpi-card kpi-red">
-                            <div class="icon"><i class="fa-solid fa-file-invoice"></i></div>
-                            <div class="data">
-                                <span class="label">TOPLAM GİDER</span>
-                                <h3 class="value val-expense">₺0</h3>
-                            </div>
-                        </div>
-                        <div class="kpi-card kpi-orange">
-                            <div class="icon"><i class="fa-solid fa-piggy-bank"></i></div>
-                            <div class="data">
-                                <span class="label">ANLIK EMANET</span>
-                                <h3 class="value val-escrow">₺0</h3>
-                            </div>
-                        </div>
-                    </div>
+                // Başlığı güncelle
+                const headerTitle = getEl('page-header-title');
+                if(headerTitle) {
+                    if(target === 'dashboard') headerTitle.innerText = 'Finansal Dashboard';
+                    if(target === 'crm') headerTitle.innerText = 'Operasyon & CRM';
+                }
+            }
+        });
+    });
 
-                    <!-- Ana Grafik Alanı -->
-                    <div class="chart-section">
-                        <div class="chart-header">
-                            <h3>Finansal Akış</h3>
-                            <div class="chart-controls">
-                                <div class="toggles">
-                                    <button class="toggle-btn active" data-dataset="0" style="--c: #10b981">Kâr</button>
-                                    <button class="toggle-btn active" data-dataset="1" style="--c: #3b82f6">Ciro</button>
-                                    <button class="toggle-btn active" data-dataset="2" style="--c: #ef4444">Gider</button>
-                                </div>
-                                <div class="time-filters">
-                                    <button class="time-btn">1H</button>
-                                    <button class="time-btn active">1A</button>
-                                    <button class="time-btn">3A</button>
-                                    <button class="time-btn">1Y</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="chart-canvas-wrapper">
-                            <canvas id="mainFinanceChart"></canvas>
-                        </div>
-                    </div>
-                </div>
+    // 3. CRM Tabları
+    crmTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            crmTabs.forEach(el => el.classList.remove('active'));
+            tab.classList.add('active');
+            renderCRMTable(tab.getAttribute('data-filter'));
+        });
+    });
 
-                <!-- GÖRÜNÜM 2: OPERASYON VE CRM -->
-                <div id="view-crm" class="view-section">
-                    
-                    <!-- CRM Filtre Sekmeleri -->
-                    <div class="crm-filters">
-                        <button class="crm-tab active" data-filter="all">
-                            <span class="count">--</span>
-                            <span class="text">TÜM DOSYALAR</span>
-                        </button>
-                        <button class="crm-tab" data-filter="new">
-                            <span class="count">--</span>
-                            <span class="text">YENİ KAYIT</span>
-                        </button>
-                        <button class="crm-tab" data-filter="docs_pending">
-                            <span class="count">--</span>
-                            <span class="text">EVRAK BEKLEYEN</span>
-                        </button>
-                        <button class="crm-tab danger" data-filter="app_pending">
-                            <span class="count">--</span>
-                            <span class="text">RANDEVU BEKLEYEN</span>
-                        </button>
-                        <button class="crm-tab" data-filter="app_scheduled">
-                            <span class="count">--</span>
-                            <span class="text">RANDEVUSU ALINAN</span>
-                        </button>
-                        <button class="crm-tab" data-filter="processing">
-                            <span class="count">--</span>
-                            <span class="text">İŞLEMDE</span>
-                        </button>
-                        <button class="crm-tab success" data-filter="completed">
-                            <span class="count">--</span>
-                            <span class="text">SONUÇLANAN</span>
-                        </button>
-                    </div>
+    // 4. Takvim
+    if(calendarBtn) {
+        calendarBtn.addEventListener('click', () => {
+            if(calendarPopover) calendarPopover.classList.toggle('hidden');
+        });
+    }
 
-                    <!-- Müşteri Listesi Tablosu -->
-                    <div class="table-container">
-                        <table class="data-table" id="crm-table">
-                            <thead>
-                                <tr>
-                                    <th>Müşteri</th>
-                                    <th>Ülke / Vize</th>
-                                    <th>Durum</th>
-                                    <th>Finans</th>
-                                    <th>Detay</th>
-                                    <th>Temsilci</th>
-                                </tr>
-                            </thead>
-                            <tbody id="crm-table-body">
-                                <!-- JS ile doldurulacak -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+    // 5. Grafik Filtreleri
+    toggleBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            btn.classList.toggle('active');
+            const datasetIndex = parseInt(btn.getAttribute('data-dataset'));
+            if(state.chartInstance) {
+                const isVisible = state.chartInstance.isDatasetVisible(datasetIndex);
+                if (isVisible) state.chartInstance.hide(datasetIndex);
+                else state.chartInstance.show(datasetIndex);
+            }
+        });
+    });
 
-            </div>
-        </main>
-    </div>
+    // --- KAYDETME BUTONLARI (GÜVENLİ BAĞLAMA) ---
+    
+    // Gider Kaydet
+    const expenseModal = getEl('modal-expense');
+    if(expenseModal) {
+        const saveBtn = expenseModal.querySelector('.btn-danger');
+        if(saveBtn) {
+            // onclick kullanarak event listener çakışmalarını önle
+            saveBtn.onclick = (e) => { 
+                e.preventDefault(); 
+                console.log("Gider kaydet tıklandı");
+                saveExpense(); 
+            };
+        }
+    }
 
-    <!-- ================= MODALLER ================= -->
+    // Emanet Kaydet
+    const escrowModal = getEl('modal-escrow');
+    if(escrowModal) {
+        const saveBtn = escrowModal.querySelector('.btn-warning');
+        if(saveBtn) {
+            saveBtn.onclick = (e) => { 
+                e.preventDefault(); 
+                console.log("Emanet kaydet tıklandı");
+                saveEscrow(); 
+            };
+        }
+    }
+    
+    // Wizard Kâr Hesaplama
+    const priceInput = getEl('wiz-price');
+    const costInput = getEl('wiz-cost');
+    const profitDisplay = document.querySelector('.profit-preview .val-green');
+    
+    const calcProfit = () => {
+        const p = parseFloat(priceInput.value) || 0;
+        const c = parseFloat(costInput.value) || 0;
+        if(profitDisplay) profitDisplay.innerText = `₺${(p - c).toFixed(2)}`;
+    };
+    
+    if(priceInput) priceInput.addEventListener('input', calcProfit);
+    if(costInput) costInput.addEventListener('input', calcProfit);
+}
 
-    <!-- 1. GELİR TİPİ SEÇİMİ -->
-    <div id="modal-income-type" class="modal-overlay hidden">
-        <div class="modal-card sm">
-            <div class="modal-header">
-                <h3>İşlem Türü Seçiniz</h3>
-                <button class="close-btn" onclick="closeModal('modal-income-type')">&times;</button>
-            </div>
-            <div class="modal-body grid-menu">
-                <button class="big-btn blue" onclick="switchModal('modal-income-type', 'modal-visa-wizard')">
-                    <i class="fa-solid fa-passport"></i>
-                    <span>Vize Dosyası Oluştur</span>
-                </button>
-                <button class="big-btn orange" onclick="switchModal('modal-income-type', 'modal-escrow')">
-                    <i class="fa-solid fa-hand-holding-dollar"></i>
-                    <span>Emanet / Harç Girişi</span>
-                </button>
-                <button class="big-btn green" onclick="switchModal('modal-income-type', 'modal-service')">
-                    <i class="fa-solid fa-ticket"></i>
-                    <span>Ek Hizmet / Satış</span>
-                </button>
-            </div>
-        </div>
-    </div>
+// ================= SİHİRBAZ (WIZARD) =================
 
-    <!-- 2. VİZE DOSYASI SİHİRBAZI (BURAYA KAPATMA BUTONU EKLENDİ) -->
-    <div id="modal-visa-wizard" class="modal-overlay hidden">
-        <div class="modal-card md">
-            <div class="modal-header">
-                <h3>Yeni Vize Dosyası</h3>
-                <div class="wizard-steps">
-                    <span class="step active">1. Kimlik</span>
-                    <span class="step">2. Finans</span>
-                    <span class="step">3. Evrak</span>
-                </div>
-                <!-- YENİ EKLENEN KAPATMA BUTONU -->
-                <button class="close-btn" onclick="closeModal('modal-visa-wizard')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="form-visa-wizard">
-                    <!-- STEP 1 -->
-                    <div class="wizard-page" id="wiz-step-1">
-                        <div class="form-row">
-                            <div class="field">
-                                <label>Ad Soyad</label>
-                                <input type="text" required placeholder="Müşteri Adı">
-                            </div>
-                            <div class="field">
-                                <label>TC Kimlik No</label>
-                                <input type="text" placeholder="11 Haneli">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="field">
-                                <label>Gidilecek Ülke</label>
-                                <select><option>Schengen (Genel)</option><option>Almanya</option><option>ABD</option></select>
-                            </div>
-                            <div class="field">
-                                <label>Vize Tipi</label>
-                                <select><option>Turistik</option><option>Ticari</option><option>Öğrenci</option></select>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- STEP 2 -->
-                    <div class="wizard-page hidden" id="wiz-step-2">
-                        <div class="form-row">
-                            <div class="field">
-                                <label>Müşteriye Verilen Fiyat</label>
-                                <input type="number" id="wiz-price" placeholder="0.00">
-                            </div>
-                            <div class="field">
-                                <label>Tahmini Maliyet</label>
-                                <input type="number" id="wiz-cost" placeholder="0.00">
-                            </div>
-                        </div>
-                        <div class="profit-preview">
-                            Tahmini Net Kâr: <span class="val-green">₺0.00</span>
-                        </div>
-                    </div>
-                    <!-- STEP 3 -->
-                    <div class="wizard-page hidden" id="wiz-step-3">
-                        <div class="upload-area">
-                            <i class="fa-solid fa-cloud-arrow-up"></i>
-                            <p>Pasaport ve Evrakları buraya sürükleyin</p>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="wizardPrev()">Geri</button>
-                <button class="btn btn-primary" onclick="wizardNext()">İleri</button>
-            </div>
-        </div>
-    </div>
+// window nesnesine atayarak HTML onclick'ten erişilebilir yapıyoruz
+window.wizardNext = () => {
+    console.log("Wizard Next Tıklandı");
+    const s1 = getEl('wiz-step-1');
+    const s2 = getEl('wiz-step-2');
+    const s3 = getEl('wiz-step-3');
+    const btnNext = document.querySelector('#modal-visa-wizard .btn-primary');
+    const steps = document.querySelectorAll('.wizard-steps .step');
 
-    <!-- 3. GİDER GİRİŞİ -->
-    <div id="modal-expense" class="modal-overlay hidden">
-        <div class="modal-card sm">
-            <div class="modal-header">
-                <h3>Hızlı Gider Girişi</h3>
-                <button class="close-btn" onclick="closeModal('modal-expense')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form>
-                    <div class="field">
-                        <label>Kategori</label>
-                        <select>
-                            <option>Ofis Kirası</option>
-                            <option>Personel Yemek</option>
-                            <option>Reklam (Meta/Google)</option>
-                            <option>Diğer</option>
-                        </select>
-                    </div>
-                    <div class="field">
-                        <label>Tutar</label>
-                        <div class="input-group">
-                            <input type="number" placeholder="0.00">
-                            <select style="width: 80px;"><option>TRY</option><option>USD</option></select>
-                        </div>
-                    </div>
-                    <div class="field-checkbox">
-                        <input type="checkbox" id="recurring">
-                        <label for="recurring">Her ay tekrarla (Sabit Gider)</label>
-                    </div>
-                    <div class="field">
-                        <label>Fiş / Fatura Fotoğrafı</label>
-                        <input type="file">
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-danger w-100">Gideri İşle</button>
-            </div>
-        </div>
-    </div>
+    if(!s1.classList.contains('hidden')) {
+        const nameInput = s1.querySelector('input[type="text"]');
+        if(!nameInput.value) return alert("Lütfen Müşteri Adı giriniz.");
 
-    <!-- 4. EMANET / HARÇ -->
-    <div id="modal-escrow" class="modal-overlay hidden">
-        <div class="modal-card sm border-orange">
-            <div class="modal-header bg-orange-light">
-                <h3 style="color: var(--orange-dark)">Emanet Girişi</h3>
-                <button class="close-btn" onclick="closeModal('modal-escrow')">&times;</button>
-            </div>
-            <div class="warning-banner">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-                Bu tutar şirket geliri değildir, emanet hesabıdır.
-            </div>
-            <div class="modal-body">
-                <div class="field">
-                    <label>Müşteri Seç</label>
-                    <input type="text" placeholder="İsim arayın...">
-                </div>
-                <div class="field">
-                    <label>Tutar</label>
-                    <input type="number" placeholder="0.00">
-                </div>
-                <div class="field">
-                    <label>Açıklama</label>
-                    <textarea placeholder="Örn: Konsolosluk harcı için alındı"></textarea>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-warning w-100">Emanete Al</button>
-            </div>
-        </div>
-    </div>
+        s1.classList.add('hidden');
+        s2.classList.remove('hidden');
+        
+        if(steps[0]) steps[0].classList.remove('active');
+        if(steps[1]) steps[1].classList.add('active');
+        
+        if(btnNext) btnNext.innerText = "İleri";
+    }
+    else if(!s2.classList.contains('hidden')) {
+        s2.classList.add('hidden');
+        s3.classList.remove('hidden');
+        
+        if(steps[1]) steps[1].classList.remove('active');
+        if(steps[2]) steps[2].classList.add('active');
+        
+        if(btnNext) btnNext.innerText = "Kaydet ve Bitir";
+        // Kaydet butonuna tıklandığında saveVisaFile çağrılacak
+        btnNext.onclick = (e) => {
+            e.preventDefault();
+            saveVisaFile();
+        };
+    }
+    // Eğer zaten son adımdaysak (veya buton onclick'i değişmediyse)
+    else {
+        saveVisaFile();
+    }
+};
 
-    <!-- 5. MÜŞTERİ DETAY PENCERESİ -->
-    <div id="modal-customer-detail" class="modal-overlay hidden">
-        <div class="modal-card lg">
-            <div class="modal-header">
-                <div class="customer-header-info">
-                    <h3>Ahmet Yılmaz</h3>
-                    <span class="status-badge badge-warning">Randevu Bekliyor</span>
-                </div>
-                <button class="close-btn" onclick="closeModal('modal-customer-detail')">&times;</button>
-            </div>
-            <div class="modal-tabs">
-                <button class="tab-btn active">Kimlik</button>
-                <button class="tab-btn">Vize Durumu</button>
-                <button class="tab-btn">Finans</button>
-                <button class="tab-btn">Evraklar</button>
-                <button class="tab-btn">Log</button>
-            </div>
-            <div class="modal-body" style="min-height: 300px;">
-                <p style="color: #666; padding: 20px;">Müşteri detay bilgileri burada listelenir.</p>
-            </div>
-        </div>
-    </div>
+window.wizardPrev = () => {
+    const s1 = getEl('wiz-step-1');
+    const s2 = getEl('wiz-step-2');
+    const s3 = getEl('wiz-step-3');
+    const btnNext = document.querySelector('#modal-visa-wizard .btn-primary');
+    const steps = document.querySelectorAll('.wizard-steps .step');
 
-    <script src="app.js"></script>
-</body>
-</html>
+    // Butonun onclick olayını varsayılana döndür (wizardNext)
+    if(btnNext) btnNext.onclick = (e) => { e.preventDefault(); window.wizardNext(); };
+
+    if(!s2.classList.contains('hidden')) {
+        s2.classList.add('hidden');
+        s1.classList.remove('hidden');
+        if(steps[1]) steps[1].classList.remove('active');
+        if(steps[0]) steps[0].classList.add('active');
+        if(btnNext) btnNext.innerText = "İleri";
+    }
+    else if(!s3.classList.contains('hidden')) {
+        s3.classList.add('hidden');
+        s2.classList.remove('hidden');
+        if(steps[2]) steps[2].classList.remove('active');
+        if(steps[1]) steps[1].classList.add('active');
+        if(btnNext) btnNext.innerText = "İleri";
+    }
+};
+
+// ================= VERİ İŞLEMLERİ =================
+
+// 1. GİDER KAYDET
+async function saveExpense() {
+    if(!supabase) return alert("Veritabanı bağlantısı yok.");
+    const modal = getEl('modal-expense');
+    const categorySelect = modal.querySelector('select');
+    const amountInput = modal.querySelector('input[type="number"]');
+    const currencyInput = modal.querySelector('.input-group select'); 
+
+    const category = categorySelect ? categorySelect.value : 'Diğer';
+    const amount = amountInput ? amountInput.value : 0;
+    const currency = currencyInput ? currencyInput.value : 'TRY';
+
+    if (!amount || amount <= 0) return alert("Lütfen geçerli bir tutar giriniz.");
+
+    const { error } = await supabase.from('expenses').insert({
+        category, amount, currency, created_by: state.currentUser?.id
+    });
+
+    if (error) alert("Hata: " + error.message);
+    else {
+        alert("Gider kaydedildi.");
+        window.closeModal('modal-expense');
+        if(amountInput) amountInput.value = '';
+        initDashboard();
+    }
+}
+
+// 2. EMANET KAYDET
+async function saveEscrow() {
+    if(!supabase) return alert("Veritabanı bağlantısı yok.");
+    const modal = getEl('modal-escrow');
+    const clientInput = modal.querySelector('input[type="text"]');
+    const amountInput = modal.querySelector('input[type="number"]');
+    const descInput = modal.querySelector('textarea');
+
+    const clientName = clientInput ? clientInput.value : '';
+    const amount = amountInput ? amountInput.value : 0;
+    const desc = descInput ? descInput.value : '';
+
+    if (!amount || !clientName) return alert("Müşteri adı ve tutar zorunludur.");
+
+    const { data: clients } = await supabase
+        .from('clients')
+        .select('client_id')
+        .ilike('full_name', `%${clientName}%`)
+        .limit(1);
+
+    if (!clients || clients.length === 0) {
+        return alert("Müşteri bulunamadı. Lütfen tam adını CRM listesindeki gibi yazınız.");
+    }
+
+    const { error } = await supabase.from('escrow_transactions').insert({
+        client_id: clients[0].client_id,
+        amount, description: desc, created_by: state.currentUser?.id
+    });
+
+    if (error) alert("Hata: " + error.message);
+    else {
+        alert("Emanet alındı.");
+        window.closeModal('modal-escrow');
+        if(amountInput) amountInput.value = '';
+        initDashboard();
+    }
+}
+
+// 3. VİZE DOSYASI KAYDET
+async function saveVisaFile() {
+    if(!supabase) return alert("Veritabanı bağlantısı yok.");
+    const step1 = getEl('wiz-step-1');
+    const nameInput = step1.querySelector('input[type="text"]');
+    const selects = step1.querySelectorAll('select');
+    
+    const name = nameInput ? nameInput.value : '';
+    const country = selects[0] ? selects[0].value : '';
+    const type = selects[1] ? selects[1].value : '';
+
+    // Müşteri Oluştur
+    const { data: client, error: cErr } = await supabase
+        .from('clients')
+        .insert({ 
+            full_name: name, country, status: 'lead', assigned_user: state.currentUser?.id 
+        })
+        .select()
+        .single();
+
+    if (cErr) return alert("Müşteri hatası: " + cErr.message);
+
+    // Randevu Oluştur
+    const { error: aErr } = await supabase
+        .from('appointments')
+        .insert({
+            client_id: client.client_id,
+            visa_country: country,
+            visa_type: type,
+            status: 'scheduled',
+            appointment_date: new Date(),
+            created_by: state.currentUser?.id
+        });
+
+    if (aErr) alert("Dosya hatası: " + aErr.message);
+    else {
+        alert("Vize Dosyası Açıldı!");
+        window.closeModal('modal-visa-wizard');
+        initCRM();
+        initDashboard();
+        
+        // Formu sıfırla ve ilk adıma dön
+        if(nameInput) nameInput.value = '';
+        const s1 = getEl('wiz-step-1');
+        const s3 = getEl('wiz-step-3');
+        const steps = document.querySelectorAll('.wizard-steps .step');
+        const btnNext = document.querySelector('#modal-visa-wizard .btn-primary');
+        
+        s3.classList.add('hidden');
+        s1.classList.remove('hidden');
+        if(steps[2]) steps[2].classList.remove('active');
+        if(steps[0]) steps[0].classList.add('active');
+        if(btnNext) {
+            btnNext.innerText = "İleri";
+            btnNext.onclick = (e) => { e.preventDefault(); window.wizardNext(); };
+        }
+    }
+}
+
+// ================= UI & YÜKLEME =================
+async function updateUserProfile(user) {
+    if(!user) return;
+    const { data } = await supabase.from('profiles').select('name, role').eq('id', user.id).single();
+    if(data) {
+        const nameEl = document.querySelector('.user-profile .name');
+        const roleEl = document.querySelector('.user-profile .role');
+        const avatarEl = document.querySelector('.user-profile .avatar');
+        
+        if(nameEl) nameEl.innerText = data.name;
+        if(roleEl) roleEl.innerText = data.role.toUpperCase();
+        if(avatarEl) avatarEl.innerText = data.name.substring(0,2).toUpperCase();
+    }
+}
+
+async function initDashboard() {
+    if(!supabase) return;
+    const { data: incomes } = await supabase.from('invoices').select('amount').eq('payment_status', 'paid');
+    const { data: expenses } = await supabase.from('expenses').select('amount');
+    const { data: escrows } = await supabase.from('escrow_transactions').select('amount');
+
+    let totalRevenue = incomes ? incomes.reduce((acc, i) => acc + Number(i.amount), 0) : 0;
+    let totalExpense = expenses ? expenses.reduce((acc, i) => acc + Number(i.amount), 0) : 0;
+    let totalEscrow = escrows ? escrows.reduce((acc, i) => acc + Number(i.amount), 0) : 0;
+    let netProfit = totalRevenue - totalExpense;
+
+    updateKpiCards(netProfit, totalRevenue, totalExpense, totalEscrow);
+    renderChart(netProfit, totalRevenue, totalExpense);
+}
+
+function updateKpiCards(profit, revenue, expense, escrow) {
+    const symbol = state.currency === 'TRY' ? '₺' : (state.currency === 'USD' ? '$' : '€');
+    const rate = state.currency === 'TRY' ? 1 : state.rates[state.currency];
+
+    const profitEl = document.querySelector('.val-profit');
+    const revEl = document.querySelector('.val-revenue');
+    const expEl = document.querySelector('.val-expense');
+    const escEl = document.querySelector('.val-escrow');
+
+    if(profitEl) profitEl.innerText = formatMoney(profit * rate, symbol);
+    if(revEl) revEl.innerText = formatMoney(revenue * rate, symbol);
+    if(expEl) expEl.innerText = formatMoney(expense * rate, symbol);
+    if(escEl) escEl.innerText = formatMoney(escrow * rate, symbol);
+}
+
+// ================= GRAFİK =================
+function renderChart(profit, revenue, expense) {
+    const ctx = getEl('mainFinanceChart');
+    if(!ctx) return;
+
+    if (state.chartInstance) {
+        state.chartInstance.destroy();
+    }
+
+    const rate = state.currency === 'TRY' ? 1 : state.rates[state.currency];
+    
+    state.chartInstance = new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: ['Bu Ay'],
+            datasets: [
+                { label: 'Kâr', data: [profit * rate], type: 'line', borderColor: '#10b981', borderWidth: 3, pointBackgroundColor: '#fff', order: 1 },
+                { label: 'Ciro', data: [revenue * rate], backgroundColor: '#3b82f6', borderRadius: 6, order: 2 },
+                { label: 'Gider', data: [expense * rate], backgroundColor: '#ef4444', borderRadius: 6, order: 3 }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, grid: { display: true } }, x: { grid: { display: false } } }
+        }
+    });
+}
+
+// ================= CRM =================
+async function initCRM() {
+    if(!supabase) return;
+    renderCRMTable('all');
+}
+
+async function renderCRMTable(filterStatus) {
+    if(!crmTableBody) return;
+    crmTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">Yükleniyor...</td></tr>';
+
+    let query = supabase.from('clients').select('*');
+    if (filterStatus !== 'all') {
+        if(filterStatus === 'new') query = query.eq('status', 'lead');
+        else if(filterStatus === 'completed') query = query.eq('status', 'completed');
+        else query = query.eq('status', 'active'); 
+    }
+
+    const { data: clients, error } = await query;
+
+    if (error || !clients || clients.length === 0) {
+        crmTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: #94a3b8;">Kayıt bulunamadı.</td></tr>';
+        return;
+    }
+
+    crmTableBody.innerHTML = '';
+    clients.forEach(client => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong>${client.full_name}</strong><br><span style="font-size:0.8em; color:#999">${client.email || '-'}</span></td>
+            <td><i class="fa-solid fa-location-dot" style="color:#aaa"></i> ${client.country || '-'}<br>Vize</td>
+            <td>${getStatusBadge(client.status)}</td>
+            <td style="font-weight:600; color: var(--text-muted)">-</td>
+            <td>${client.phone || '-'}</td>
+            <td><div class="avatar" style="width:28px; height:28px; font-size:0.7rem; background: #cbd5e1;">UK</div></td>
+        `;
+        tr.addEventListener('dblclick', () => window.openModal('modal-customer-detail'));
+        crmTableBody.appendChild(tr);
+    });
+}
+
+// ================= YARDIMCILAR =================
+function formatMoney(amount, symbol) {
+    return symbol + amount.toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+function getStatusBadge(status) {
+    const map = {
+        'lead': '<span class="status-badge badge-info">Yeni Kayıt</span>',
+        'active': '<span class="status-badge badge-warning">İşlemde</span>',
+        'completed': '<span class="status-badge badge-success">Tamamlandı</span>'
+    };
+    return map[status] || '<span class="status-badge">Diğer</span>';
+}
+
+// ================= MODAL EXPORTS =================
+window.openModal = (id) => { const el = getEl(id); if(el) el.classList.remove('hidden'); };
+window.closeModal = (id) => { const el = getEl(id); if(el) el.classList.add('hidden'); };
+window.switchModal = (c, n) => { window.closeModal(c); window.openModal(n); };
