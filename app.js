@@ -1,6 +1,6 @@
 // ==========================================
 // VIZERIO ERP v3.0 - FRONTEND LOGIC
-// Supabase Entegrasyonu ve Dashboard Yönetimi
+// Supabase Entegrasyonu: Okuma ve Yazma (Tam Sürüm)
 // ==========================================
 
 // 1. SUPABASE BAĞLANTISI
@@ -21,14 +21,21 @@ const calendarPopover = document.getElementById('calendar-popover');
 // Durum Yönetimi
 const state = {
     currency: 'TRY',
-    rates: { TRY: 1, USD: 0.035, EUR: 0.032 }, // Güncel kurlar API'den çekilebilir
-    filter: 'all'
+    rates: { TRY: 1, USD: 0.035, EUR: 0.032 },
+    currentUser: null
 };
 
 // ================= BAŞLATMA =================
 document.addEventListener('DOMContentLoaded', async () => {
-    // Önce anonim giriş yap (Veri okumak için)
-    await supabase.auth.signInAnonymously();
+    // Anonim giriş (veya mevcut oturum)
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+        await supabase.auth.signInAnonymously();
+    } else {
+        state.currentUser = session.user;
+        // Kullanıcı bilgisini sidebar'a yaz
+        updateUserProfile(session.user);
+    }
     
     initDashboard();
     initCRM();
@@ -38,27 +45,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('current-date').innerText = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
 });
 
+async function updateUserProfile(user) {
+    const { data } = await supabase.from('profiles').select('name, role').eq('id', user.id).single();
+    if(data) {
+        document.querySelector('.user-profile .name').innerText = data.name;
+        document.querySelector('.user-profile .role').innerText = data.role.toUpperCase();
+        document.querySelector('.user-profile .avatar').innerText = data.name.substring(0,2).toUpperCase();
+    }
+}
+
 // ================= DASHBOARD (FİNANS) =================
 async function initDashboard() {
-    // 1. Gelirleri Çek (Paid Invoices)
-    const { data: incomes } = await supabase
-        .from('invoices')
-        .select('amount')
-        .eq('payment_status', 'paid');
-
-    // 2. Giderleri Çek (Expenses tablosu yoksa hata vermemesi için try-catch)
-    let expenses = [];
-    try {
-        const res = await supabase.from('expenses').select('amount');
-        if(res.data) expenses = res.data;
-    } catch (e) { console.log("Gider tablosu henüz yok."); }
-
+    // 1. Gelirleri Çek
+    const { data: incomes } = await supabase.from('invoices').select('amount').eq('payment_status', 'paid');
+    // 2. Giderleri Çek
+    const { data: expenses } = await supabase.from('expenses').select('amount');
     // 3. Emanetleri Çek
-    let escrows = [];
-    try {
-        const res = await supabase.from('escrow_transactions').select('amount');
-        if(res.data) escrows = res.data;
-    } catch (e) { console.log("Emanet tablosu henüz yok."); }
+    const { data: escrows } = await supabase.from('escrow_transactions').select('amount');
 
     // Hesaplamalar
     let totalRevenue = incomes ? incomes.reduce((acc, item) => acc + Number(item.amount), 0) : 0;
@@ -91,22 +94,15 @@ async function renderCRMTable(filterStatus) {
 
     let query = supabase.from('clients').select('*');
     
-    // Filtreleme Mantığı
     if (filterStatus !== 'all') {
-        // Veritabanındaki statüler ile UI statülerini eşleştiriyoruz
         if(filterStatus === 'new') query = query.eq('status', 'lead');
         else if(filterStatus === 'completed') query = query.eq('status', 'completed');
-        else query = query.eq('status', 'active'); // Diğerleri için şimdilik active
+        else query = query.eq('status', 'active'); 
     }
 
     const { data: clients, error } = await query;
 
-    if (error) {
-        crmTableBody.innerHTML = '<tr><td colspan="6" style="color:red">Veri çekilemedi.</td></tr>';
-        return;
-    }
-
-    if (!clients || clients.length === 0) {
+    if (error || !clients || clients.length === 0) {
         crmTableBody.innerHTML = '<tr><td colspan="6">Kayıt bulunamadı.</td></tr>';
         return;
     }
@@ -115,7 +111,7 @@ async function renderCRMTable(filterStatus) {
     clients.forEach(client => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td><strong>${client.full_name}</strong><br><span style="font-size:0.8em; color:#999">${client.email}</span></td>
+            <td><strong>${client.full_name}</strong><br><span style="font-size:0.8em; color:#999">${client.email || ''}</span></td>
             <td><i class="fa-solid fa-location-dot" style="color:#aaa"></i> ${client.country || '-'}<br>Vize</td>
             <td>${getStatusBadge(client.status)}</td>
             <td style="font-weight:600;">-</td>
@@ -138,7 +134,7 @@ function renderChart(revenue, expense) {
     financeChart = new Chart(ctx.getContext('2d'), {
         type: 'bar',
         data: {
-            labels: ['Bu Ay'], // Şimdilik tek sütun
+            labels: ['Genel Durum'],
             datasets: [
                 { label: 'Ciro', data: [revenue], backgroundColor: '#3b82f6', borderRadius: 4 },
                 { label: 'Gider', data: [expense], backgroundColor: '#ef4444', borderRadius: 4 }
@@ -151,6 +147,94 @@ function renderChart(revenue, expense) {
         }
     });
 }
+
+// ================= VERİ KAYDETME (YENİ EKLENEN KISIM) =================
+
+// 1. GİDER KAYDET
+async function saveExpense() {
+    const category = document.getElementById('exp-category').value;
+    const amount = document.getElementById('exp-amount').value;
+    const currency = document.getElementById('exp-currency').value;
+    
+    if(!amount) return alert("Tutar giriniz.");
+
+    const { error } = await supabase.from('expenses').insert([{
+        category, amount, currency, created_by: state.currentUser?.id
+    }]);
+
+    if(error) {
+        alert("Hata: " + error.message);
+    } else {
+        alert("Gider Kaydedildi!");
+        closeModal('modal-expense');
+        initDashboard(); // Paneli yenile
+    }
+}
+
+// 2. EMANET KAYDET
+async function saveEscrow() {
+    const amount = document.getElementById('esc-amount').value;
+    const desc = document.getElementById('esc-desc').value;
+    
+    // İlk müşteriye atayalım (Demo için)
+    const { data: client } = await supabase.from('clients').select('client_id').limit(1).single();
+    
+    if(!amount) return alert("Tutar giriniz.");
+
+    const { error } = await supabase.from('escrow_transactions').insert([{
+        client_id: client?.client_id,
+        amount, 
+        description: desc,
+        created_by: state.currentUser?.id
+    }]);
+
+    if(error) {
+        alert("Hata: " + error.message);
+    } else {
+        alert("Emanet Alındı!");
+        closeModal('modal-escrow');
+        initDashboard(); // Paneli yenile
+    }
+}
+
+// 3. VİZE DOSYASI KAYDET (Sihirbaz Sonu)
+async function saveVisaFile() {
+    const name = document.querySelector('#wiz-step-1 input[placeholder="Müşteri Adı"]').value;
+    const country = document.querySelector('#wiz-step-1 select').value;
+    
+    if(!name) return alert("Müşteri adı zorunludur.");
+
+    // a) Müşteriyi Oluştur
+    const { data: client, error: cErr } = await supabase
+        .from('clients')
+        .insert([{ full_name: name, country: country, status: 'lead', assigned_user: state.currentUser?.id }])
+        .select()
+        .single();
+
+    if(cErr) return alert("Müşteri hatası: " + cErr.message);
+
+    // b) Randevu/Dosya Oluştur
+    const { error: aErr } = await supabase
+        .from('appointments')
+        .insert([{
+            client_id: client.client_id,
+            visa_country: country,
+            status: 'scheduled',
+            appointment_date: new Date(),
+            created_by: state.currentUser?.id
+        }]);
+
+    if(aErr) {
+        alert("Dosya hatası: " + aErr.message);
+    } else {
+        alert("Vize Dosyası ve Müşteri Oluşturuldu!");
+        closeModal('modal-visa-wizard');
+        initCRM(); // Listeyi yenile
+        // Dashboard sayısını da yenilemek için
+        initDashboard();
+    }
+}
+
 
 // ================= YARDIMCILAR =================
 function formatMoney(amount, symbol) {
@@ -166,13 +250,13 @@ function getStatusBadge(status) {
     return map[status] || '<span class="status-badge">Diğer</span>';
 }
 
-// ================= MODAL & NAVİGASYON =================
+// ================= MODAL & NAVİGASYON & EVENTLER =================
 function setupEventListeners() {
     // Para Birimi
     if(currencySelect) {
         currencySelect.addEventListener('change', (e) => {
             state.currency = e.target.value;
-            initDashboard(); // Yeniden hesapla
+            initDashboard();
         });
     }
 
@@ -202,6 +286,32 @@ function setupEventListeners() {
 
     // Takvim
     if(calendarBtn) calendarBtn.addEventListener('click', () => calendarPopover.classList.toggle('hidden'));
+    
+    // --- FORM SUBMIT BUTONLARINI BAĞLA ---
+    
+    // Gider Butonu
+    const btnSaveExpense = document.querySelector('#modal-expense .btn-danger');
+    if(btnSaveExpense) {
+        // Input ID'lerini HTML'e eklememiz lazım, burada dinamik ekliyoruz veya HTML güncellenmeli.
+        // Kolaylık olsun diye parentElement'ten bulalım veya HTML'e ID verelim.
+        // Biz HTML'e ID eklemedik, o yüzden querySelector ile bulalım.
+        const inputs = document.querySelectorAll('#modal-expense input, #modal-expense select');
+        // inputs[0]: Kategori, inputs[1]: Tutar, inputs[2]: Para Birimi
+        inputs[0].id = 'exp-category';
+        inputs[1].id = 'exp-amount';
+        inputs[2].id = 'exp-currency';
+        btnSaveExpense.onclick = (e) => { e.preventDefault(); saveExpense(); };
+    }
+
+    // Emanet Butonu
+    const btnSaveEscrow = document.querySelector('#modal-escrow .btn-warning');
+    if(btnSaveEscrow) {
+        const inputs = document.querySelectorAll('#modal-escrow input, #modal-escrow textarea');
+        // inputs[1]: Tutar (0: search), inputs[2]: Desc
+        inputs[1].id = 'esc-amount';
+        inputs[2].id = 'esc-desc';
+        btnSaveEscrow.onclick = (e) => { e.preventDefault(); saveEscrow(); };
+    }
 }
 
 // Global Modal Fonksiyonları
@@ -213,11 +323,27 @@ window.switchModal = (current, next) => { closeModal(current); openModal(next); 
 window.wizardNext = () => {
     const s1 = document.getElementById('wiz-step-1');
     const s2 = document.getElementById('wiz-step-2');
-    if(!s1.classList.contains('hidden')) { s1.classList.add('hidden'); s2.classList.remove('hidden'); }
-    else { alert("Bu özellik henüz demoda aktif değil."); closeModal('modal-visa-wizard'); }
+    const btnNext = document.querySelector('#modal-visa-wizard .btn-primary');
+
+    if(!s1.classList.contains('hidden')) { 
+        s1.classList.add('hidden'); 
+        s2.classList.remove('hidden');
+        if(btnNext) btnNext.innerText = "Kaydet ve Bitir";
+    }
+    else { 
+        // SON ADIM: KAYDET
+        saveVisaFile();
+    }
 };
+
 window.wizardPrev = () => {
     const s1 = document.getElementById('wiz-step-1');
     const s2 = document.getElementById('wiz-step-2');
-    if(!s2.classList.contains('hidden')) { s2.classList.add('hidden'); s1.classList.remove('hidden'); }
+    const btnNext = document.querySelector('#modal-visa-wizard .btn-primary');
+    
+    if(!s2.classList.contains('hidden')) { 
+        s2.classList.add('hidden'); 
+        s1.classList.remove('hidden'); 
+        if(btnNext) btnNext.innerText = "İleri";
+    }
 };
