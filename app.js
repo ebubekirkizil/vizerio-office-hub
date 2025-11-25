@@ -1,13 +1,6 @@
 // ===============================================
-// VIZERIO OFFICE HUB - APP.JS (TAM YETKİ VERSİYONU)
-// Özellik: Giriş yapan herkes TÜM menüleri görür. Kısıtlama YOK.
+// VIZERIO OFFICE HUB - APP.JS (GÜNCEL İSİMLENDİRMELER)
 // ===============================================
-
-// KODUN GÜNCELLENDİĞİNİ ANLAMAK İÇİN UYARI (Bunu görünce kod çalışıyor demektir)
-setTimeout(() => {
-    console.log("Yeni app.js yüklendi.");
-    // Eğer sayfa yenilenince bu kutu çıkmazsa, eski kod çalışıyor demektir.
-}, 1000);
 
 // 1. SUPABASE BAĞLANTISI
 const SUPABASE_URL = "https://dgvxzlfeagwzmyjqhupu.supabase.co";
@@ -22,7 +15,6 @@ const loginScreen = document.getElementById("login-screen");
 const appShell = document.getElementById("app-shell");
 const logoutBtn = document.getElementById("logoutBtn");
 const userRoleEl = document.querySelector('.user-role');
-const userNameEl = document.querySelector('.user-name');
 const pageTitleEl = document.getElementById('page-title');
 const langToggleBtn = document.getElementById("langToggle"); 
 
@@ -35,52 +27,64 @@ const statAdspendEl = document.getElementById('stat-adspend');
 let currentUser = null;
 
 // ===============================================
-// 3. ÇEVİRİ SİSTEMİ
+// 3. ÇEVİRİ SİSTEMİ (GÜNCELLENDİ)
 // ===============================================
 
 const TRANSLATIONS = {
   tr: {
     app_name: "Vizerio Office Hub",
+    
+    // --- MENÜ İSİMLERİ (GÜNCELLENDİ) ---
     nav_dashboard: "Gösterge Paneli",
-    nav_clients: "Müşteriler & Dosyalar",
+    nav_clients: "Müşteri Takip",       // Eski: Müşteriler & Dosyalar
     nav_visa: "Vize Randevuları",
-    nav_accounting: "Muhasebe",
+    nav_accounting: "Muhasebe & Finans", // Eski: Muhasebe
     nav_marketing: "Pazarlama & Reklam",
     nav_activity: "Aktivite Kayıtları",
     nav_settings: "Ayarlar",
     nav_logout: "Çıkış Yap",
+
+    // Login
     login_subtitle: "Dahili Operasyon Paneli",
     login_emailLabel: "E-posta",
     login_passwordLabel: "Şifre",
     login_signIn: "Giriş Yap",
     login_error_credentials: "Giriş başarısız. Bilgileri kontrol et.",
+    
+    // Başlıklar
     top_subtitle: "Tam kapsamlı yönetim paneli",
     kpi_today: "Bugün",
     dashboard_pipelineTitle: "İş Akışı Özeti",
     dashboard_statClients: "Aktif Müşteri",
     dashboard_statCases: "Aktif Dosya",
     dashboard_statAdspend: "Reklam (₺)",
-    clients_title: "Müşteriler & Randevular",
+    
+    // Sayfa Başlıkları (Tutarlılık için güncellendi)
+    clients_title: "Müşteri Takip", 
     clients_clientsTable: "Aktif Vize Dosyaları",
     clients_colName: "Müşteri Adı",
     visa_colCountry: "Vize Ülkesi",
     visa_colDate: "Randevu Tarihi",
     visa_colCenter: "Başvuru Merkezi",
     clients_colStatus: "Durum",
+    
     marketing_title: "Pazarlama",
     marketing_campaignsTable: "Aktif Kampanyalar",
     footer_demoNote: "Vizerio v1.0"
   },
   en: {
     app_name: "Vizerio Office Hub",
+    
+    // --- MENU NAMES (UPDATED) ---
     nav_dashboard: "Dashboard",
-    nav_clients: "Clients & Cases",
+    nav_clients: "Client Tracking",      // Updated
     nav_visa: "Visa Appointments",
-    nav_accounting: "Accounting",
+    nav_accounting: "Accounting & Finance", // Updated
     nav_marketing: "Marketing & Ads",
     nav_activity: "Activity Logs",
     nav_settings: "Settings",
     nav_logout: "Logout",
+
     login_subtitle: "Internal Operations Panel",
     login_emailLabel: "Email",
     login_passwordLabel: "Password",
@@ -92,7 +96,7 @@ const TRANSLATIONS = {
     dashboard_statClients: "Active Clients",
     dashboard_statCases: "Active Cases",
     dashboard_statAdspend: "Ad Spend",
-    clients_title: "Clients",
+    clients_title: "Client Tracking",
     clients_clientsTable: "Active Visa Cases",
     clients_colName: "Client Name",
     visa_colCountry: "Visa Country",
@@ -123,12 +127,14 @@ function applyTranslations() {
             el.textContent = text;
         }
     });
-    // Sidebar menülerini güncelle
+    // Sidebar menülerini güncelle (ikon varsa koru)
     document.querySelectorAll('.sidebar-nav .nav-item span').forEach(span => {
         const parent = span.closest('.nav-item');
         if(parent) {
             const page = parent.getAttribute('data-page');
-            span.textContent = i18n('nav_' + page);
+            // Eğer çeviri varsa güncelle
+            const translation = i18n('nav_' + page);
+            if (translation) span.textContent = translation;
         }
     });
 
@@ -145,14 +151,13 @@ function toggleLanguage() {
 }
 
 // ===============================================
-// 4. TAM YETKİ FONKSİYONU (KISITLAMA YOK)
+// 4. TAM YETKİ FONKSİYONU
 // ===============================================
 
-async function enableFullAccess(user) {
+async function forceAdminAccess(user) {
     if (!user) return;
     currentUser = user;
 
-    // Kullanıcı adını çek (Sadece görsel amaçlı)
     let { data } = await supabaseClient
         .from('profiles')
         .select('name')
@@ -161,14 +166,13 @@ async function enableFullAccess(user) {
         
     const displayName = (data && data.name) ? data.name : user.email;
     
-    // Görsel olarak yetki adını değiştiriyoruz
     if(document.querySelector('.user-name')) document.querySelector('.user-name').textContent = displayName;
-    if(document.querySelector('.user-role')) document.querySelector('.user-role').textContent = "YÖNETİCİ (Tam Yetki)";
+    if(document.querySelector('.user-role')) document.querySelector('.user-role').textContent = "YÖNETİCİ";
 
-    // TÜM MENÜLERİ GÖSTER (KİLİT NOKTA BURASI)
     const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
     navItems.forEach(item => {
-        item.style.display = 'flex'; // Hepsini görünür yap
+        item.style.display = 'flex';
+        item.style.visibility = 'visible';
     });
 }
 
@@ -196,9 +200,8 @@ async function handleLogin(e) {
     statusEl.classList.add('ok');
     
     setAppVisibility(true);
-    await enableFullAccess(data.user);
+    await forceAdminAccess(data.user);
     
-    // Verileri yükle
     loadDashboardKPIs();
     loadClientAppointments();
 
@@ -228,7 +231,7 @@ async function checkAuth() {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (session) {
         setAppVisibility(true);
-        await enableFullAccess(session.user);
+        await forceAdminAccess(session.user);
         
         loadDashboardKPIs();
         loadClientAppointments();
@@ -257,8 +260,13 @@ async function loadClientAppointments() {
         `)
         .order('appointment_date', { ascending: true });
 
-    if (error || !appointments || appointments.length === 0) {
-        casesTableBody.innerHTML = `<tr><td colspan="5">Kayıt yok veya hata oluştu.</td></tr>`;
+    if (error) {
+        casesTableBody.innerHTML = `<tr><td colspan="5" style="color: #ff6b6b;">Hata oluştu.</td></tr>`;
+        return;
+    }
+
+    if (!appointments || appointments.length === 0) {
+        casesTableBody.innerHTML = `<tr><td colspan="5">Kayıt bulunamadı.</td></tr>`;
         return;
     }
 
@@ -278,17 +286,21 @@ async function loadClientAppointments() {
 async function loadDashboardKPIs() {
     if(!statClientsEl) return;
 
-    // 1. Toplam Müşteri
     const { count: clientCount } = await supabaseClient.from('clients').select('*', { count: 'exact', head: true });
-    // 2. Aktif Dosyalar
     const { count: activeCaseCount } = await supabaseClient.from('appointments').select('*', { count: 'exact', head: true });
-    // 3. Toplam Gelir
-    const { data: paidInvoices } = await supabaseClient.from('invoices').select('amount').eq('payment_status', 'paid');
     
+    const { data: paidInvoices } = await supabaseClient.from('invoices').select('amount').eq('payment_status', 'paid');
     let totalRevenue = 0;
     if (paidInvoices) totalRevenue = paidInvoices.reduce((sum, inv) => sum + (Number(inv.amount) || 0), 0);
     
-    const adSpend = 12500; // Örnek veri
+    // Marketing tablosu varsa oradan çekelim, yoksa sabit değer
+    let adSpend = 0;
+    const { data: ads } = await supabaseClient.from('marketing_campaigns').select('spend');
+    if (ads && ads.length > 0) {
+        adSpend = ads.reduce((sum, ad) => sum + (Number(ad.spend) || 0), 0);
+    } else {
+        adSpend = 12500; // Örnek veri (tablo boşsa)
+    }
 
     if(statClientsEl) statClientsEl.textContent = (clientCount || 0).toLocaleString('tr-TR');
     if(statCasesEl) statCasesEl.textContent = (activeCaseCount || 0).toLocaleString('tr-TR');
