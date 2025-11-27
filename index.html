@@ -101,19 +101,19 @@
                 <div class="summary-cards">
                     <div class="card border-green">
                         <div class="card-title">NET KÂR (BU AY)</div>
-                        <div class="money" id="money-profit">₺ 0</div>
+                        <div class="money" id="money-profit">₺ 0,00</div>
                     </div>
                     <div class="card border-blue">
                         <div class="card-title">TOPLAM CİRO</div>
-                        <div class="money" id="money-income">₺ 0</div>
+                        <div class="money" id="money-income">₺ 0,00</div>
                     </div>
                     <div class="card border-red">
                         <div class="card-title">TOPLAM GİDER</div>
-                        <div class="money" id="money-expense">₺ 0</div>
+                        <div class="money" id="money-expense">₺ 0,00</div>
                     </div>
                     <div class="card border-orange">
                         <div class="card-title">⚠️ EMANET BAKİYE</div>
-                        <div class="money" id="money-escrow">€ 0</div>
+                        <div class="money" id="money-escrow">€ 0,00</div>
                     </div>
                 </div>
 
@@ -163,35 +163,148 @@
     </div>
 
     <div class="modal-overlay" id="modal-income">
-        <div class="modal-box">
+        <div class="modal-box" style="width: 700px;"> 
             <div class="modal-header">
-                <h3>Yeni Vize Dosyası (Gelir)</h3>
+                <h3>Yeni Vize Dosyası Oluştur</h3>
                 <button class="close-btn" onclick="ui.closeModal('modal-income')">&times;</button>
             </div>
+            
             <div class="modal-body">
-                <div class="step-indicator">
-                    <div class="step active">1</div>
-                    <div class="step">2</div>
-                    <div class="step">3</div>
+                <div class="wizard-steps">
+                    <div class="w-step active" id="w-step-1-indicator">1. Kimlik & Seyahat</div>
+                    <div class="w-step" id="w-step-2-indicator">2. Finans & Ödeme</div>
+                    <div class="w-step" id="w-step-3-indicator">3. Evrak Yükleme</div>
                 </div>
-                <form id="form-income">
-                    <div class="form-group">
-                        <label>Müşteri Adı Soyadı</label>
-                        <input type="text" class="form-control" placeholder="Örn: Ahmet Yılmaz">
-                    </div>
-                    <div style="display:flex; gap:10px;">
-                        <div class="form-group" style="flex:1;">
-                            <label>Gidilecek Ülke</label>
-                            <select class="form-control"><option>🇩🇪 Almanya</option><option>🇫🇷 Fransa</option></select>
+
+                <form id="form-visa-wizard">
+                    
+                    <div class="wizard-page" id="w-step-1">
+                        <div style="display: flex; gap: 20px;">
+                            <div class="photo-upload-area">
+                                <div class="photo-circle" onclick="document.getElementById('customer-photo').click()">
+                                    <span class="material-icons-round">add_a_photo</span>
+                                    <img id="photo-preview" src="" style="display:none;">
+                                </div>
+                                <input type="file" id="customer-photo" style="display: none;" onchange="crm.previewPhoto(this)">
+                                <small>Fotoğraf Yükle</small>
+                            </div>
+
+                            <div style="flex: 1;">
+                                <div class="form-row">
+                                    <div class="form-group half">
+                                        <label>Ad Soyad *</label>
+                                        <input type="text" class="form-control" id="v-name" placeholder="Pasaporttaki gibi" required>
+                                    </div>
+                                    <div class="form-group half">
+                                        <label>TC Kimlik / Pasaport No *</label>
+                                        <input type="text" class="form-control" id="v-passport" placeholder="U12345678">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group half">
+                                        <label>Telefon</label>
+                                        <input type="text" class="form-control" id="v-phone" placeholder="05XX...">
+                                    </div>
+                                    <div class="form-group half">
+                                        <label>Doğum Tarihi</label>
+                                        <input type="date" class="form-control" id="v-dob">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group" style="flex:1;">
-                            <label>Vize Tipi</label>
-                            <select class="form-control"><option>Turistik</option><option>Ticari</option></select>
+
+                        <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 15px 0;">
+
+                        <div class="form-row">
+                            <div class="form-group half">
+                                <label>Gidilecek Ülke</label>
+                                <select class="form-control" id="v-country">
+                                    <option value="DE">🇩🇪 Almanya</option>
+                                    <option value="FR">🇫🇷 Fransa</option>
+                                    <option value="IT">🇮🇹 İtalya</option>
+                                    <option value="US">🇺🇸 Amerika (ABD)</option>
+                                    <option value="GB">🇬🇧 İngiltere</option>
+                                </select>
+                            </div>
+                            <div class="form-group half">
+                                <label>Vize Tipi</label>
+                                <select class="form-control" id="v-type">
+                                    <option>Turistik</option>
+                                    <option>Ticari</option>
+                                    <option>Aile Ziyareti</option>
+                                    <option>Öğrenci</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="wizard-buttons">
+                            <button type="button" class="btn btn-secondary" onclick="ui.closeModal('modal-income')">İptal</button>
+                            <button type="button" class="btn btn-blue" onclick="crm.nextStep(2)">İleri ></button>
                         </div>
                     </div>
-                    <div style="text-align:right; margin-top:20px;">
-                        <button type="button" class="btn btn-green">İleri ></button>
+
+                    <div class="wizard-page" id="w-step-2" style="display:none;">
+                        <div class="finance-box">
+                            <div class="form-group">
+                                <label>Müşteriye Verilen Fiyat (Tahsil Edilecek)</label>
+                                <div class="input-with-icon">
+                                    <input type="number" class="form-control" id="v-price" placeholder="0.00" oninput="crm.calculateProfit()">
+                                    <select class="currency-small" id="v-currency" onchange="crm.calculateProfit()"><option>EUR</option><option>USD</option></select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group half">
+                                    <label>Öngörülen Harç Gideri</label>
+                                    <input type="number" class="form-control" id="v-cost-fee" placeholder="Konsolosluk" oninput="crm.calculateProfit()">
+                                </div>
+                                <div class="form-group half">
+                                    <label>Diğer Giderler (Sigorta vb.)</label>
+                                    <input type="number" class="form-control" id="v-cost-other" placeholder="Hizmetler" oninput="crm.calculateProfit()">
+                                </div>
+                            </div>
+
+                            <div class="profit-display">
+                                <span>Tahmini Net Kâr:</span>
+                                <strong id="v-profit-display" style="color:var(--green-profit); font-size:18px;">0.00 EUR</strong>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top:15px;">
+                            <label>Ödeme Durumu</label>
+                            <select class="form-control" id="v-payment-status">
+                                <option value="unpaid">❌ Henüz Ödenmedi</option>
+                                <option value="paid">✅ Peşin Alındı (Kasa Girişi Yap)</option>
+                            </select>
+                        </div>
+
+                        <div class="wizard-buttons">
+                            <button type="button" class="btn btn-secondary" onclick="crm.prevStep(1)">< Geri</button>
+                            <button type="button" class="btn btn-blue" onclick="crm.nextStep(3)">İleri ></button>
+                        </div>
                     </div>
+
+                    <div class="wizard-page" id="w-step-3" style="display:none;">
+                        <div class="upload-zone" onclick="document.getElementById('v-files').click()">
+                            <span class="material-icons-round" style="font-size:40px; color:#cbd5e1;">cloud_upload</span>
+                            <p>Pasaport ve Evrakları Buraya Sürükleyin</p>
+                            <small>(veya tıklayıp seçin)</small>
+                            <input type="file" id="v-files" multiple style="display:none;">
+                        </div>
+                        
+                        <div id="file-list" style="margin-top:15px; font-size:13px; color:#666;"></div>
+
+                        <div class="form-group" style="margin-top:20px;">
+                            <label>Dosya Notu</label>
+                            <textarea class="form-control" rows="2" placeholder="Örn: Müşteri eski pasaportunu sonra getirecek..."></textarea>
+                        </div>
+
+                        <div class="wizard-buttons">
+                            <button type="button" class="btn btn-secondary" onclick="crm.prevStep(2)">< Geri</button>
+                            <button type="submit" class="btn btn-green">✅ KAYDET VE BİTİR</button>
+                        </div>
+                    </div>
+
                 </form>
             </div>
         </div>
