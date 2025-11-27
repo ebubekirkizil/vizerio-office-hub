@@ -1,1 +1,51 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Giriş Yap - Vizerio</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; background: #1e293b; }
+        .login-box { background: white; padding: 40px; border-radius: 12px; width: 350px; text-align: center; }
+        .login-box h2 { margin-top: 0; color: #1e293b; }
+        .form-control { margin-bottom: 15px; }
+        .btn-blue { width: 100%; justify-content: center; }
+    </style>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="login-box">
+        <h2>Vizerio Office</h2>
+        <p style="color:#666; margin-bottom:20px;">Yönetim Paneli Girişi</p>
+        
+        <input type="email" id="email" class="form-control" placeholder="E-Posta Adresi">
+        <input type="password" id="password" class="form-control" placeholder="Şifre">
+        
+        <button class="btn btn-blue" onclick="handleLogin()">GİRİŞ YAP</button>
+        <p id="error-msg" style="color:red; font-size:12px; margin-top:10px;"></p>
+    </div>
 
+    <script src="js/supabase.js"></script>
+    <script>
+        async function handleLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const msg = document.getElementById('error-msg');
+
+            msg.innerText = "Giriş yapılıyor...";
+
+            const { data, error } = await window.supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
+
+            if (error) {
+                msg.innerText = "Hata: " + error.message;
+            } else {
+                msg.innerText = "Başarılı! Yönlendiriliyorsunuz...";
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>
