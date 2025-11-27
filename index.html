@@ -15,73 +15,103 @@
 </head>
 <body>
 
-    <div id="loading-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#f3f4f6; display:flex; justify-content:center; align-items:center; z-index:9999;">
-        <div style="text-align:center;">
-            <h2 style="color:#1e293b;">Vizerio</h2>
-            <p>Sistem Yükleniyor...</p>
-        </div>
-    </div>
-
-    <div class="app-container" style="display:none;" id="main-app">
+    <div class="app-container">
+        
         <aside class="sidebar">
             <div class="logo-area">
                 <h2>VIZERIO</h2>
-                <span>Yönetim Paneli</span>
+                <span>Office Hub v2.0</span>
             </div>
             
             <nav class="menu">
-                <a href="#" class="menu-item active" id="nav-finance" onclick="window.ui.switchTab('finance')">
+                <div class="menu-item active" onclick="app.switchTab('finance')">
                     <span class="material-icons-round">dashboard</span> Finans & Muhasebe
-                </a>
-                <a href="#" class="menu-item" id="nav-crm" onclick="window.ui.switchTab('crm')">
-                    <span class="material-icons-round">people</span> Müşteri & Vize
-                </a>
-                <a href="#" class="menu-item">
-                    <span class="material-icons-round">bar_chart</span> Raporlar
-                </a>
-                <a href="#" class="menu-item">
-                    <span class="material-icons-round">settings</span> Ayarlar
-                </a>
-                <a href="#" class="menu-item text-red" onclick="window.auth.logout()">
-                    <span class="material-icons-round">logout</span> Çıkış Yap
-                </a>
-            </nav>
-
-            <div class="user-profile">
-                <div class="avatar" id="user-avatar">YÖ</div>
-                <div class="user-info">
-                    <strong id="user-name">Yönetici</strong>
-                    <small id="user-role">Admin</small>
                 </div>
-            </div>
+                <div class="menu-item" onclick="app.switchTab('crm')">
+                    <span class="material-icons-round">people</span> Müşteri & Operasyon
+                </div>
+                <div class="menu-item" onclick="alert('Raporlar Yakında...')">
+                    <span class="material-icons-round">bar_chart</span> Raporlar
+                </div>
+                <div class="menu-item" onclick="alert('Ayarlar Yakında...')">
+                    <span class="material-icons-round">settings</span> Ayarlar
+                </div>
+                <div class="menu-item text-red" style="margin-top: auto;">
+                    <span class="material-icons-round">logout</span> Çıkış Yap
+                </div>
+            </nav>
         </aside>
 
         <main class="main-content">
+            
             <header class="top-header">
                 <div class="search-bar">
                     <span class="material-icons-round">search</span>
-                    <input type="text" placeholder="Ara..." id="global-search">
+                    <input type="text" placeholder="Müşteri ara...">
                 </div>
                 <div class="header-tools">
-                    <div class="currency-selector">
-                        <select id="currencySelect" onchange="window.ui.updateCurrency()">
-                            <option value="TRY">₺ TRY</option>
-                            <option value="USD">$ USD</option>
-                            <option value="EUR">€ EUR</option>
-                        </select>
-                    </div>
+                    <select style="padding: 5px; border-radius: 5px; border: 1px solid #ddd;">
+                        <option>₺ TRY</option>
+                        <option>$ USD</option>
+                        <option>€ EUR</option>
+                    </select>
+                    <button class="icon-btn" onclick="alert('Takvim Açılacak')">
+                        <span class="material-icons-round">calendar_today</span>
+                    </button>
+                    <button class="icon-btn">
+                        <span class="material-icons-round">notifications</span>
+                    </button>
                 </div>
             </header>
 
-            <div id="section-finance" class="content-section active">
-                <h1>Finans Modülü Yükleniyor...</h1>
-            </div>
+            <section id="section-finance" class="content-section active">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h1>Finansal Durum</h1>
+                    <div>
+                        <button class="btn btn-green"><span class="material-icons-round">add</span> GELİR GİRİŞİ (Vize)</button>
+                        <button class="btn btn-red" style="margin-left: 10px;"><span class="material-icons-round">remove</span> GİDER EKLE</button>
+                    </div>
+                </div>
 
-            <div id="section-crm" class="content-section" style="display:none;">
-                <h1>Müşteri Takip Modülü Yükleniyor...</h1>
-            </div>
+                <div class="summary-cards">
+                    <div class="card border-green">
+                        <div class="card-title">NET KÂR (BU AY)</div>
+                        <div class="money">₺ 85.000</div>
+                    </div>
+                    <div class="card border-blue">
+                        <div class="card-title">TOPLAM CİRO</div>
+                        <div class="money">₺ 250.000</div>
+                    </div>
+                    <div class="card border-red">
+                        <div class="card-title">TOPLAM GİDER</div>
+                        <div class="money">₺ 165.000</div>
+                    </div>
+                    <div class="card border-orange">
+                        <div class="card-title">⚠️ EMANET BAKİYE</div>
+                        <div class="money">€ 4.500</div>
+                    </div>
+                </div>
+                
+                <div class="card" style="height: 300px; display: flex; align-items: center; justify-content: center; color: #999;">
+                    [ GRAFİK ALANI BURAYA GELECEK ]
+                </div>
+            </section>
+
+            <section id="section-crm" class="content-section">
+                <h1>Müşteri Takip & Operasyon</h1>
+                <p>Burası Operasyon Ekranı olacak...</p>
+            </section>
+
         </main>
     </div>
 
-    <script src="js/supabase.js"></script>   <script src="js/ui.js"></script>         <script src="js/auth.js"></script>       <script src="js/accounting.js"></script> <script src="js/crm.js"></script>        <script src="js/app.js"></script>        </body>
+    <script src="js/supabase.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/accounting.js"></script>
+    <script src="js/crm.js"></script>
+    
+    <script src="js/app.js"></script>
+
+</body>
 </html>
