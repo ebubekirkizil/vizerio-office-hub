@@ -87,3 +87,42 @@ body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-c
 }
 .selection-card:hover { border-color: var(--blue-info); background: #eff6ff; }
 .selection-card span { font-size: 30px; }
+
+/* --- WIZARD (Sihirbaz) TASARIMI --- */
+.wizard-steps { display: flex; border-bottom: 1px solid #f1f5f9; margin-bottom: 20px; padding-bottom: 10px; }
+.w-step { flex: 1; text-align: center; font-size: 13px; color: #94a3b8; font-weight: 600; padding: 5px; border-bottom: 2px solid transparent; transition: 0.3s; }
+.w-step.active { color: var(--blue-info); border-bottom-color: var(--blue-info); }
+
+.wizard-page { animation: fadeIn 0.3s; }
+.wizard-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; border-top: 1px solid #f1f5f9; padding-top: 15px; }
+
+/* Form Düzeni */
+.form-row { display: flex; gap: 15px; }
+.form-group.half { flex: 1; }
+.btn-secondary { background: #e2e8f0; color: #475569; }
+
+/* Fotoğraf Yükleme Alanı */
+.photo-upload-area { text-align: center; width: 100px; }
+.photo-circle { 
+    width: 80px; height: 80px; background: #f1f5f9; border-radius: 50%; 
+    display: flex; align-items: center; justify-content: center; 
+    cursor: pointer; overflow: hidden; border: 2px dashed #cbd5e1; margin: 0 auto 5px;
+    transition: 0.2s;
+}
+.photo-circle:hover { border-color: var(--blue-info); color: var(--blue-info); }
+.photo-circle img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Finans Kutusu */
+.finance-box { background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; }
+.input-with-icon { display: flex; }
+.input-with-icon input { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.currency-small { border: 1px solid #e2e8f0; border-left: none; background: white; padding: 0 10px; border-top-right-radius: 6px; border-bottom-right-radius: 6px; font-weight: bold; color: #64748b; }
+.profit-display { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #cbd5e1; }
+
+/* Dosya Yükleme */
+.upload-zone { 
+    border: 2px dashed #cbd5e1; border-radius: 8px; padding: 30px; 
+    text-align: center; cursor: pointer; color: #64748b; background: #f8fafc;
+    transition: 0.2s;
+}
+.upload-zone:hover { border-color: var(--blue-info); background: #eff6ff; }
