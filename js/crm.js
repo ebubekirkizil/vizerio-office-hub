@@ -1,12 +1,82 @@
-// js/crm.js - Müşteri Operasyonları (GÜNCEL)
+// js/crm.js - CRM ve Vize Operasyonları (FULL)
 
 window.crm = {
     
-    // --- ÇEKMECE (DRAWER) KONTROLLERİ ---
+    // --- 1. LİSTEYİ SUPABASE'DEN ÇEK ---
+    loadCrmList: async function(filterStatus = 'all') {
+        const tbody = document.getElementById('crm-table-body');
+        if(!tbody) return;
+
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#999;">Yükleniyor...</td></tr>';
+
+        // Müşteri ve Vize bilgilerini birleştirerek çek
+        const { data: list, error } = await window.supabaseClient
+            .from('visas')
+            .select(`
+                *,
+                customers (full_name, passport_no)
+            `)
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error("Hata:", error);
+            tbody.innerHTML = '<tr><td colspan="5" style="color:red; text-align:center;">Veri çekilemedi.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = ''; // Temizle
+
+        if (!list || list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px;">Henüz kayıt yok.</td></tr>';
+            return;
+        }
+
+        list.forEach(visa => {
+            const customerName = visa.customers ? visa.customers.full_name : 'Bilinmeyen';
+            const countryCode = visa.country;
+            let countryName = countryCode;
+            if(countryCode === 'DE') countryName = "Almanya";
+            if(countryCode === 'FR') countryName = "Fransa";
+            if(countryCode === 'US') countryName = "ABD";
+            
+            const date = new Date(visa.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+
+            // Durum Rengi
+            let badgeClass = 'status-process';
+            let statusText = 'İşlemde';
+            if(visa.status === 'new') { badgeClass = 'status-warning'; statusText = 'Yeni Kayıt'; }
+            
+            const row = `
+                <tr onclick="crm.openDrawer('${visa.customer_id}')">
+                    <td style="padding-left:25px;">
+                        <div style="font-weight:600; color:#0f172a;">${customerName}</div>
+                    </td>
+                    <td>
+                        <div class="program-tag">
+                            <span class="country-code">${countryCode}</span> ${countryName} - ${visa.visa_type}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge ${badgeClass}">
+                            <span class="material-icons-round" style="font-size:14px;">circle</span> ${statusText}
+                        </span>
+                    </td>
+                    <td style="color:#64748b; font-size:13px;">${date}</td>
+                    <td style="text-align:right; padding-right:25px;">
+                        <button class="action-icon-btn"><span class="material-icons-round">chevron_right</span></button>
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    },
+
+    // --- 2. ÇEKMECE İŞLEMLERİ ---
     openDrawer: function(customerId) {
         document.getElementById('customer-drawer').classList.add('active');
         document.getElementById('drawer-content').classList.add('active');
-        console.log("Çekmece açıldı ID: " + customerId);
+        console.log("Müşteri ID:", customerId);
+        // İlerde buraya müşteri detaylarını çekme kodu gelecek
     },
 
     closeDrawer: function() {
@@ -15,14 +85,12 @@ window.crm = {
     },
 
     filterList: function(status) {
-        // Görsel olarak tab'ı aktif yap
         document.querySelectorAll('.filter-tab').forEach(el => el.classList.remove('active'));
         event.currentTarget.classList.add('active');
-        console.log("Filtre: " + status);
-        // İlerde buraya veri çekme kodu gelecek
+        this.loadCrmList(status); // Yeniden yükle
     },
 
-    // --- MEVCUT SİHİRBAZ KODLARI (Aynen koruyoruz) ---
+    // --- 3. SİHİRBAZ İLERİ/GERİ ---
     nextStep: function(stepNumber) {
         document.querySelectorAll('.wizard-page').forEach(el => el.style.display = 'none');
         document.getElementById('w-step-' + stepNumber).style.display = 'block';
@@ -55,17 +123,15 @@ window.crm = {
         display.style.color = profit < 0 ? 'red' : 'var(--green-profit)';
     },
 
-    // KAYDETME KODUNU AYNEN KORUYORUZ (Kopyala-Yapıştır yaparken eksik kalmasın diye)
+    // --- 4. KAYDETME İŞLEMİ (ENTEGRASYONLU) ---
     saveVisaCase: async function() {
-        console.log("💾 Kayıt işlemi...");
-        // (Buradaki kayıt kodun öncekiyle aynı kalacak, yer kaplamasın diye kısalttım ama sen 
-        // önceki mesajımdaki saveVisaCase kodunu buraya yapıştırabilirsin veya
-        // mevcut dosyanı silmeyip sadece üstteki openDrawer fonksiyonlarını ekleyebilirsin.)
-        
-        // --- GÜVENLİK İÇİN TAM KODU TEKRAR VERİYORUM ---
+        console.log("💾 Kayıt Başladı...");
         const submitBtn = document.querySelector('#form-visa-wizard button[type="submit"]');
-        submitBtn.innerText = "Kaydediliyor..."; submitBtn.disabled = true;
+        submitBtn.innerText = "Kaydediliyor..."; 
+        submitBtn.disabled = true;
+
         try {
+            // 1. Verileri Al
             const name = document.getElementById('v-name').value;
             const passport = document.getElementById('v-passport').value;
             const phone = document.getElementById('v-phone').value;
@@ -75,24 +141,60 @@ window.crm = {
             const currency = document.getElementById('v-currency').value;
             const paymentStatus = document.getElementById('v-payment-status').value;
 
-            const { data: customerData, error: custError } = await window.supabaseClient.from('customers').insert([{ full_name: name, passport_no: passport, phone: phone }]).select().single();
+            // 2. Müşteri Oluştur
+            const { data: customerData, error: custError } = await window.supabaseClient
+                .from('customers')
+                .insert([{ full_name: name, passport_no: passport, phone: phone }])
+                .select().single();
+            
             if (custError) throw custError;
 
-            const { data: visaData, error: visaError } = await window.supabaseClient.from('visas').insert([{ customer_id: customerData.id, country: country, visa_type: type, status: 'new' }]).select().single();
+            // 3. Vize Dosyası Oluştur
+            const { data: visaData, error: visaError } = await window.supabaseClient
+                .from('visas')
+                .insert([{ customer_id: customerData.id, country: country, visa_type: type, status: 'new' }])
+                .select().single();
+
             if (visaError) throw visaError;
 
+            // 4. (Eğer Peşinse) Muhasebeye İşle
             if (paymentStatus === 'paid' && price > 0) {
-                await window.supabaseClient.from('transactions').insert([{ type: 'income', category: 'visa_service', description: `Vize - ${name}`, amount: price, currency: currency, customer_id: customerData.id, visa_id: visaData.id }]);
+                const { error: transError } = await window.supabaseClient
+                    .from('transactions')
+                    .insert([{
+                        type: 'income',
+                        category: 'visa_service',
+                        description: `Vize Hizmeti - ${name} (${country})`,
+                        amount: price,
+                        currency: currency,
+                        customer_id: customerData.id,
+                        visa_id: visaData.id
+                    }]);
+                if (transError) throw transError;
             }
 
-            alert("🎉 Başarılı!"); window.ui.closeModal('modal-income'); document.getElementById('form-visa-wizard').reset();
-            if(window.accounting) window.accounting.refreshDashboard(); 
-        } catch (error) { alert("Hata: " + error.message); } 
-        finally { submitBtn.innerText = "✅ KAYDET"; submitBtn.disabled = false; }
+            // 5. Başarılı
+            alert("🎉 Dosya Kaydedildi!");
+            window.ui.closeModal('modal-income');
+            document.getElementById('form-visa-wizard').reset();
+            
+            // Tüm listeleri yenile
+            this.loadCrmList(); 
+            if(window.accounting) window.accounting.refreshDashboard();
+
+        } catch (error) {
+            console.error(error);
+            alert("Hata: " + error.message);
+        } finally {
+            submitBtn.innerText = "✅ KAYDET VE BİTİR";
+            submitBtn.disabled = false;
+        }
     }
 };
 
+// Sayfa Yüklenince Listeyi Getir
 window.addEventListener('load', () => {
+    window.crm.loadCrmList();
     const form = document.getElementById('form-visa-wizard');
     if (form) form.onsubmit = function(e) { e.preventDefault(); window.crm.saveVisaCase(); };
 });
