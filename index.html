@@ -43,6 +43,7 @@
                 <div class="menu-item" onclick="alert('Ayarlar yakında eklenecek.')">
                     <span class="material-icons-round">settings</span> Ayarlar
                 </div>
+                
                 <div class="menu-item text-red" style="margin-top: auto;" onclick="window.auth.logout()">
                     <span class="material-icons-round">logout</span> Çıkış Yap
                 </div>
@@ -118,11 +119,27 @@
                 </div>
 
                 <div class="crm-filter-bar">
-                    <div class="filter-tab active" onclick="crm.filterList('all')">Tümü <span class="count-badge">14</span></div>
-                    <div class="filter-tab" onclick="crm.filterList('new')">Yeni Kayıt <span class="count-badge bg-blue">5</span></div>
-                    <div class="filter-tab" onclick="crm.filterList('docs')">Evrak Bekleyen <span class="count-badge bg-orange">3</span></div>
-                    <div class="filter-tab" onclick="crm.filterList('appointment')">Randevu Bekleyen <span class="count-badge bg-red">2</span></div>
-                    <div class="filter-tab" onclick="crm.filterList('process')">İşlemde <span class="count-badge bg-purple">8</span></div>
+                    <div class="filter-tab active" onclick="crm.filterList('all')">
+                        Tümü <span class="count-badge" id="count-all">0</span>
+                    </div>
+                    <div class="filter-tab" onclick="crm.filterList('new')">
+                        Yeni <span class="count-badge bg-blue" id="count-new">0</span>
+                    </div>
+                    <div class="filter-tab" onclick="crm.filterList('docs_wait')">
+                        Evrak <span class="count-badge bg-orange" id="count-docs">0</span>
+                    </div>
+                    <div class="filter-tab" onclick="crm.filterList('appointment_wait')">
+                        Randevu B. <span class="count-badge bg-red" id="count-app-wait">0</span>
+                    </div>
+                    <div class="filter-tab" onclick="crm.filterList('appointment_scheduled')">
+                        Randevulu <span class="count-badge bg-green-light" style="color:green" id="count-app-ok">0</span>
+                    </div>
+                    <div class="filter-tab" onclick="crm.filterList('consulate')">
+                        İşlemde <span class="count-badge bg-purple" id="count-consulate">0</span>
+                    </div>
+                    <div class="filter-tab" onclick="crm.filterList('completed')">
+                        Biten <span class="count-badge badge-gray" id="count-completed">0</span>
+                    </div>
                 </div>
 
                 <div class="card" style="padding: 0; overflow: hidden;">
@@ -191,15 +208,21 @@
 
     <div class="drawer-overlay" id="customer-drawer" onclick="crm.closeDrawer()"></div>
     <div class="drawer-panel" id="drawer-content">
-        <div class="drawer-header"><h2 id="d-name">Müşteri Detayı</h2><button class="close-btn" onclick="crm.closeDrawer()">&times;</button></div>
+        <div class="drawer-header"><h2 id="d-name">Yükleniyor...</h2><button class="close-btn" onclick="crm.closeDrawer()">&times;</button></div>
         <div class="drawer-body">
             <div style="text-align:center; margin-bottom:20px;">
                 <div style="width:80px; height:80px; background:#e2e8f0; border-radius:50%; margin:0 auto 10px; display:flex; align-items:center; justify-content:center;"><span class="material-icons-round" style="font-size:40px; color:#94a3b8;">person</span></div>
-                <h3 style="margin:0;">Yükleniyor...</h3>
-                <p style="color:#64748b; margin:5px 0;">...</p>
+                <h3 id="drawer-customer-name" style="margin:0;">...</h3>
+                <p id="drawer-passport" style="color:#64748b; margin:5px 0;">...</p>
             </div>
             <hr style="border:0; border-top:1px solid #f1f5f9; margin:20px 0;">
-            <div class="info-row"><strong>Durum:</strong> <span class="status-badge status-process">İşlemde</span></div>
+            <div class="form-group"><label>Telefon</label><div id="drawer-phone" style="font-weight:500;">-</div></div>
+            <div class="form-group"><label>Dosya Durumu</label><div id="drawer-status">-</div></div>
+            <div class="form-group"><label>Ülke / Vize</label><div id="drawer-country" style="font-weight:500;">-</div></div>
+            <div style="margin-top:30px;">
+                <button class="btn btn-blue" style="width:100%; margin-bottom:10px;">📞 WhatsApp'tan Yaz</button>
+                <button class="btn btn-red" style="width:100%;">🗑️ Dosyayı Arşivle</button>
+            </div>
         </div>
     </div>
 
