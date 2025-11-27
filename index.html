@@ -15,7 +15,14 @@
 </head>
 <body>
 
-    <div class="app-container">
+    <div id="loading-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#f3f4f6; display:flex; justify-content:center; align-items:center; z-index:9999;">
+        <div style="text-align:center;">
+            <h2 style="color:#1e293b; font-family:'Inter',sans-serif;">Vizerio</h2>
+            <p style="color:#64748b;">Sistem Başlatılıyor...</p>
+        </div>
+    </div>
+
+    <div class="app-container" style="display:none;" id="main-app">
         
         <aside class="sidebar">
             <div class="logo-area">
@@ -24,22 +31,30 @@
             </div>
             
             <nav class="menu">
-                <div class="menu-item active" onclick="app.switchTab('finance')">
+                <div class="menu-item active" id="nav-finance" onclick="app.switchTab('finance')">
                     <span class="material-icons-round">dashboard</span> Finans & Muhasebe
                 </div>
-                <div class="menu-item" onclick="app.switchTab('crm')">
+                <div class="menu-item" id="nav-crm" onclick="app.switchTab('crm')">
                     <span class="material-icons-round">people</span> Müşteri & Operasyon
                 </div>
-                <div class="menu-item" onclick="alert('Raporlar Yakında...')">
+                <div class="menu-item" onclick="alert('Raporlar modülü yakında eklenecek.')">
                     <span class="material-icons-round">bar_chart</span> Raporlar
                 </div>
-                <div class="menu-item" onclick="alert('Ayarlar Yakında...')">
+                <div class="menu-item" onclick="alert('Ayarlar yakında eklenecek.')">
                     <span class="material-icons-round">settings</span> Ayarlar
                 </div>
-                <div class="menu-item text-red" style="margin-top: auto;">
+                
+                <div class="menu-item text-red" style="margin-top: auto;" onclick="window.auth.logout()">
                     <span class="material-icons-round">logout</span> Çıkış Yap
                 </div>
             </nav>
+
+            <div class="user-profile">
+                <div style="width:35px; height:35px; background:#3b82f6; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right:10px;">YÖ</div>
+                <div>
+                    <strong id="user-name" style="font-size:13px;">Yönetici</strong>
+                </div>
+            </div>
         </aside>
 
         <main class="main-content">
@@ -47,35 +62,41 @@
             <header class="top-header">
                 <div class="search-bar">
                     <span class="material-icons-round">search</span>
-                    <input type="text" placeholder="Müşteri ara...">
+                    <input type="text" placeholder="Müşteri veya dosya ara...">
                 </div>
+
                 <div class="header-tools">
-                    <select style="padding: 5px; border-radius: 5px; border: 1px solid #ddd;">
-                        <option>₺ TRY</option>
-                        <option>$ USD</option>
-                        <option>€ EUR</option>
-                    </select>
-                    <button class="icon-btn" onclick="alert('Takvim Açılacak')">
+                    <div class="currency-selector">
+                        <select id="currencySelect" onchange="ui.updateCurrency()" style="padding: 5px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                            <option value="TRY">₺ TRY</option>
+                            <option value="USD">$ USD</option>
+                            <option value="EUR">€ EUR</option>
+                        </select>
+                    </div>
+
+                    <button class="icon-btn" id="calendarBtn" onclick="alert('Takvim penceresi açılacak')">
                         <span class="material-icons-round">calendar_today</span>
                     </button>
-                    <button class="icon-btn">
+                    
+                    <button class="icon-btn notification">
                         <span class="material-icons-round">notifications</span>
                     </button>
                 </div>
             </header>
 
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <h1>Finansal Durum</h1>
-    <div>
-        <button class="btn btn-green" onclick="ui.openModal('modal-select-income-type')">
-    <span class="material-icons-round">add</span> GELİR GİRİŞİ
-</button>
-        
-        <button class="btn btn-red" style="margin-left: 10px;" onclick="ui.openModal('modal-expense')">
-            <span class="material-icons-round">remove</span> GİDER EKLE
-        </button>
-    </div>
-</div>
+            <section id="section-finance" class="content-section active">
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <h1 style="margin:0; font-size:24px;">Finansal Durum</h1>
+                    <div>
+                        <button class="btn btn-green" onclick="ui.openModal('modal-select-income-type')">
+                            <span class="material-icons-round">add</span> GELİR GİRİŞİ
+                        </button>
+                        <button class="btn btn-red" style="margin-left: 10px;" onclick="ui.openModal('modal-expense')">
+                            <span class="material-icons-round">remove</span> GİDER EKLE
+                        </button>
+                    </div>
+                </div>
 
                 <div class="summary-cards">
                     <div class="card border-green">
@@ -95,29 +116,53 @@
                         <div class="money">€ 4.500</div>
                     </div>
                 </div>
-                
-                <div class="card" style="height: 300px; display: flex; align-items: center; justify-content: center; color: #999;">
-                    [ GRAFİK ALANI BURAYA GELECEK ]
+
+                <div class="card" style="height: 350px; display: flex; align-items: center; justify-content: center; color: #94a3b8;">
+                    <p>[ GRAFİK ALANI BURAYA GELECEK ]</p>
                 </div>
+
             </section>
 
-            <section id="section-crm" class="content-section">
-                <h1>Müşteri Takip & Operasyon</h1>
-                <p>Burası Operasyon Ekranı olacak...</p>
+            <section id="section-crm" class="content-section" style="display:none;">
+                <h1 style="margin-bottom:20px;">Müşteri Takip & Operasyon</h1>
+                <p>Müşteri listesi ve operasyonel araçlar burada olacak...</p>
             </section>
 
         </main>
     </div>
 
-    <script src="js/supabase.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/accounting.js"></script>
-    <script src="js/crm.js"></script>
-    
-    <script src="js/app.js"></script>
+    <div class="modal-overlay" id="modal-select-income-type">
+        <div class="modal-box" style="width: 600px;">
+            <div class="modal-header">
+                <h3>Gelir Türü Seçiniz</h3>
+                <button class="close-btn" onclick="ui.closeModal('modal-select-income-type')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="selection-grid" style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:15px;">
+                    
+                    <div class="selection-card" onclick="ui.openModal('modal-income'); ui.closeModal('modal-select-income-type');">
+                        <span style="font-size:30px; color:var(--green-profit);">🛂</span>
+                        <strong style="display:block; margin-top:10px;">Vize İşlemi</strong>
+                        <small style="color:#666;">Dosya aç</small>
+                    </div>
 
-<div class="modal-overlay" id="modal-income">
+                    <div class="selection-card" onclick="ui.openModal('modal-extra-income'); ui.closeModal('modal-select-income-type');">
+                        <span style="font-size:30px; color:var(--blue-info);">✈️</span>
+                        <strong style="display:block; margin-top:10px;">Ek Gelir</strong>
+                        <small style="color:#666;">Bilet, Sigorta</small>
+                    </div>
+
+                    <div class="selection-card" onclick="ui.openModal('modal-escrow'); ui.closeModal('modal-select-income-type');">
+                        <span style="font-size:30px; color:var(--orange-escrow);">🟠</span>
+                        <strong style="display:block; margin-top:10px;">Emanet Para</strong>
+                        <small style="color:#666;">Konsolosluk Harcı</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-income">
         <div class="modal-box">
             <div class="modal-header">
                 <h3>Yeni Vize Dosyası (Gelir)</h3>
@@ -129,53 +174,25 @@
                     <div class="step">2</div>
                     <div class="step">3</div>
                 </div>
-
                 <form id="form-income">
-                    <div class="form-step active" id="step-1">
-                        <div class="form-group">
-                            <label>Müşteri Adı Soyadı</label>
-                            <input type="text" class="form-control" placeholder="Örn: Ahmet Yılmaz" required>
+                    <div class="form-group">
+                        <label>Müşteri Adı Soyadı</label>
+                        <input type="text" class="form-control" placeholder="Örn: Ahmet Yılmaz">
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <div class="form-group" style="flex:1;">
+                            <label>Gidilecek Ülke</label>
+                            <select class="form-control"><option>🇩🇪 Almanya</option><option>🇫🇷 Fransa</option></select>
                         </div>
-                        <div class="form-group" style="display:flex; gap:10px;">
-                            <div style="flex:1;">
-                                <label>Gidilecek Ülke</label>
-                                <select class="form-control">
-                                    <option>🇩🇪 Almanya</option>
-                                    <option>🇫🇷 Fransa</option>
-                                    <option>🇺🇸 ABD</option>
-                                </select>
-                            </div>
-                            <div style="flex:1;">
-                                <label>Vize Tipi</label>
-                                <select class="form-control">
-                                    <option>Turistik</option>
-                                    <option>Ticari</option>
-                                </select>
-                            </div>
+                        <div class="form-group" style="flex:1;">
+                            <label>Vize Tipi</label>
+                            <select class="form-control"><option>Turistik</option><option>Ticari</option></select>
                         </div>
                     </div>
-
-                    <div class="form-step" id="step-2" style="display:none;">
-                        <div class="form-group">
-                            <label>Müşteriden Alınan Toplam Tutar</label>
-                            <div style="display:flex; gap:5px;">
-                                <input type="number" class="form-control" placeholder="500">
-                                <select class="form-control" style="width:80px;"><option>EUR</option><option>USD</option></select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Tahmini Giderler (Harç + Sigorta)</label>
-                            <input type="number" class="form-control" placeholder="120 (Otomatik düşülecek)">
-                        </div>
-                        <div style="background:#ecfdf5; color:#065f46; padding:10px; border-radius:6px; text-align:center; font-weight:bold;">
-                            Tahmini Net Kâr: <span id="calc-profit">0</span> EUR
-                        </div>
+                    <div style="text-align:right; margin-top:20px;">
+                        <button type="button" class="btn btn-green">İleri ></button>
                     </div>
                 </form>
-            </div>
-            <div class="modal-header" style="background: white; border-top: 1px solid #f1f5f9; justify-content: flex-end;">
-                <button class="btn btn-red" style="background:#cbd5e1; color:#333; margin-right:10px;" onclick="ui.closeModal('modal-income')">İptal</button>
-                <button class="btn btn-green">İleri ></button>
             </div>
         </div>
     </div>
@@ -192,59 +209,23 @@
                         <label>Gider Kategorisi</label>
                         <select class="form-control">
                             <option value="rent">🏢 Kira / Ofis</option>
-                            <option value="food">🍽️ Yemek / Mutfak</option>
-                            <option value="marketing">📢 Reklam (Google/Instagram)</option>
+                            <option value="marketing">📢 Reklam</option>
                             <option value="bill">⚡ Faturalar</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Açıklama</label>
-                        <input type="text" class="form-control" placeholder="Örn: Kasım ayı reklam ödemesi">
+                        <input type="text" class="form-control" placeholder="Örn: Kasım ayı kirası">
                     </div>
                     <div class="form-group">
                         <label>Tutar</label>
                         <div style="display:flex; gap:5px;">
                             <input type="number" class="form-control" placeholder="0.00">
-                            <select class="form-control" style="width:80px;">
-                                <option>TRY</option>
-                                <option>USD</option>
-                                <option>EUR</option>
-                            </select>
+                            <select class="form-control" style="width:80px;"><option>TRY</option><option>USD</option></select>
                         </div>
                     </div>
                     <button type="submit" class="btn btn-red" style="width:100%;">KAYDET</button>
                 </form>
-            </div>
-        </div>
-    </div>
-    <div class="modal-overlay" id="modal-select-income-type">
-        <div class="modal-box" style="width: 600px;">
-            <div class="modal-header">
-                <h3>Gelir Türü Seçiniz</h3>
-                <button class="close-btn" onclick="ui.closeModal('modal-select-income-type')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="selection-grid" style="grid-template-columns: 1fr 1fr 1fr;">
-                    
-                    <div class="selection-card" onclick="ui.openModal('modal-income'); ui.closeModal('modal-select-income-type');">
-                        <span style="color:var(--green-profit);">🛂</span>
-                        <strong>Vize İşlemi</strong>
-                        <small style="color:#666;">Yeni dosya aç</small>
-                    </div>
-
-                    <div class="selection-card" onclick="ui.openModal('modal-extra-income'); ui.closeModal('modal-select-income-type');">
-                        <span style="color:var(--blue-info);">✈️</span>
-                        <strong>Ek Gelir</strong>
-                        <small style="color:#666;">Bilet, Otel, Sigorta</small>
-                    </div>
-
-                    <div class="selection-card" onclick="ui.openModal('modal-escrow'); ui.closeModal('modal-select-income-type');">
-                        <span style="color:var(--orange-escrow);">🟠</span>
-                        <strong>Emanet Para</strong>
-                        <small style="color:#666;">Konsolosluk Harcı</small>
-                    </div>
-
-                </div>
             </div>
         </div>
     </div>
@@ -259,36 +240,12 @@
                 <form id="form-extra-income">
                     <div class="form-group">
                         <label>Hizmet Kategorisi</label>
-                        <select class="form-control">
-                            <option>✈️ Uçak Bileti</option>
-                            <option>🏨 Otel Rezervasyonu</option>
-                            <option>🏥 Seyahat Sağlık Sigortası</option>
-                            <option>🚐 Transfer / Tur</option>
-                            <option>📄 Danışmanlık / Diğer</option>
-                        </select>
+                        <select class="form-control"><option>✈️ Uçak Bileti</option><option>🏨 Otel</option></select>
                     </div>
-                    
                     <div class="form-group">
-                        <label>Müşteri (Ara veya Yeni Yaz)</label>
-                        <input type="text" class="form-control" placeholder="Müşteri Adı Soyadı...">
+                        <label>Satış Fiyatı</label>
+                        <input type="number" class="form-control" placeholder="0.00">
                     </div>
-
-                    <div style="display:flex; gap:10px;">
-                        <div class="form-group" style="flex:1;">
-                            <label>Satış Fiyatı (Müşteriden Alınan)</label>
-                            <input type="number" class="form-control" placeholder="0.00">
-                        </div>
-                        <div class="form-group" style="flex:1;">
-                            <label>Maliyet (Bize Gelişi)</label>
-                            <input type="number" class="form-control" placeholder="0.00">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Açıklama</label>
-                        <input type="text" class="form-control" placeholder="Örn: THY Paris Bileti">
-                    </div>
-
                     <button type="submit" class="btn btn-blue" style="width:100%;">SATIŞI KAYDET</button>
                 </form>
             </div>
@@ -303,7 +260,7 @@
             </div>
             <div class="modal-body">
                 <div style="background: #fff7ed; border: 1px solid #ffedd5; padding: 10px; margin-bottom: 15px; border-radius: 6px; color: #9a3412; font-size: 13px;">
-                    ⚠️ <strong>DİKKAT:</strong> Bu tutar şirket cirosuna yansımaz, "Emanet Havuzu"nda tutulur.
+                    ⚠️ Bu tutar ciroya yansımaz, "Emanet Havuzu"nda tutulur.
                 </div>
                 <form id="form-escrow">
                     <div class="form-group">
@@ -311,18 +268,10 @@
                         <input type="text" class="form-control" placeholder="Müşteri Adı...">
                     </div>
                     <div class="form-group">
-                        <label>Emanet Tipi</label>
-                        <select class="form-control">
-                            <option>Konsolosluk Harcı</option>
-                            <option>Başvuru Merkezi Ücreti (iData/VFS)</option>
-                            <option>Teminat</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Tutar</label>
+                        <label>Tutar (EUR/USD)</label>
                         <div style="display:flex; gap:5px;">
                             <input type="number" class="form-control" placeholder="0.00">
-                            <select class="form-control" style="width:80px;"><option>EUR</option><option>USD</option></select>
+                            <select class="form-control" style="width:80px;"><option>EUR</option></select>
                         </div>
                     </div>
                     <button type="submit" class="btn btn-orange" style="width:100%;">EMANETE AL</button>
@@ -330,6 +279,24 @@
             </div>
         </div>
     </div>
+
+    <script src="js/supabase.js"></script>
     
+    <script src="js/ui.js"></script>
+    
+    <script src="js/auth.js"></script>
+    
+    <script src="js/accounting.js"></script>
+    <script src="js/crm.js"></script>
+    
+    <script src="js/app.js"></script>
+    
+    <script>
+        window.addEventListener('load', () => {
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'flex';
+        });
+    </script>
+
 </body>
 </html>
