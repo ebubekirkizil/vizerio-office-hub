@@ -103,3 +103,53 @@ body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-c
 .bg-green-light { background: #dcfce7; color: #15803d; }
 .bg-red-light { background: #fee2e2; color: #b91c1c; }
 .bg-orange-light { background: #ffedd5; color: #c2410c; }
+
+/* --- CRM FİLTRE ŞERİDİ --- */
+.crm-filter-bar { display: flex; gap: 30px; border-bottom: 1px solid #e2e8f0; margin-bottom: 20px; }
+.filter-tab { 
+    padding: 10px 5px; cursor: pointer; color: #64748b; font-size: 13px; font-weight: 500; 
+    border-bottom: 2px solid transparent; transition: 0.2s; display: flex; align-items: center; gap: 8px;
+}
+.filter-tab:hover { color: var(--blue-info); }
+.filter-tab.active { color: var(--blue-info); border-bottom-color: var(--blue-info); font-weight: 600; }
+
+.count-badge { background: #f1f5f9; color: #64748b; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+.count-badge.bg-blue { background: #eff6ff; color: var(--blue-info); }
+.count-badge.bg-orange { background: #fff7ed; color: var(--orange-escrow); }
+.count-badge.bg-red { background: #fef2f2; color: var(--red-expense); }
+.count-badge.bg-purple { background: #f3e8ff; color: #9333ea; }
+
+/* --- CRM TABLOSU (SADE) --- */
+.crm-table { width: 100%; border-collapse: collapse; }
+.crm-table th { text-align: left; padding: 15px; color: #94a3b8; font-size: 11px; font-weight: 700; text-transform: uppercase; border-bottom: 1px solid #f1f5f9; background: #f8fafc; }
+.crm-table tbody tr { transition: 0.2s; cursor: pointer; border-bottom: 1px solid #f1f5f9; }
+.crm-table tbody tr:hover { background: #f8fafc; }
+.crm-table td { padding: 15px; font-size: 14px; color: var(--text-primary); vertical-align: middle; }
+
+/* Ülke ve Program Etiketi */
+.program-tag { display: flex; align-items: center; gap: 8px; font-weight: 500; color: #334155; }
+.country-code { background: #e2e8f0; color: #475569; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+
+/* Durum Rozetleri (Profesyonel) */
+.status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.status-warning { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; } /* Turuncu */
+.status-danger { background: #fef2f2; color: #b91c1c; border: 1px solid #fee2e2; } /* Kırmızı */
+.status-success { background: #f0fdf4; color: #15803d; border: 1px solid #dcfce7; } /* Yeşil */
+.status-process { background: #f3e8ff; color: #7e22ce; border: 1px solid #e9d5ff; } /* Mor */
+
+.action-icon-btn { border: none; background: transparent; color: #cbd5e1; cursor: pointer; transition: 0.2s; }
+.crm-table tr:hover .action-icon-btn { color: var(--blue-info); }
+
+/* --- DRAWER (SAĞ ÇEKMECE) --- */
+.drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 1000; display: none; }
+.drawer-overlay.active { display: block; }
+
+.drawer-panel { 
+    position: fixed; top: 0; right: -400px; width: 400px; height: 100%; background: white; 
+    box-shadow: -5px 0 25px rgba(0,0,0,0.1); z-index: 1001; transition: 0.3s ease-in-out; 
+    display: flex; flex-direction: column;
+}
+.drawer-panel.active { right: 0; }
+
+.drawer-header { padding: 20px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; }
+.drawer-body { padding: 25px; overflow-y: auto; flex: 1; }
