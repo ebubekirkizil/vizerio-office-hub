@@ -3,424 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vizerio ERP | Bütünleşik Vize Yönetimi</title>
-    <!-- İkon Seti (FontAwesome) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts (Inter) -->
+    <title>Vizerio - Yönetim Paneli</title>
+    
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- CSS Dosyası -->
-    <link rel="stylesheet" href="style.css">
-    <!-- Grafik Kütüphanesi (Chart.js) -->
+    
+    <link rel="stylesheet" href="css/style.css">
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
-    <!-- ANA YERLEŞİM (LAYOUT) -->
-    <div class="app-container">
-        
-        <!-- SOL MENÜ (SIDEBAR) -->
+    <div id="loading-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#f3f4f6; display:flex; justify-content:center; align-items:center; z-index:9999;">
+        <div style="text-align:center;">
+            <h2 style="color:#1e293b;">Vizerio</h2>
+            <p>Sistem Yükleniyor...</p>
+        </div>
+    </div>
+
+    <div class="app-container" style="display:none;" id="main-app">
         <aside class="sidebar">
-            <div class="brand">
-                <div class="logo-icon"><i class="fa-solid fa-plane-departure"></i></div>
-                <span class="logo-text">VIZERIO</span>
+            <div class="logo-area">
+                <h2>VIZERIO</h2>
+                <span>Yönetim Paneli</span>
             </div>
             
             <nav class="menu">
-                <a href="#" class="menu-item active" data-target="dashboard">
-                    <i class="fa-solid fa-chart-pie"></i>
-                    <span>Finansal Özet</span>
+                <a href="#" class="menu-item active" id="nav-finance" onclick="window.ui.switchTab('finance')">
+                    <span class="material-icons-round">dashboard</span> Finans & Muhasebe
                 </a>
-                <a href="#" class="menu-item" data-target="crm">
-                    <i class="fa-solid fa-users"></i>
-                    <span>Operasyon & CRM</span>
+                <a href="#" class="menu-item" id="nav-crm" onclick="window.ui.switchTab('crm')">
+                    <span class="material-icons-round">people</span> Müşteri & Vize
                 </a>
                 <a href="#" class="menu-item">
-                    <i class="fa-solid fa-file-invoice-dollar"></i>
-                    <span>Muhasebe</span>
+                    <span class="material-icons-round">bar_chart</span> Raporlar
                 </a>
                 <a href="#" class="menu-item">
-                    <i class="fa-solid fa-gear"></i>
-                    <span>Ayarlar</span>
+                    <span class="material-icons-round">settings</span> Ayarlar
+                </a>
+                <a href="#" class="menu-item text-red" onclick="window.auth.logout()">
+                    <span class="material-icons-round">logout</span> Çıkış Yap
                 </a>
             </nav>
 
             <div class="user-profile">
-                <div class="avatar">YK</div>
-                <div class="info">
-                    <span class="name">Yönetici</span>
-                    <span class="role">Admin</span>
+                <div class="avatar" id="user-avatar">YÖ</div>
+                <div class="user-info">
+                    <strong id="user-name">Yönetici</strong>
+                    <small id="user-role">Admin</small>
                 </div>
             </div>
         </aside>
 
-        <!-- SAĞ İÇERİK (MAIN CONTENT) -->
         <main class="main-content">
-            
-            <!-- ÜST BAŞLIK VE ARAÇLAR (HEADER) -->
             <header class="top-header">
-                <div class="page-title">
-                    <h1 id="page-header-title">Finansal Dashboard</h1>
-                    <span class="date-badge" id="current-date">25 Kasım 2025</span>
+                <div class="search-bar">
+                    <span class="material-icons-round">search</span>
+                    <input type="text" placeholder="Ara..." id="global-search">
                 </div>
-
                 <div class="header-tools">
-                    <!-- Döviz Çevirici -->
                     <div class="currency-selector">
-                        <select id="currency-switch">
-                            <option value="TRY" selected>₺ TRY</option>
+                        <select id="currencySelect" onchange="window.ui.updateCurrency()">
+                            <option value="TRY">₺ TRY</option>
                             <option value="USD">$ USD</option>
                             <option value="EUR">€ EUR</option>
                         </select>
                     </div>
-
-                    <!-- Takvim ve Bildirim -->
-                    <button class="icon-btn" id="btn-calendar-toggle"><i class="fa-regular fa-calendar"></i></button>
-                    <button class="icon-btn"><i class="fa-regular fa-bell"></i><span class="badge">3</span></button>
-                    
-                    <!-- Hızlı İşlem Butonları -->
-                    <button type="button" class="btn btn-danger" onclick="openModal('modal-expense')"><i class="fa-solid fa-minus"></i> Gider Ekle</button>
-                    <button type="button" class="btn btn-success" onclick="openModal('modal-income-type')"><i class="fa-solid fa-plus"></i> Gelir Ekle</button>
-                </div>
-
-                <!-- GİZLİ TAKVİM (POPOVER - Tıklanınca Açılır) -->
-                <div id="calendar-popover" class="calendar-popover hidden">
-                    <div class="cal-header">
-                        <span>Kasım 2025</span>
-                        <div class="cal-nav">
-                            <i class="fa-solid fa-chevron-left"></i>
-                            <i class="fa-solid fa-chevron-right"></i>
-                        </div>
-                    </div>
-                    <div class="cal-body">
-                        <div class="cal-grid">
-                            <div class="day">1</div><div class="day">2</div><div class="day">3</div><div class="day">4</div>
-                            <div class="day today">25</div><div class="day event">26</div><div class="day">27</div>
-                        </div>
-                    </div>
-                    <div class="cal-footer">
-                        <strong>Bugün:</strong> 2 Randevu Var
-                    </div>
                 </div>
             </header>
 
-            <!-- SAYFA GÖRÜNÜMLERİ (VIEWS) -->
-            <div id="view-container">
-                
-                <!-- GÖRÜNÜM 1: FİNANSAL DASHBOARD -->
-                <div id="view-dashboard" class="view-section active">
-                    
-                    <!-- KPI Kartları (Özet Rakamlar) -->
-                    <div class="kpi-grid">
-                        <div class="kpi-card kpi-green">
-                            <div class="icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
-                            <div class="data">
-                                <span class="label">NET KÂR</span>
-                                <h3 class="value val-profit">₺0</h3>
-                            </div>
-                        </div>
-                        <div class="kpi-card kpi-blue">
-                            <div class="icon"><i class="fa-solid fa-wallet"></i></div>
-                            <div class="data">
-                                <span class="label">TOPLAM CİRO</span>
-                                <h3 class="value val-revenue">₺0</h3>
-                            </div>
-                        </div>
-                        <div class="kpi-card kpi-red">
-                            <div class="icon"><i class="fa-solid fa-file-invoice"></i></div>
-                            <div class="data">
-                                <span class="label">TOPLAM GİDER</span>
-                                <h3 class="value val-expense">₺0</h3>
-                            </div>
-                        </div>
-                        <div class="kpi-card kpi-orange">
-                            <div class="icon"><i class="fa-solid fa-piggy-bank"></i></div>
-                            <div class="data">
-                                <span class="label">ANLIK EMANET</span>
-                                <h3 class="value val-escrow">₺0</h3>
-                            </div>
-                        </div>
-                    </div>
+            <div id="section-finance" class="content-section active">
+                <h1>Finans Modülü Yükleniyor...</h1>
+            </div>
 
-                    <!-- Ana Grafik Alanı -->
-                    <div class="chart-section">
-                        <div class="chart-header">
-                            <h3>Finansal Akış</h3>
-                            <div class="chart-controls">
-                                <!-- Grafik Filtreleri -->
-                                <div class="toggles">
-                                    <button class="toggle-btn active" data-dataset="0" style="--c: #10b981">Kâr</button>
-                                    <button class="toggle-btn active" data-dataset="1" style="--c: #3b82f6">Ciro</button>
-                                    <button class="toggle-btn active" data-dataset="2" style="--c: #ef4444">Gider</button>
-                                </div>
-                                <!-- Zaman Filtreleri -->
-                                <div class="time-filters">
-                                    <button class="time-btn">1H</button>
-                                    <button class="time-btn active">1A</button>
-                                    <button class="time-btn">3A</button>
-                                    <button class="time-btn">1Y</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="chart-canvas-wrapper">
-                            <canvas id="mainFinanceChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- GÖRÜNÜM 2: OPERASYON VE CRM -->
-                <div id="view-crm" class="view-section">
-                    
-                    <!-- CRM Filtre Sekmeleri (Tabs) -->
-                    <div class="crm-filters">
-                        <button class="crm-tab active" data-filter="all">
-                            <span class="count">--</span>
-                            <span class="text">TÜM DOSYALAR</span>
-                        </button>
-                        <button class="crm-tab" data-filter="new">
-                            <span class="count">--</span>
-                            <span class="text">YENİ KAYIT</span>
-                        </button>
-                        <button class="crm-tab" data-filter="docs_pending">
-                            <span class="count">--</span>
-                            <span class="text">EVRAK BEKLEYEN</span>
-                        </button>
-                        <button class="crm-tab danger" data-filter="app_pending">
-                            <span class="count">--</span>
-                            <span class="text">RANDEVU BEKLEYEN</span>
-                        </button>
-                        <button class="crm-tab" data-filter="app_scheduled">
-                            <span class="count">--</span>
-                            <span class="text">RANDEVUSU ALINAN</span>
-                        </button>
-                        <button class="crm-tab" data-filter="processing">
-                            <span class="count">--</span>
-                            <span class="text">İŞLEMDE</span>
-                        </button>
-                        <button class="crm-tab success" data-filter="completed">
-                            <span class="count">--</span>
-                            <span class="text">SONUÇLANAN</span>
-                        </button>
-                    </div>
-
-                    <!-- Müşteri Listesi Tablosu -->
-                    <div class="table-container">
-                        <table class="data-table" id="crm-table">
-                            <thead>
-                                <tr>
-                                    <th>Müşteri</th>
-                                    <th>Ülke / Vize</th>
-                                    <th>Durum</th>
-                                    <th>Finans</th>
-                                    <th>Detay</th> <!-- Dinamik Değişen Sütun -->
-                                    <th>Temsilci</th>
-                                </tr>
-                            </thead>
-                            <tbody id="crm-table-body">
-                                <!-- JS ile doldurulacak -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
+            <div id="section-crm" class="content-section" style="display:none;">
+                <h1>Müşteri Takip Modülü Yükleniyor...</h1>
             </div>
         </main>
     </div>
 
-    <!-- ================= MODALLER (AÇILIR PENCERELER) ================= -->
-
-    <!-- 1. GELİR TİPİ SEÇİMİ MODALI -->
-    <div id="modal-income-type" class="modal-overlay hidden">
-        <div class="modal-card sm">
-            <div class="modal-header">
-                <h3>İşlem Türü Seçiniz</h3>
-                <button type="button" class="close-btn" onclick="closeModal('modal-income-type')">&times;</button>
-            </div>
-            <div class="modal-body grid-menu">
-                <button type="button" class="big-btn blue" onclick="switchModal('modal-income-type', 'modal-visa-wizard')">
-                    <i class="fa-solid fa-passport"></i>
-                    <span>Vize Dosyası Oluştur</span>
-                </button>
-                <button type="button" class="big-btn orange" onclick="switchModal('modal-income-type', 'modal-escrow')">
-                    <i class="fa-solid fa-hand-holding-dollar"></i>
-                    <span>Emanet / Harç Girişi</span>
-                </button>
-                <button type="button" class="big-btn green" onclick="switchModal('modal-income-type', 'modal-service')">
-                    <i class="fa-solid fa-ticket"></i>
-                    <span>Ek Hizmet / Satış</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 2. VİZE DOSYASI SİHİRBAZI (WIZARD - 3 ADIMLI) -->
-    <div id="modal-visa-wizard" class="modal-overlay hidden">
-        <div class="modal-card md">
-            <div class="modal-header">
-                <h3>Yeni Vize Dosyası</h3>
-                <div class="wizard-steps">
-                    <span class="step active">1. Kimlik</span>
-                    <span class="step">2. Finans</span>
-                    <span class="step">3. Evrak</span>
-                </div>
-                <!-- KAPATMA BUTONU -->
-                <button type="button" class="close-btn" onclick="closeModal('modal-visa-wizard')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="form-visa-wizard">
-                    <!-- ADIM 1: KİMLİK -->
-                    <div class="wizard-page" id="wiz-step-1">
-                        <div class="form-row">
-                            <div class="field">
-                                <label>Ad Soyad</label>
-                                <input type="text" required placeholder="Müşteri Adı">
-                            </div>
-                            <div class="field">
-                                <label>TC Kimlik No</label>
-                                <input type="text" placeholder="11 Haneli">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="field">
-                                <label>Gidilecek Ülke</label>
-                                <select><option>Schengen (Genel)</option><option>Almanya</option><option>ABD</option></select>
-                            </div>
-                            <div class="field">
-                                <label>Vize Tipi</label>
-                                <select><option>Turistik</option><option>Ticari</option><option>Öğrenci</option></select>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- ADIM 2: FİNANS (Otomatik Kar Hesabı) -->
-                    <div class="wizard-page hidden" id="wiz-step-2">
-                        <div class="form-row">
-                            <div class="field">
-                                <label>Müşteriye Verilen Fiyat</label>
-                                <input type="number" id="wiz-price" placeholder="0.00">
-                            </div>
-                            <div class="field">
-                                <label>Tahmini Maliyet</label>
-                                <input type="number" id="wiz-cost" placeholder="0.00">
-                            </div>
-                        </div>
-                        <div class="profit-preview">
-                            Tahmini Net Kâr: <span class="val-green">₺0.00</span>
-                        </div>
-                    </div>
-                    <!-- ADIM 3: EVRAK -->
-                    <div class="wizard-page hidden" id="wiz-step-3">
-                        <div class="upload-area">
-                            <i class="fa-solid fa-cloud-arrow-up"></i>
-                            <p>Pasaport ve Evrakları buraya sürükleyin</p>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="wizardPrev()">Geri</button>
-                <button type="button" class="btn btn-primary" onclick="wizardNext()">İleri</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 3. GİDER GİRİŞİ MODALI -->
-    <div id="modal-expense" class="modal-overlay hidden">
-        <div class="modal-card sm">
-            <div class="modal-header">
-                <h3>Hızlı Gider Girişi</h3>
-                <button type="button" class="close-btn" onclick="closeModal('modal-expense')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form>
-                    <div class="field">
-                        <label>Kategori</label>
-                        <select>
-                            <option>Ofis Kirası</option>
-                            <option>Personel Yemek</option>
-                            <option>Reklam (Meta/Google)</option>
-                            <option>Diğer</option>
-                        </select>
-                    </div>
-                    <div class="field">
-                        <label>Tutar</label>
-                        <div class="input-group">
-                            <input type="number" placeholder="0.00">
-                            <select style="width: 80px;"><option>TRY</option><option>USD</option></select>
-                        </div>
-                    </div>
-                    <div class="field-checkbox">
-                        <input type="checkbox" id="recurring">
-                        <label for="recurring">Her ay tekrarla (Sabit Gider)</label>
-                    </div>
-                    <div class="field">
-                        <label>Fiş / Fatura Fotoğrafı</label>
-                        <input type="file">
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger w-100">Gideri İşle</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 4. EMANET / HARÇ GİRİŞİ MODALI -->
-    <div id="modal-escrow" class="modal-overlay hidden">
-        <div class="modal-card sm border-orange">
-            <div class="modal-header bg-orange-light">
-                <h3 style="color: var(--orange-dark)">Emanet Girişi</h3>
-                <button type="button" class="close-btn" onclick="closeModal('modal-escrow')">&times;</button>
-            </div>
-            <div class="warning-banner">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-                Bu tutar şirket geliri değildir, emanet hesabıdır.
-            </div>
-            <div class="modal-body">
-                <div class="field">
-                    <label>Müşteri Seç</label>
-                    <input type="text" placeholder="İsim arayın...">
-                </div>
-                <div class="field">
-                    <label>Tutar</label>
-                    <input type="number" placeholder="0.00">
-                </div>
-                <div class="field">
-                    <label>Açıklama</label>
-                    <textarea placeholder="Örn: Konsolosluk harcı için alındı"></textarea>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-warning w-100">Emanete Al</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 5. MÜŞTERİ DETAY MODALI (Çift Tıklayınca Açılır) -->
-    <div id="modal-customer-detail" class="modal-overlay hidden">
-        <div class="modal-card lg">
-            <div class="modal-header">
-                <div class="customer-header-info">
-                    <h3>Ahmet Yılmaz</h3>
-                    <span class="status-badge badge-warning">Randevu Bekliyor</span>
-                </div>
-                <button type="button" class="close-btn" onclick="closeModal('modal-customer-detail')">&times;</button>
-            </div>
-            <div class="modal-tabs">
-                <button class="tab-btn active">Kimlik</button>
-                <button class="tab-btn">Vize Durumu</button>
-                <button class="tab-btn">Finans</button>
-                <button class="tab-btn">Evraklar</button>
-                <button class="tab-btn">Log</button>
-            </div>
-            <div class="modal-body" style="min-height: 300px;">
-                <!-- Tab içerikleri JS ile değişecek -->
-                <p style="color: #666; padding: 20px;">Müşteri detay bilgileri, pasaport fotokopisi ve geçmiş işlemleri burada listelenir.</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- JS Bağlantısı -->
-    <script src="app.js"></script>
-</body>
+    <script src="js/supabase.js"></script>   <script src="js/ui.js"></script>         <script src="js/auth.js"></script>       <script src="js/accounting.js"></script> <script src="js/crm.js"></script>        <script src="js/app.js"></script>        </body>
 </html>
