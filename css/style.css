@@ -126,3 +126,14 @@ body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-c
 .bg-green-light { background: #dcfce7; color: #15803d; }
 .bg-red-light { background: #fee2e2; color: #b91c1c; }
 .bg-orange-light { background: #ffedd5; color: #c2410c; }
+
+/* --- DRAWER (ÇEKMECE) TASARIMI --- */
+.drawer-tabs { display: flex; border-bottom: 1px solid #f1f5f9; margin-bottom: 15px; }
+.d-tab { flex: 1; text-align: center; padding: 10px; font-size: 13px; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent; transition: 0.2s; }
+.d-tab.active { color: var(--blue-info); border-bottom-color: var(--blue-info); font-weight: 600; }
+
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.info-item label { display: block; font-size: 11px; color: #94a3b8; margin-bottom: 3px; }
+.info-item span { display: block; font-size: 14px; color: #0f172a; font-weight: 500; }
+
+.drawer-footer { margin-top: auto; padding-top: 20px; border-top: 1px solid #f1f5f9; display: flex; gap: 10px; }
