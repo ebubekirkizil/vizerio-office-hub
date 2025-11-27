@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vizerio - Yönetim Paneli</title>
+    
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="css/style.css">
+
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -34,8 +37,12 @@
                 <div class="menu-item" id="nav-crm" onclick="app.switchTab('crm')">
                     <span class="material-icons-round">people</span> Müşteri & Operasyon
                 </div>
-                <div class="menu-item" onclick="alert('Raporlar yakında...')"><span class="material-icons-round">bar_chart</span> Raporlar</div>
-                <div class="menu-item" onclick="alert('Ayarlar yakında...')"><span class="material-icons-round">settings</span> Ayarlar</div>
+                <div class="menu-item" onclick="alert('Raporlar modülü yakında eklenecek.')">
+                    <span class="material-icons-round">bar_chart</span> Raporlar
+                </div>
+                <div class="menu-item" onclick="alert('Ayarlar yakında eklenecek.')">
+                    <span class="material-icons-round">settings</span> Ayarlar
+                </div>
                 <div class="menu-item text-red" style="margin-top: auto;" onclick="window.auth.logout()">
                     <span class="material-icons-round">logout</span> Çıkış Yap
                 </div>
@@ -48,10 +55,11 @@
         </aside>
 
         <main class="main-content">
+            
             <header class="top-header">
                 <div class="search-bar">
                     <span class="material-icons-round">search</span>
-                    <input type="text" placeholder="Müşteri ara...">
+                    <input type="text" placeholder="Müşteri veya dosya ara...">
                 </div>
                 <div class="header-tools">
                     <div class="currency-selector">
@@ -70,8 +78,12 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
                     <h1 style="margin:0; font-size:24px;">Finansal Durum</h1>
                     <div>
-                        <button class="btn btn-green" onclick="ui.openModal('modal-select-income-type')"><span class="material-icons-round">add</span> GELİR GİRİŞİ</button>
-                        <button class="btn btn-red" style="margin-left: 10px;" onclick="ui.openModal('modal-expense')"><span class="material-icons-round">remove</span> GİDER EKLE</button>
+                        <button class="btn btn-green" onclick="ui.openModal('modal-select-income-type')">
+                            <span class="material-icons-round">add</span> GELİR GİRİŞİ
+                        </button>
+                        <button class="btn btn-red" style="margin-left: 10px;" onclick="ui.openModal('modal-expense')">
+                            <span class="material-icons-round">remove</span> GİDER EKLE
+                        </button>
                     </div>
                 </div>
 
@@ -89,7 +101,7 @@
                     </div>
                     <table class="data-table">
                         <thead><tr><th>Tarih</th><th>Açıklama / Müşteri</th><th>Kategori</th><th>Tutar</th></tr></thead>
-                        <tbody id="transactions-body"><tr><td colspan="4" style="text-align:center; color:#999; padding:20px;">Yükleniyor...</td></tr></tbody>
+                        <tbody id="transactions-body"><tr><td colspan="4" style="text-align:center; color:#999; padding:20px;">Veriler Yükleniyor...</td></tr></tbody>
                     </table>
                 </div>
             </section>
@@ -100,7 +112,7 @@
                         <h1 style="margin:0; font-size:24px;">Operasyon Merkezi</h1>
                         <p style="color:#64748b; font-size:13px; margin:5px 0 0 0;">Aktif dosyaların durumunu buradan yönetin.</p>
                     </div>
-                    <button class="btn btn-blue" onclick="ui.openModal('modal-select-income-type')">
+                    <button class="btn btn-blue" onclick="ui.openModal('modal-income')">
                         <span class="material-icons-round">add</span> YENİ DOSYA AÇ
                     </button>
                 </div>
@@ -120,18 +132,12 @@
                                 <th style="padding-left:25px;">Müşteri</th>
                                 <th>Hedef / Program</th>
                                 <th>Durum</th>
-                                <th>Son İşlem</th>
+                                <th>Son İşlem / Tarih</th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody id="crm-table-body">
-                            <tr onclick="crm.openDrawer('123')">
-                                <td style="padding-left:25px;"><div style="font-weight:600; color:#0f172a;">Ahmet Yılmaz</div></td>
-                                <td><div class="program-tag"><span class="country-code">DE</span> Almanya - Turistik</div></td>
-                                <td><span class="status-badge status-warning"><span class="material-icons-round" style="font-size:14px;">schedule</span> Evrak Bekliyor</span></td>
-                                <td style="color:#64748b; font-size:13px;">Bugün, 14:30</td>
-                                <td style="text-align:right; padding-right:25px;"><button class="action-icon-btn"><span class="material-icons-round">chevron_right</span></button></td>
-                            </tr>
+                            <tr><td colspan="5" style="text-align:center; padding:30px; color:#999;">Yükleniyor...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -158,19 +164,21 @@
                             <div class="photo-upload-area"><div class="photo-circle" onclick="document.getElementById('customer-photo').click()"><span class="material-icons-round">add_a_photo</span><img id="photo-preview" src="" style="display:none;"></div><input type="file" id="customer-photo" style="display: none;" onchange="crm.previewPhoto(this)"><small>Fotoğraf</small></div>
                             <div style="flex: 1;"><div class="form-group"><label>Ad Soyad *</label><input type="text" class="form-control" id="v-name" required></div><div class="form-group"><label>TC / Pasaport No *</label><input type="text" class="form-control" id="v-passport"></div><div class="form-group"><label>Telefon</label><input type="text" class="form-control" id="v-phone"></div></div>
                         </div>
-                        <div class="form-group" style="margin-top:15px;"><label>Gidilecek Ülke & Vize Tipi</label><div style="display:flex; gap:10px;"><select class="form-control" id="v-country"><option value="DE">🇩🇪 Almanya</option><option value="FR">🇫🇷 Fransa</option></select><select class="form-control" id="v-type"><option>Turistik</option><option>Ticari</option></select></div></div>
+                        <div class="form-group" style="margin-top:15px;"><label>Gidilecek Ülke & Vize Tipi</label><div style="display:flex; gap:10px;"><select class="form-control" id="v-country"><option value="DE">🇩🇪 Almanya</option><option value="FR">🇫🇷 Fransa</option><option value="US">🇺🇸 ABD</option></select><select class="form-control" id="v-type"><option>Turistik</option><option>Ticari</option></select></div></div>
                         <div class="wizard-buttons"><button type="button" class="btn btn-secondary" onclick="ui.closeModal('modal-income')">İptal</button><button type="button" class="btn btn-blue" onclick="crm.nextStep(2)">İleri ></button></div>
                     </div>
                     <div class="wizard-page" id="w-step-2" style="display:none;">
-                        <div class="form-group"><label>Müşteri Fiyatı</label><div style="display:flex;"><input type="number" class="form-control" id="v-price" oninput="crm.calculateProfit()"><select class="form-control" style="width:80px;" id="v-currency"><option>EUR</option><option>USD</option></select></div></div>
-                        <div style="display:flex; gap:10px;"><div class="form-group" style="flex:1;"><label>Harç Gideri</label><input type="number" class="form-control" id="v-cost-fee" oninput="crm.calculateProfit()"></div><div class="form-group" style="flex:1;"><label>Diğer Gider</label><input type="number" class="form-control" id="v-cost-other" oninput="crm.calculateProfit()"></div></div>
-                        <div style="margin:15px 0; border-top:1px dashed #ddd; padding-top:10px;">Tahmini Net Kâr: <strong id="v-profit-display" style="color:var(--green-profit);">0.00 EUR</strong></div>
-                        <div class="form-group"><label>Ödeme</label><select class="form-control" id="v-payment-status"><option value="unpaid">❌ Ödenmedi</option><option value="paid">✅ Peşin Alındı</option></select></div>
+                        <div class="finance-box">
+                            <div class="form-group"><label>Müşteri Fiyatı</label><div class="input-with-icon"><input type="number" class="form-control" id="v-price" oninput="crm.calculateProfit()"><select class="currency-small" id="v-currency" onchange="crm.calculateProfit()"><option>EUR</option><option>USD</option></select></div></div>
+                            <div style="display:flex; gap:10px;"><div class="form-group" style="flex:1;"><label>Harç Gideri</label><input type="number" class="form-control" id="v-cost-fee" oninput="crm.calculateProfit()"></div><div class="form-group" style="flex:1;"><label>Diğer Gider</label><input type="number" class="form-control" id="v-cost-other" oninput="crm.calculateProfit()"></div></div>
+                            <div class="profit-display"><span>Tahmini Net Kâr:</span><strong id="v-profit-display" style="color:var(--green-profit);">0.00 EUR</strong></div>
+                        </div>
+                        <div class="form-group" style="margin-top:15px;"><label>Ödeme</label><select class="form-control" id="v-payment-status"><option value="unpaid">❌ Ödenmedi</option><option value="paid">✅ Peşin Alındı</option></select></div>
                         <div class="wizard-buttons"><button type="button" class="btn btn-secondary" onclick="crm.prevStep(1)">< Geri</button><button type="button" class="btn btn-blue" onclick="crm.nextStep(3)">İleri ></button></div>
                     </div>
                     <div class="wizard-page" id="w-step-3" style="display:none;">
                         <div class="upload-zone" onclick="document.getElementById('v-files').click()"><span class="material-icons-round" style="font-size:40px;">cloud_upload</span><p>Evrakları Sürükle</p></div><input type="file" id="v-files" multiple style="display:none;">
-                        <div class="wizard-buttons"><button type="button" class="btn btn-secondary" onclick="crm.prevStep(2)">< Geri</button><button type="submit" class="btn btn-green">✅ KAYDET</button></div>
+                        <div class="wizard-buttons"><button type="button" class="btn btn-secondary" onclick="crm.prevStep(2)">< Geri</button><button type="submit" class="btn btn-green">✅ KAYDET VE BİTİR</button></div>
                     </div>
                 </form>
             </div>
@@ -179,7 +187,7 @@
 
     <div class="modal-overlay" id="modal-expense"><div class="modal-box"><div class="modal-header"><h3 style="color:var(--red-expense);">Gider Ekle</h3><button class="close-btn" onclick="ui.closeModal('modal-expense')">&times;</button></div><div class="modal-body"><form id="form-expense"><div class="form-group"><label>Kategori</label><select class="form-control"><option value="rent">🏢 Kira</option><option value="marketing">📢 Reklam</option></select></div><div class="form-group"><label>Açıklama</label><input type="text" class="form-control"></div><div class="form-group"><label>Tutar</label><div style="display:flex;"><input type="number" class="form-control"><select class="form-control" style="width:80px;"><option>TRY</option></select></div></div><button type="submit" class="btn btn-red" style="width:100%;">KAYDET</button></form></div></div></div>
     <div class="modal-overlay" id="modal-extra-income"><div class="modal-box"><div class="modal-header"><h3 style="color:var(--blue-info);">Ek Gelir</h3><button class="close-btn" onclick="ui.closeModal('modal-extra-income')">&times;</button></div><div class="modal-body"><form id="form-extra-income"><div class="form-group"><label>Hizmet</label><select class="form-control"><option>✈️ Bilet</option></select></div><div class="form-group"><label>Fiyat</label><input type="number" class="form-control"></div><button type="submit" class="btn btn-blue" style="width:100%;">KAYDET</button></form></div></div></div>
-    <div class="modal-overlay" id="modal-escrow"><div class="modal-box"><div class="modal-header"><h3 style="color:var(--orange-escrow);">Emanet</h3><button class="close-btn" onclick="ui.closeModal('modal-escrow')">&times;</button></div><div class="modal-body"><form id="form-escrow"><div class="form-group"><label>Müşteri</label><input type="text" class="form-control"></div><div class="form-group"><label>Tutar</label><div style="display:flex;"><input type="number" class="form-control"><select class="form-control" style="width:80px;"><option>EUR</option></select></div></div><button type="submit" class="btn btn-orange" style="width:100%;">EMANET AL</button></form></div></div></div>
+    <div class="modal-overlay" id="modal-escrow"><div class="modal-box"><div class="modal-header"><h3 style="color:var(--orange-escrow);">Emanet</h3><button class="close-btn" onclick="ui.closeModal('modal-escrow')">&times;</button></div><div class="modal-body"><form id="form-escrow"><div class="form-group"><label>Müşteri</label><input type="text" class="form-control"></div><div class="form-group"><label>Tutar</label><div style="display:flex;"><input type="number" class="form-control"><select class="form-control" style="width:80px;"><option>EUR</option></select></div></div><button type="submit" class="btn btn-orange" style="width:100%;">EMANETE AL</button></form></div></div></div>
 
     <div class="drawer-overlay" id="customer-drawer" onclick="crm.closeDrawer()"></div>
     <div class="drawer-panel" id="drawer-content">
@@ -187,12 +195,11 @@
         <div class="drawer-body">
             <div style="text-align:center; margin-bottom:20px;">
                 <div style="width:80px; height:80px; background:#e2e8f0; border-radius:50%; margin:0 auto 10px; display:flex; align-items:center; justify-content:center;"><span class="material-icons-round" style="font-size:40px; color:#94a3b8;">person</span></div>
-                <h3 style="margin:0;">Ahmet Yılmaz</h3>
-                <p style="color:#64748b; margin:5px 0;">U12345678</p>
+                <h3 style="margin:0;">Yükleniyor...</h3>
+                <p style="color:#64748b; margin:5px 0;">...</p>
             </div>
             <hr style="border:0; border-top:1px solid #f1f5f9; margin:20px 0;">
-            <div class="info-row"><strong>Durum:</strong> <span class="status-badge status-warning">Evrak Bekliyor</span></div>
-            <p style="color:#999; text-align:center; margin-top:50px;">Detaylar yakında...</p>
+            <div class="info-row"><strong>Durum:</strong> <span class="status-badge status-process">İşlemde</span></div>
         </div>
     </div>
 
