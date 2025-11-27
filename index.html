@@ -113,5 +113,106 @@
     
     <script src="js/app.js"></script>
 
+<div class="modal-overlay" id="modal-income">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>Yeni Vize Dosyası (Gelir)</h3>
+                <button class="close-btn" onclick="ui.closeModal('modal-income')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="step-indicator">
+                    <div class="step active">1</div>
+                    <div class="step">2</div>
+                    <div class="step">3</div>
+                </div>
+
+                <form id="form-income">
+                    <div class="form-step active" id="step-1">
+                        <div class="form-group">
+                            <label>Müşteri Adı Soyadı</label>
+                            <input type="text" class="form-control" placeholder="Örn: Ahmet Yılmaz" required>
+                        </div>
+                        <div class="form-group" style="display:flex; gap:10px;">
+                            <div style="flex:1;">
+                                <label>Gidilecek Ülke</label>
+                                <select class="form-control">
+                                    <option>🇩🇪 Almanya</option>
+                                    <option>🇫🇷 Fransa</option>
+                                    <option>🇺🇸 ABD</option>
+                                </select>
+                            </div>
+                            <div style="flex:1;">
+                                <label>Vize Tipi</label>
+                                <select class="form-control">
+                                    <option>Turistik</option>
+                                    <option>Ticari</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-step" id="step-2" style="display:none;">
+                        <div class="form-group">
+                            <label>Müşteriden Alınan Toplam Tutar</label>
+                            <div style="display:flex; gap:5px;">
+                                <input type="number" class="form-control" placeholder="500">
+                                <select class="form-control" style="width:80px;"><option>EUR</option><option>USD</option></select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Tahmini Giderler (Harç + Sigorta)</label>
+                            <input type="number" class="form-control" placeholder="120 (Otomatik düşülecek)">
+                        </div>
+                        <div style="background:#ecfdf5; color:#065f46; padding:10px; border-radius:6px; text-align:center; font-weight:bold;">
+                            Tahmini Net Kâr: <span id="calc-profit">0</span> EUR
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-header" style="background: white; border-top: 1px solid #f1f5f9; justify-content: flex-end;">
+                <button class="btn btn-red" style="background:#cbd5e1; color:#333; margin-right:10px;" onclick="ui.closeModal('modal-income')">İptal</button>
+                <button class="btn btn-green">İleri ></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-expense">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 style="color:var(--red-expense);">Gider Ekle</h3>
+                <button class="close-btn" onclick="ui.closeModal('modal-expense')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-expense">
+                    <div class="form-group">
+                        <label>Gider Kategorisi</label>
+                        <select class="form-control">
+                            <option value="rent">🏢 Kira / Ofis</option>
+                            <option value="food">🍽️ Yemek / Mutfak</option>
+                            <option value="marketing">📢 Reklam (Google/Instagram)</option>
+                            <option value="bill">⚡ Faturalar</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Açıklama</label>
+                        <input type="text" class="form-control" placeholder="Örn: Kasım ayı reklam ödemesi">
+                    </div>
+                    <div class="form-group">
+                        <label>Tutar</label>
+                        <div style="display:flex; gap:5px;">
+                            <input type="number" class="form-control" placeholder="0.00">
+                            <select class="form-control" style="width:80px;">
+                                <option>TRY</option>
+                                <option>USD</option>
+                                <option>EUR</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-red" style="width:100%;">KAYDET</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
 </body>
 </html>
