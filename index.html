@@ -13,17 +13,16 @@
 <body>
 
     <div id="loading-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#f3f4f6; display:flex; justify-content:center; align-items:center; z-index:9999;">
-        <div style="text-align:center;"><h2 style="color:#1e293b;">Vizerio</h2><p style="color:#64748b;">Yükleniyor...</p></div>
+        <div style="text-align:center;"><h2 style="color:#1e293b;">Vizerio</h2><p style="color:#64748b;">Sistem Başlatılıyor...</p></div>
     </div>
 
     <div class="app-container" style="display:none;" id="main-app">
         <aside class="sidebar">
-            <div class="logo-area"><h2>VIZERIO</h2><span>Office Hub v2.1</span></div>
+            <div class="logo-area"><h2>VIZERIO</h2><span>Office Hub v2.2</span></div>
             <nav class="menu">
                 <div class="menu-item active" id="nav-finance" onclick="app.switchTab('finance')"><span class="material-icons-round">dashboard</span> Finans & Muhasebe</div>
                 <div class="menu-item" id="nav-crm" onclick="app.switchTab('crm')"><span class="material-icons-round">people</span> Müşteri & Operasyon</div>
                 <div class="menu-item" onclick="alert('Yakında')"><span class="material-icons-round">bar_chart</span> Raporlar</div>
-                <div class="menu-item" onclick="alert('Yakında')"><span class="material-icons-round">settings</span> Ayarlar</div>
                 <div class="menu-item text-red" style="margin-top: auto;" onclick="window.auth.logout()"><span class="material-icons-round">logout</span> Çıkış Yap</div>
             </nav>
             <div class="user-profile"><div style="width:35px; height:35px; background:#3b82f6; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right:10px;">YÖ</div><div><strong id="user-name" style="font-size:13px;">Yönetici</strong></div></div>
@@ -34,7 +33,6 @@
                 <div class="search-bar"><span class="material-icons-round">search</span><input type="text" placeholder="Ara..."></div>
                 <div class="header-tools">
                     <div class="currency-selector"><select id="currencySelect" onchange="ui.updateCurrency()" style="padding: 5px; border-radius: 6px; border: 1px solid #e2e8f0;"><option value="TRY">₺ TRY</option><option value="USD">$ USD</option><option value="EUR">€ EUR</option></select></div>
-                    <button class="icon-btn" onclick="alert('Takvim')"><span class="material-icons-round">calendar_today</span></button>
                     <button class="icon-btn notification"><span class="material-icons-round">notifications</span></button>
                 </div>
             </header>
@@ -64,15 +62,17 @@
                     <div><h1 style="margin:0; font-size:24px;">Operasyon Merkezi</h1><p style="color:#64748b; font-size:13px; margin:5px 0 0 0;">Dosya takibi ve yönetimi</p></div>
                     <button class="btn btn-blue" onclick="ui.openModal('modal-income')"><span class="material-icons-round">add</span> YENİ DOSYA AÇ</button>
                 </div>
+                
                 <div class="crm-filter-bar">
                     <div class="filter-tab active" onclick="crm.filterList('all')">Tümü <span class="count-badge" id="count-all">0</span></div>
                     <div class="filter-tab" onclick="crm.filterList('new')">Yeni <span class="count-badge bg-blue" id="count-new">0</span></div>
                     <div class="filter-tab" onclick="crm.filterList('docs_wait')">Evrak <span class="count-badge bg-orange" id="count-docs">0</span></div>
                     <div class="filter-tab" onclick="crm.filterList('appointment_wait')">Randevu B. <span class="count-badge bg-red" id="count-app-wait">0</span></div>
                     <div class="filter-tab" onclick="crm.filterList('appointment_scheduled')">Randevulu <span class="count-badge bg-green-light" style="color:green" id="count-app-ok">0</span></div>
-                    <div class="filter-tab" onclick="crm.filterList('consulate')">İşlemde <span class="count-badge bg-purple" id="count-consulate">0</span></div>
+                    <div class="filter-tab" onclick="crm.filterList('process')">İşlemde <span class="count-badge bg-purple" id="count-process">0</span></div>
                     <div class="filter-tab" onclick="crm.filterList('completed')">Biten <span class="count-badge badge-gray" id="count-completed">0</span></div>
                 </div>
+
                 <div class="card" style="padding: 0; overflow: hidden;">
                     <table class="crm-table"><thead><tr><th style="padding-left:25px;">Müşteri</th><th>Hedef</th><th>Durum</th><th>Tarih</th><th></th></tr></thead><tbody id="crm-table-body"><tr><td colspan="5" style="text-align:center; padding:30px; color:#999;">Yükleniyor...</td></tr></tbody></table>
                 </div>
@@ -145,7 +145,6 @@
     <div class="drawer-panel" id="drawer-content">
         <div class="drawer-header"><h2 id="d-name">Yükleniyor...</h2><button class="close-btn" onclick="crm.closeDrawer()">&times;</button></div>
         <div class="drawer-body">
-            
             <div style="text-align:center; margin-bottom:20px;">
                 <div style="width:70px; height:70px; background:#e2e8f0; border-radius:50%; margin:0 auto 10px; display:flex; align-items:center; justify-content:center;"><span class="material-icons-round" style="font-size:30px; color:#94a3b8;">person</span></div>
                 <h3 id="drawer-customer-name" style="margin:0;">...</h3>
@@ -171,21 +170,13 @@
                 </div>
             </div>
 
-            <div id="tab-passport" class="drawer-tab-content" style="display:none;">
-                <p style="color:#999; font-size:13px;">Pasaport bilgileri buraya gelecek...</p>
-            </div>
-
-            <div id="tab-work" class="drawer-tab-content" style="display:none;">
-                <p style="color:#999; font-size:13px;">İş ve aile bilgileri buraya gelecek...</p>
-            </div>
-
-            <div id="tab-files" class="drawer-tab-content" style="display:none;">
-                <p style="color:#999; font-size:13px;">Yüklenen dosyalar...</p>
-            </div>
+            <div id="tab-passport" class="drawer-tab-content" style="display:none;"><p style="color:#999; font-size:13px;">Pasaport bilgileri...</p></div>
+            <div id="tab-work" class="drawer-tab-content" style="display:none;"><p style="color:#999; font-size:13px;">İş ve aile bilgileri...</p></div>
+            <div id="tab-files" class="drawer-tab-content" style="display:none;"><p style="color:#999; font-size:13px;">Dosyalar...</p></div>
 
             <div class="drawer-footer">
-                <button class="btn btn-blue" style="flex:1;"><span class="material-icons-round">edit</span> DÜZENLE</button>
-                <button class="btn btn-red" style="width:50px;"><span class="material-icons-round">delete</span></button>
+                <button class="btn btn-blue" style="flex:1;" onclick="alert('Düzenleme modu yakında açılacak')"><span class="material-icons-round">edit</span> DÜZENLE</button>
+                <button class="btn btn-red" style="width:50px;" onclick="crm.deleteVisaCase()"><span class="material-icons-round">delete</span></button>
             </div>
         </div>
     </div>
