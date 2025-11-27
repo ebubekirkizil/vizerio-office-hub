@@ -4,72 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vizerio - Yönetim Paneli</title>
-    
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="css/style.css">
-
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
     <div id="loading-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#f3f4f6; display:flex; justify-content:center; align-items:center; z-index:9999;">
-        <div style="text-align:center;">
-            <h2 style="color:#1e293b; font-family:'Inter',sans-serif;">Vizerio</h2>
-            <p style="color:#64748b;">Sistem Başlatılıyor...</p>
-        </div>
+        <div style="text-align:center;"><h2 style="color:#1e293b;">Vizerio</h2><p style="color:#64748b;">Yükleniyor...</p></div>
     </div>
 
     <div class="app-container" style="display:none;" id="main-app">
-        
         <aside class="sidebar">
-            <div class="logo-area">
-                <h2>VIZERIO</h2>
-                <span>Office Hub v2.0</span>
-            </div>
-            
+            <div class="logo-area"><h2>VIZERIO</h2><span>Office Hub v2.1</span></div>
             <nav class="menu">
-                <div class="menu-item active" id="nav-finance" onclick="app.switchTab('finance')">
-                    <span class="material-icons-round">dashboard</span> Finans & Muhasebe
-                </div>
-                <div class="menu-item" id="nav-crm" onclick="app.switchTab('crm')">
-                    <span class="material-icons-round">people</span> Müşteri & Operasyon
-                </div>
-                <div class="menu-item" onclick="alert('Raporlar modülü yakında eklenecek.')">
-                    <span class="material-icons-round">bar_chart</span> Raporlar
-                </div>
-                <div class="menu-item" onclick="alert('Ayarlar yakında eklenecek.')">
-                    <span class="material-icons-round">settings</span> Ayarlar
-                </div>
-                
-                <div class="menu-item text-red" style="margin-top: auto;" onclick="window.auth.logout()">
-                    <span class="material-icons-round">logout</span> Çıkış Yap
-                </div>
+                <div class="menu-item active" id="nav-finance" onclick="app.switchTab('finance')"><span class="material-icons-round">dashboard</span> Finans & Muhasebe</div>
+                <div class="menu-item" id="nav-crm" onclick="app.switchTab('crm')"><span class="material-icons-round">people</span> Müşteri & Operasyon</div>
+                <div class="menu-item" onclick="alert('Yakında')"><span class="material-icons-round">bar_chart</span> Raporlar</div>
+                <div class="menu-item" onclick="alert('Yakında')"><span class="material-icons-round">settings</span> Ayarlar</div>
+                <div class="menu-item text-red" style="margin-top: auto;" onclick="window.auth.logout()"><span class="material-icons-round">logout</span> Çıkış Yap</div>
             </nav>
-
-            <div class="user-profile">
-                <div style="width:35px; height:35px; background:#3b82f6; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right:10px;">YÖ</div>
-                <div><strong id="user-name" style="font-size:13px;">Yönetici</strong></div>
-            </div>
+            <div class="user-profile"><div style="width:35px; height:35px; background:#3b82f6; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right:10px;">YÖ</div><div><strong id="user-name" style="font-size:13px;">Yönetici</strong></div></div>
         </aside>
 
         <main class="main-content">
-            
             <header class="top-header">
-                <div class="search-bar">
-                    <span class="material-icons-round">search</span>
-                    <input type="text" placeholder="Müşteri veya dosya ara...">
-                </div>
+                <div class="search-bar"><span class="material-icons-round">search</span><input type="text" placeholder="Ara..."></div>
                 <div class="header-tools">
-                    <div class="currency-selector">
-                        <select id="currencySelect" onchange="ui.updateCurrency()" style="padding: 5px; border-radius: 6px; border: 1px solid #e2e8f0;">
-                            <option value="TRY">₺ TRY</option>
-                            <option value="USD">$ USD</option>
-                            <option value="EUR">€ EUR</option>
-                        </select>
-                    </div>
+                    <div class="currency-selector"><select id="currencySelect" onchange="ui.updateCurrency()" style="padding: 5px; border-radius: 6px; border: 1px solid #e2e8f0;"><option value="TRY">₺ TRY</option><option value="USD">$ USD</option><option value="EUR">€ EUR</option></select></div>
                     <button class="icon-btn" onclick="alert('Takvim')"><span class="material-icons-round">calendar_today</span></button>
                     <button class="icon-btn notification"><span class="material-icons-round">notifications</span></button>
                 </div>
@@ -79,111 +43,81 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
                     <h1 style="margin:0; font-size:24px;">Finansal Durum</h1>
                     <div>
-                        <button class="btn btn-green" onclick="ui.openModal('modal-select-income-type')">
-                            <span class="material-icons-round">add</span> GELİR GİRİŞİ
-                        </button>
-                        <button class="btn btn-red" style="margin-left: 10px;" onclick="ui.openModal('modal-expense')">
-                            <span class="material-icons-round">remove</span> GİDER EKLE
-                        </button>
+                        <button class="btn btn-green" onclick="ui.openModal('modal-select-income-type')"><span class="material-icons-round">add</span> GELİR GİRİŞİ</button>
+                        <button class="btn btn-red" style="margin-left: 10px;" onclick="ui.openModal('modal-expense')"><span class="material-icons-round">remove</span> GİDER EKLE</button>
                     </div>
                 </div>
-
                 <div class="summary-cards">
                     <div class="card border-green"><div class="card-title">NET KÂR (BU AY)</div><div class="money" id="money-profit">₺ 0,00</div></div>
                     <div class="card border-blue"><div class="card-title">TOPLAM CİRO</div><div class="money" id="money-income">₺ 0,00</div></div>
                     <div class="card border-red"><div class="card-title">TOPLAM GİDER</div><div class="money" id="money-expense">₺ 0,00</div></div>
                     <div class="card border-orange"><div class="card-title">⚠️ EMANET BAKİYE</div><div class="money" id="money-escrow">€ 0,00</div></div>
                 </div>
-
                 <div class="card" style="margin-top: 20px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                        <div class="card-title">SON FİNANSAL HAREKETLER</div>
-                        <button class="btn" style="color:#666; background:#f1f5f9; font-size:12px;" onclick="accounting.refreshDashboard()">🔄 Yenile</button>
-                    </div>
-                    <table class="data-table">
-                        <thead><tr><th>Tarih</th><th>Açıklama / Müşteri</th><th>Kategori</th><th>Tutar</th></tr></thead>
-                        <tbody id="transactions-body"><tr><td colspan="4" style="text-align:center; color:#999; padding:20px;">Veriler Yükleniyor...</td></tr></tbody>
-                    </table>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><div class="card-title">SON İŞLEMLER</div><button class="btn" style="color:#666; background:#f1f5f9; font-size:12px;" onclick="accounting.refreshDashboard()">🔄 Yenile</button></div>
+                    <table class="data-table"><thead><tr><th>Tarih</th><th>Açıklama / Müşteri</th><th>Kategori</th><th>Tutar</th></tr></thead><tbody id="transactions-body"><tr><td colspan="4" style="text-align:center; padding:20px; color:#999;">Yükleniyor...</td></tr></tbody></table>
                 </div>
             </section>
 
             <section id="section-crm" class="content-section" style="display:none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                    <div>
-                        <h1 style="margin:0; font-size:24px;">Operasyon Merkezi</h1>
-                        <p style="color:#64748b; font-size:13px; margin:5px 0 0 0;">Aktif dosyaların durumunu buradan yönetin.</p>
-                    </div>
-                    <button class="btn btn-blue" onclick="ui.openModal('modal-income')">
-                        <span class="material-icons-round">add</span> YENİ DOSYA AÇ
-                    </button>
+                    <div><h1 style="margin:0; font-size:24px;">Operasyon Merkezi</h1><p style="color:#64748b; font-size:13px; margin:5px 0 0 0;">Dosya takibi ve yönetimi</p></div>
+                    <button class="btn btn-blue" onclick="ui.openModal('modal-income')"><span class="material-icons-round">add</span> YENİ DOSYA AÇ</button>
                 </div>
-
                 <div class="crm-filter-bar">
-                    <div class="filter-tab active" onclick="crm.filterList('all')">
-                        Tümü <span class="count-badge" id="count-all">0</span>
-                    </div>
-                    <div class="filter-tab" onclick="crm.filterList('new')">
-                        Yeni <span class="count-badge bg-blue" id="count-new">0</span>
-                    </div>
-                    <div class="filter-tab" onclick="crm.filterList('docs_wait')">
-                        Evrak <span class="count-badge bg-orange" id="count-docs">0</span>
-                    </div>
-                    <div class="filter-tab" onclick="crm.filterList('appointment_wait')">
-                        Randevu B. <span class="count-badge bg-red" id="count-app-wait">0</span>
-                    </div>
-                    <div class="filter-tab" onclick="crm.filterList('appointment_scheduled')">
-                        Randevulu <span class="count-badge bg-green-light" style="color:green" id="count-app-ok">0</span>
-                    </div>
-                    <div class="filter-tab" onclick="crm.filterList('consulate')">
-                        İşlemde <span class="count-badge bg-purple" id="count-consulate">0</span>
-                    </div>
-                    <div class="filter-tab" onclick="crm.filterList('completed')">
-                        Biten <span class="count-badge badge-gray" id="count-completed">0</span>
-                    </div>
+                    <div class="filter-tab active" onclick="crm.filterList('all')">Tümü <span class="count-badge" id="count-all">0</span></div>
+                    <div class="filter-tab" onclick="crm.filterList('new')">Yeni <span class="count-badge bg-blue" id="count-new">0</span></div>
+                    <div class="filter-tab" onclick="crm.filterList('docs_wait')">Evrak <span class="count-badge bg-orange" id="count-docs">0</span></div>
+                    <div class="filter-tab" onclick="crm.filterList('appointment_wait')">Randevu B. <span class="count-badge bg-red" id="count-app-wait">0</span></div>
+                    <div class="filter-tab" onclick="crm.filterList('appointment_scheduled')">Randevulu <span class="count-badge bg-green-light" style="color:green" id="count-app-ok">0</span></div>
+                    <div class="filter-tab" onclick="crm.filterList('consulate')">İşlemde <span class="count-badge bg-purple" id="count-consulate">0</span></div>
+                    <div class="filter-tab" onclick="crm.filterList('completed')">Biten <span class="count-badge badge-gray" id="count-completed">0</span></div>
                 </div>
-
                 <div class="card" style="padding: 0; overflow: hidden;">
-                    <table class="crm-table">
-                        <thead>
-                            <tr>
-                                <th style="padding-left:25px;">Müşteri</th>
-                                <th>Hedef / Program</th>
-                                <th>Durum</th>
-                                <th>Son İşlem / Tarih</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody id="crm-table-body">
-                            <tr><td colspan="5" style="text-align:center; padding:30px; color:#999;">Yükleniyor...</td></tr>
-                        </tbody>
-                    </table>
+                    <table class="crm-table"><thead><tr><th style="padding-left:25px;">Müşteri</th><th>Hedef</th><th>Durum</th><th>Tarih</th><th></th></tr></thead><tbody id="crm-table-body"><tr><td colspan="5" style="text-align:center; padding:30px; color:#999;">Yükleniyor...</td></tr></tbody></table>
                 </div>
             </section>
-
         </main>
     </div>
 
     <div class="modal-overlay" id="modal-select-income-type">
         <div class="modal-box" style="width: 600px;">
             <div class="modal-header"><h3>Gelir Türü Seçiniz</h3><button class="close-btn" onclick="ui.closeModal('modal-select-income-type')">&times;</button></div>
-            <div class="modal-body"><div class="selection-grid"><div class="selection-card" onclick="ui.openModal('modal-income'); ui.closeModal('modal-select-income-type');"><span style="font-size:30px; color:var(--green-profit);">🛂</span><strong>Vize İşlemi</strong><small>Dosya aç</small></div><div class="selection-card" onclick="ui.openModal('modal-extra-income'); ui.closeModal('modal-select-income-type');"><span style="font-size:30px; color:var(--blue-info);">✈️</span><strong>Ek Gelir</strong><small>Bilet, Sigorta</small></div><div class="selection-card" onclick="ui.openModal('modal-escrow'); ui.closeModal('modal-select-income-type');"><span style="font-size:30px; color:var(--orange-escrow);">🟠</span><strong>Emanet Para</strong><small>Harç</small></div></div></div>
+            <div class="modal-body"><div class="selection-grid"><div class="selection-card" onclick="ui.openModal('modal-income'); ui.closeModal('modal-select-income-type');"><span style="font-size:30px; color:var(--green-profit);">🛂</span><strong>Vize</strong></div><div class="selection-card" onclick="ui.openModal('modal-extra-income'); ui.closeModal('modal-select-income-type');"><span style="font-size:30px; color:var(--blue-info);">✈️</span><strong>Ek Gelir</strong></div><div class="selection-card" onclick="ui.openModal('modal-escrow'); ui.closeModal('modal-select-income-type');"><span style="font-size:30px; color:var(--orange-escrow);">🟠</span><strong>Emanet</strong></div></div></div>
         </div>
     </div>
 
     <div class="modal-overlay" id="modal-income">
-        <div class="modal-box" style="width: 700px;"> 
-            <div class="modal-header"><h3>Yeni Vize Dosyası Oluştur</h3><button class="close-btn" onclick="ui.closeModal('modal-income')">&times;</button></div>
+        <div class="modal-box" style="width: 800px;"> 
+            <div class="modal-header"><h3>Yeni Müşteri & Dosya Kaydı</h3><button class="close-btn" onclick="ui.closeModal('modal-income')">&times;</button></div>
             <div class="modal-body">
-                <div class="wizard-steps"><div class="w-step active" id="w-step-1-indicator">1. Kimlik & Seyahat</div><div class="w-step" id="w-step-2-indicator">2. Finans & Ödeme</div><div class="w-step" id="w-step-3-indicator">3. Evrak Yükleme</div></div>
+                <div class="wizard-steps"><div class="w-step active" id="w-step-1-indicator">1. Detaylı Kimlik</div><div class="w-step" id="w-step-2-indicator">2. Finans</div><div class="w-step" id="w-step-3-indicator">3. Evrak</div></div>
                 <form id="form-visa-wizard">
                     <div class="wizard-page" id="w-step-1">
-                        <div style="display: flex; gap: 20px;">
-                            <div class="photo-upload-area"><div class="photo-circle" onclick="document.getElementById('customer-photo').click()"><span class="material-icons-round">add_a_photo</span><img id="photo-preview" src="" style="display:none;"></div><input type="file" id="customer-photo" style="display: none;" onchange="crm.previewPhoto(this)"><small>Fotoğraf</small></div>
-                            <div style="flex: 1;"><div class="form-group"><label>Ad Soyad *</label><input type="text" class="form-control" id="v-name" required></div><div class="form-group"><label>TC / Pasaport No *</label><input type="text" class="form-control" id="v-passport"></div><div class="form-group"><label>Telefon</label><input type="text" class="form-control" id="v-phone"></div></div>
+                        <div class="form-row">
+                            <div class="form-group half"><label>Ad Soyad *</label><input type="text" class="form-control" id="v-name" required></div>
+                            <div class="form-group half"><label>TC / Pasaport No *</label><input type="text" class="form-control" id="v-passport" required></div>
                         </div>
-                        <div class="form-group" style="margin-top:15px;"><label>Gidilecek Ülke & Vize Tipi</label><div style="display:flex; gap:10px;"><select class="form-control" id="v-country"><option value="DE">🇩🇪 Almanya</option><option value="FR">🇫🇷 Fransa</option><option value="US">🇺🇸 ABD</option></select><select class="form-control" id="v-type"><option>Turistik</option><option>Ticari</option></select></div></div>
+                        <div class="form-row">
+                            <div class="form-group half"><label>Telefon *</label><input type="text" class="form-control" id="v-phone" required></div>
+                            <div class="form-group half"><label>Uyruk / Vatandaşlık</label><input type="text" class="form-control" id="v-nationality" value="T.C."></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group half"><label>Doğum Tarihi</label><input type="date" class="form-control" id="v-dob"></div>
+                            <div class="form-group half"><label>Doğum Yeri</label><input type="text" class="form-control" id="v-birthplace"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group half"><label>Cinsiyet</label><select class="form-control" id="v-gender"><option>Erkek</option><option>Kadın</option></select></div>
+                            <div class="form-group half"><label>Medeni Durum</label><select class="form-control" id="v-marital"><option>Bekar</option><option>Evli</option><option>Dul</option></select></div>
+                        </div>
+                        <hr style="border:0; border-top:1px solid #f1f5f9; margin:15px 0;">
+                        <div class="form-row">
+                            <div class="form-group half"><label>Gidilecek Ülke</label><select class="form-control" id="v-country"><option value="DE">🇩🇪 Almanya</option><option value="FR">🇫🇷 Fransa</option><option value="US">🇺🇸 ABD</option></select></div>
+                            <div class="form-group half"><label>Vize Tipi</label><select class="form-control" id="v-type"><option>Turistik</option><option>Ticari</option></select></div>
+                        </div>
                         <div class="wizard-buttons"><button type="button" class="btn btn-secondary" onclick="ui.closeModal('modal-income')">İptal</button><button type="button" class="btn btn-blue" onclick="crm.nextStep(2)">İleri ></button></div>
                     </div>
+                    
                     <div class="wizard-page" id="w-step-2" style="display:none;">
                         <div class="finance-box">
                             <div class="form-group"><label>Müşteri Fiyatı</label><div class="input-with-icon"><input type="number" class="form-control" id="v-price" oninput="crm.calculateProfit()"><select class="currency-small" id="v-currency" onchange="crm.calculateProfit()"><option>EUR</option><option>USD</option></select></div></div>
@@ -193,35 +127,65 @@
                         <div class="form-group" style="margin-top:15px;"><label>Ödeme</label><select class="form-control" id="v-payment-status"><option value="unpaid">❌ Ödenmedi</option><option value="paid">✅ Peşin Alındı</option></select></div>
                         <div class="wizard-buttons"><button type="button" class="btn btn-secondary" onclick="crm.prevStep(1)">< Geri</button><button type="button" class="btn btn-blue" onclick="crm.nextStep(3)">İleri ></button></div>
                     </div>
+
                     <div class="wizard-page" id="w-step-3" style="display:none;">
-                        <div class="upload-zone" onclick="document.getElementById('v-files').click()"><span class="material-icons-round" style="font-size:40px;">cloud_upload</span><p>Evrakları Sürükle</p></div><input type="file" id="v-files" multiple style="display:none;">
-                        <div class="wizard-buttons"><button type="button" class="btn btn-secondary" onclick="crm.prevStep(2)">< Geri</button><button type="submit" class="btn btn-green">✅ KAYDET VE BİTİR</button></div>
+                        <div class="upload-zone"><span class="material-icons-round" style="font-size:40px;">cloud_upload</span><p>Evrakları Sürükle</p></div>
+                        <div class="wizard-buttons"><button type="button" class="btn btn-secondary" onclick="crm.prevStep(2)">< Geri</button><button type="submit" class="btn btn-green">✅ KAYDET</button></div>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <div class="modal-overlay" id="modal-expense"><div class="modal-box"><div class="modal-header"><h3 style="color:var(--red-expense);">Gider Ekle</h3><button class="close-btn" onclick="ui.closeModal('modal-expense')">&times;</button></div><div class="modal-body"><form id="form-expense"><div class="form-group"><label>Kategori</label><select class="form-control"><option value="rent">🏢 Kira</option><option value="marketing">📢 Reklam</option></select></div><div class="form-group"><label>Açıklama</label><input type="text" class="form-control"></div><div class="form-group"><label>Tutar</label><div style="display:flex;"><input type="number" class="form-control"><select class="form-control" style="width:80px;"><option>TRY</option></select></div></div><button type="submit" class="btn btn-red" style="width:100%;">KAYDET</button></form></div></div></div>
-    <div class="modal-overlay" id="modal-extra-income"><div class="modal-box"><div class="modal-header"><h3 style="color:var(--blue-info);">Ek Gelir</h3><button class="close-btn" onclick="ui.closeModal('modal-extra-income')">&times;</button></div><div class="modal-body"><form id="form-extra-income"><div class="form-group"><label>Hizmet</label><select class="form-control"><option>✈️ Bilet</option></select></div><div class="form-group"><label>Fiyat</label><input type="number" class="form-control"></div><button type="submit" class="btn btn-blue" style="width:100%;">KAYDET</button></form></div></div></div>
-    <div class="modal-overlay" id="modal-escrow"><div class="modal-box"><div class="modal-header"><h3 style="color:var(--orange-escrow);">Emanet</h3><button class="close-btn" onclick="ui.closeModal('modal-escrow')">&times;</button></div><div class="modal-body"><form id="form-escrow"><div class="form-group"><label>Müşteri</label><input type="text" class="form-control"></div><div class="form-group"><label>Tutar</label><div style="display:flex;"><input type="number" class="form-control"><select class="form-control" style="width:80px;"><option>EUR</option></select></div></div><button type="submit" class="btn btn-orange" style="width:100%;">EMANETE AL</button></form></div></div></div>
+    <div class="modal-overlay" id="modal-expense"><div class="modal-box"><div class="modal-header"><h3>Gider Ekle</h3><button class="close-btn" onclick="ui.closeModal('modal-expense')">&times;</button></div><div class="modal-body"><form id="form-expense"><div class="form-group"><label>Kategori</label><select class="form-control"><option value="rent">Kira</option><option value="marketing">Reklam</option></select></div><div class="form-group"><label>Tutar</label><input type="number" class="form-control"></div><button type="submit" class="btn btn-red" style="width:100%;">KAYDET</button></form></div></div></div>
+    <div class="modal-overlay" id="modal-extra-income"><div class="modal-box"><div class="modal-header"><h3>Ek Gelir</h3><button class="close-btn" onclick="ui.closeModal('modal-extra-income')">&times;</button></div><div class="modal-body"><form id="form-extra-income"><div class="form-group"><label>Hizmet</label><select class="form-control"><option>Uçak Bileti</option></select></div><div class="form-group"><label>Fiyat</label><input type="number" class="form-control"></div><button type="submit" class="btn btn-blue" style="width:100%;">KAYDET</button></form></div></div></div>
+    <div class="modal-overlay" id="modal-escrow"><div class="modal-box"><div class="modal-header"><h3>Emanet</h3><button class="close-btn" onclick="ui.closeModal('modal-escrow')">&times;</button></div><div class="modal-body"><form id="form-escrow"><div class="form-group"><label>Müşteri</label><input type="text" class="form-control"></div><div class="form-group"><label>Tutar</label><input type="number" class="form-control"></div><button type="submit" class="btn btn-orange" style="width:100%;">AL</button></form></div></div></div>
 
     <div class="drawer-overlay" id="customer-drawer" onclick="crm.closeDrawer()"></div>
     <div class="drawer-panel" id="drawer-content">
         <div class="drawer-header"><h2 id="d-name">Yükleniyor...</h2><button class="close-btn" onclick="crm.closeDrawer()">&times;</button></div>
         <div class="drawer-body">
+            
             <div style="text-align:center; margin-bottom:20px;">
-                <div style="width:80px; height:80px; background:#e2e8f0; border-radius:50%; margin:0 auto 10px; display:flex; align-items:center; justify-content:center;"><span class="material-icons-round" style="font-size:40px; color:#94a3b8;">person</span></div>
+                <div style="width:70px; height:70px; background:#e2e8f0; border-radius:50%; margin:0 auto 10px; display:flex; align-items:center; justify-content:center;"><span class="material-icons-round" style="font-size:30px; color:#94a3b8;">person</span></div>
                 <h3 id="drawer-customer-name" style="margin:0;">...</h3>
-                <p id="drawer-passport" style="color:#64748b; margin:5px 0;">...</p>
+                <p id="drawer-passport" style="color:#64748b; font-size:13px; margin:5px 0;">...</p>
+                <div id="drawer-status-badge" style="margin-top:5px;"></div>
             </div>
-            <hr style="border:0; border-top:1px solid #f1f5f9; margin:20px 0;">
-            <div class="form-group"><label>Telefon</label><div id="drawer-phone" style="font-weight:500;">-</div></div>
-            <div class="form-group"><label>Dosya Durumu</label><div id="drawer-status">-</div></div>
-            <div class="form-group"><label>Ülke / Vize</label><div id="drawer-country" style="font-weight:500;">-</div></div>
-            <div style="margin-top:30px;">
-                <button class="btn btn-blue" style="width:100%; margin-bottom:10px;">📞 WhatsApp'tan Yaz</button>
-                <button class="btn btn-red" style="width:100%;">🗑️ Dosyayı Arşivle</button>
+
+            <div class="drawer-tabs">
+                <div class="d-tab active" onclick="crm.switchDrawerTab('tab-identity')">Kimlik</div>
+                <div class="d-tab" onclick="crm.switchDrawerTab('tab-passport')">Pasaport</div>
+                <div class="d-tab" onclick="crm.switchDrawerTab('tab-work')">İş/Aile</div>
+                <div class="d-tab" onclick="crm.switchDrawerTab('tab-files')">Evrak</div>
+            </div>
+
+            <div id="tab-identity" class="drawer-tab-content active">
+                <div class="info-grid">
+                    <div class="info-item"><label>Telefon</label><span id="d-phone">-</span></div>
+                    <div class="info-item"><label>Uyruk</label><span id="d-nationality">-</span></div>
+                    <div class="info-item"><label>Doğum Tarihi</label><span id="d-dob">-</span></div>
+                    <div class="info-item"><label>Doğum Yeri</label><span id="d-birthplace">-</span></div>
+                    <div class="info-item"><label>Cinsiyet</label><span id="d-gender">-</span></div>
+                    <div class="info-item"><label>Medeni Hal</label><span id="d-marital">-</span></div>
+                </div>
+            </div>
+
+            <div id="tab-passport" class="drawer-tab-content" style="display:none;">
+                <p style="color:#999; font-size:13px;">Pasaport bilgileri buraya gelecek...</p>
+            </div>
+
+            <div id="tab-work" class="drawer-tab-content" style="display:none;">
+                <p style="color:#999; font-size:13px;">İş ve aile bilgileri buraya gelecek...</p>
+            </div>
+
+            <div id="tab-files" class="drawer-tab-content" style="display:none;">
+                <p style="color:#999; font-size:13px;">Yüklenen dosyalar...</p>
+            </div>
+
+            <div class="drawer-footer">
+                <button class="btn btn-blue" style="flex:1;"><span class="material-icons-round">edit</span> DÜZENLE</button>
+                <button class="btn btn-red" style="width:50px;"><span class="material-icons-round">delete</span></button>
             </div>
         </div>
     </div>
