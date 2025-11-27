@@ -1,174 +1,89 @@
-/* css/style.css - Vizerio Ana Tasarım */
+/* css/style.css - Vizerio Güncel Tasarım */
 
 :root {
-    /* Renk Paleti - Seninle Belirlediğimiz Renkler */
-    --bg-color: #f3f4f6;       /* Açık Gri Zemin */
-    --sidebar-bg: #1e293b;     /* Koyu Lacivert Menü */
+    /* Renk Paleti */
+    --bg-color: #f3f4f6;
+    --sidebar-bg: #1e293b;
     --text-primary: #1f2937;
     --text-secondary: #6b7280;
-    
-    --green-profit: #10b981;   /* KÂR / GELİR */
-    --red-expense: #ef4444;    /* GİDER / ACİL */
-    --orange-escrow: #f59e0b;  /* EMANET / HARÇ */
-    --blue-info: #3b82f6;      /* CİRO / BİLGİ */
-    
+    --green-profit: #10b981;
+    --red-expense: #ef4444;
+    --orange-escrow: #f59e0b;
+    --blue-info: #3b82f6;
     --white: #ffffff;
-    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-body {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-primary);
-    overflow: hidden; /* Scroll menüde olacak */
-}
+body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-primary); overflow: hidden; }
+.app-container { display: flex; height: 100vh; }
 
-.app-container {
-    display: flex;
-    height: 100vh;
-}
-
-/* --- SOL MENÜ (SIDEBAR) --- */
-.sidebar {
-    width: 260px;
-    background-color: var(--sidebar-bg);
-    color: #e2e8f0;
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    flex-shrink: 0;
-}
-
-.logo-area { padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-.logo-area h2 { margin: 0; font-weight: 700; letter-spacing: 0.5px; }
-.logo-area span { font-size: 12px; color: #94a3b8; }
-
-.menu { margin-top: 30px; flex-grow: 1; }
-.menu-item {
-    display: flex; align-items: center;
-    padding: 12px 15px; color: #cbd5e1;
-    text-decoration: none; border-radius: 8px;
-    margin-bottom: 5px; transition: 0.2s; cursor: pointer;
-}
+/* SIDEBAR */
+.sidebar { width: 260px; background-color: var(--sidebar-bg); color: #e2e8f0; display: flex; flex-direction: column; padding: 20px; flex-shrink: 0; }
+.logo-area { padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px;}
+.menu-item { display: flex; align-items: center; padding: 12px 15px; color: #cbd5e1; border-radius: 8px; margin-bottom: 5px; cursor: pointer; transition: 0.2s; }
 .menu-item:hover, .menu-item.active { background: rgba(255,255,255,0.1); color: var(--white); }
 .menu-item span { margin-right: 12px; }
 .text-red { color: var(--red-expense) !important; }
 
-/* --- ANA İÇERİK --- */
+/* MAIN CONTENT (Ferahlık Ayarı Burası) */
 .main-content {
     flex: 1;
     display: flex; flex-direction: column;
-    overflow-y: auto; /* İçerik kaydırılabilir */
+    overflow-y: auto;
+    padding: 0; /* Header hariç padding yok */
 }
 
 /* Header */
-.top-header {
-    background: var(--white);
-    padding: 15px 30px;
-    display: flex; justify-content: space-between; align-items: center;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    position: sticky; top: 0; z-index: 10;
-}
-.search-bar {
-    background: #f1f5f9; padding: 8px 15px; border-radius: 8px;
-    display: flex; align-items: center; width: 300px;
-}
+.top-header { background: var(--white); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; }
+.search-bar { background: #f1f5f9; padding: 8px 15px; border-radius: 8px; width: 300px; display: flex; align-items: center; }
 .search-bar input { border: none; background: transparent; outline: none; margin-left: 10px; width: 100%; }
 
-.header-tools { display: flex; gap: 15px; align-items: center; }
-.icon-btn {
-    background: none; border: none; cursor: pointer; font-size: 16px;
-    color: var(--text-secondary); position: relative;
-    padding: 8px; border-radius: 50%; transition: 0.2s;
+/* SECTION (İçerik Alanı) */
+.content-section {
+    padding: 40px; /* Kenarlardan 40px boşluk bıraktık (Ferahlık) */
+    display: none; /* Varsayılan olarak hepsi GİZLİ */
 }
-.icon-btn:hover { background: #f3f4f6; color: var(--text-primary); }
-
-/* --- DASHBOARD BİLEŞENLERİ --- */
-.content-section { padding: 30px; display: none; } /* Hepsi gizli */
-.content-section.active { display: block; animation: fadeIn 0.3s; } /* Sadece aktif olan görünür */
-
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-/* Kartlar */
-.summary-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
-.card {
-    background: var(--white); padding: 20px;
-    border-radius: 12px; box-shadow: var(--shadow);
-    position: relative; overflow: hidden;
+/* Sadece active sınıfı olan görünür */
+.content-section.active {
+    display: block !important;
+    animation: fadeIn 0.3s ease-in-out;
 }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Kartlar ve Diğerleri */
+.summary-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px; margin-bottom: 30px; }
+.card { background: var(--white); padding: 25px; border-radius: 12px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
 .card-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; }
-.money { font-size: 24px; font-weight: 700; margin: 10px 0; color: var(--text-primary); }
+.money { font-size: 26px; font-weight: 700; margin: 10px 0; color: var(--text-primary); }
 
-/* Kart Renkleri */
-.border-green { border-left: 4px solid var(--green-profit); }
-.border-blue { border-left: 4px solid var(--blue-info); }
-.border-red { border-left: 4px solid var(--red-expense); }
-.border-orange { border-left: 4px solid var(--orange-escrow); background: #fffbf0; }
+.border-green { border-left: 5px solid var(--green-profit); }
+.border-blue { border-left: 5px solid var(--blue-info); }
+.border-red { border-left: 5px solid var(--red-expense); }
+.border-orange { border-left: 5px solid var(--orange-escrow); background: #fffbf0; }
 
-/* Butonlar */
-.btn {
-    padding: 10px 20px; border-radius: 8px; border: none;
-    color: white; font-weight: 500; cursor: pointer;
-    display: inline-flex; align-items: center; gap: 8px;
-    transition: 0.2s;
-}
+.btn { padding: 10px 20px; border-radius: 8px; border: none; color: white; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
 .btn:hover { opacity: 0.9; transform: translateY(-1px); }
 .btn-green { background: var(--green-profit); }
 .btn-red { background: var(--red-expense); }
 .btn-orange { background: var(--orange-escrow); }
+.btn-blue { background: var(--blue-info); }
 
-/* Tablolar */
-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); }
-th { text-align: left; padding: 15px; background: #f8fafc; font-size: 12px; color: var(--text-secondary); }
-td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-
-/* Badge (Etiketler) */
-.badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-.bg-green-light { background: #d1fae5; color: #065f46; }
-.bg-red-light { background: #fee2e2; color: #991b1b; }
-.bg-orange-light { background: #ffedd5; color: #9a3412; }
-
-/* --- MODAL (GİZLİ PENCERELER) --- */
-.modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* Yarı saydam siyah */
-    backdrop-filter: blur(4px); /* Arka planı bulanıklaştırır */
-    display: none; justify-content: center; align-items: center; z-index: 1000;
-    opacity: 0; transition: opacity 0.3s ease;
-}
-.modal-overlay.active { display: flex; opacity: 1; }
-
-.modal-box {
-    background: white; width: 500px; max-width: 90%;
-    border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    display: flex; flex-direction: column; overflow: hidden;
-    transform: translateY(20px); transition: transform 0.3s ease;
-}
-.modal-overlay.active .modal-box { transform: translateY(0); }
-
-.modal-header {
-    padding: 15px 20px; border-bottom: 1px solid #f1f5f9;
-    display: flex; justify-content: space-between; align-items: center;
-    background: #f8fafc;
-}
-.modal-header h3 { margin: 0; font-size: 16px; color: var(--text-primary); }
-.close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: #94a3b8; }
-
+/* MODAL (Pencere Tasarımları) */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 1000; }
+.modal-overlay.active { display: flex; }
+.modal-box { background: white; width: 500px; max-width: 90%; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; animation: slideUp 0.3s; }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.modal-header { padding: 15px 20px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; }
 .modal-body { padding: 20px; max-height: 70vh; overflow-y: auto; }
-
-/* Form Elemanları */
 .form-group { margin-bottom: 15px; }
-.form-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px; color: var(--text-secondary); }
-.form-control {
-    width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;
-    font-size: 14px; outline: none; box-sizing: border-box; /* Taşmayı engeller */
-}
-.form-control:focus { border-color: var(--blue-info); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+.form-control { width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box; }
 
-/* Vize Sihirbazı Adımları */
-.step-indicator { display: flex; justify-content: space-between; margin-bottom: 20px; padding: 0 10px; }
-.step { width: 30px; height: 30px; border-radius: 50%; background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; position: relative; }
-.step.active { background: var(--blue-info); color: white; }
-.step::after { content: ''; position: absolute; width: 100px; height: 2px; background: #e2e8f0; left: 100%; top: 50%; z-index: -1; }
-.step:last-child::after { display: none; } /* Son adımda çizgi olmasın */
+/* SEÇİM BUTONLARI (Vize, Ek Gelir, Emanet) */
+.selection-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.selection-card {
+    padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px; cursor: pointer; text-align: center; transition: 0.2s;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.selection-card:hover { border-color: var(--blue-info); background: #eff6ff; }
+.selection-card span { font-size: 30px; }
