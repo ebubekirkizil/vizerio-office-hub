@@ -1,170 +1,106 @@
-// js/accounting.js - Muhasebe ve Finans İşlemleri
-// Bu dosya Gelir, Gider ve Emanet işlemlerini veritabanına kaydeder.
+// js/accounting.js - Muhasebe (TABLO DESTEKLİ)
 
 window.accounting = {
     
-    // 1. DASHBOARD VERİLERİNİ ÇEK VE GÜNCELLE
+    // 1. DASHBOARD ve TABLOYU GÜNCELLE
     refreshDashboard: async function() {
-        console.log("🔄 Finansal veriler güncelleniyor...");
+        console.log("🔄 Finansal veriler çekiliyor...");
         
-        // Supabase'den tüm işlemleri çek
-        const { data, error } = await window.supabaseClient
+        // --- A. KARTLAR İÇİN HESAPLAMA ---
+        const { data: allData, error } = await window.supabaseClient
             .from('transactions')
             .select('*');
 
+        if (!error && allData) {
+            let totalIncome = 0;
+            let totalExpense = 0;
+            let totalEscrow = 0;
+
+            allData.forEach(item => {
+                const amount = parseFloat(item.amount);
+                if (item.is_escrow) totalEscrow += amount;
+                else if (item.type === 'income') totalIncome += amount;
+                else if (item.type === 'expense') totalExpense += amount;
+            });
+
+            const netProfit = totalIncome - totalExpense;
+            this.updateCard('money-profit', netProfit, 'TRY');
+            this.updateCard('money-income', totalIncome, 'TRY');
+            this.updateCard('money-expense', totalExpense, 'TRY');
+            this.updateCard('money-escrow', totalEscrow, 'EUR');
+        }
+
+        // --- B. TABLOYU DOLDUR (SON 10 İŞLEM) ---
+        this.loadTransactionsTable();
+    },
+
+    // 2. TABLO VERİSİNİ ÇEK VE YAZ
+    loadTransactionsTable: async function() {
+        const tbody = document.getElementById('transactions-body');
+        if(!tbody) return;
+
+        // Son 10 işlemi çek (En yeni en üstte)
+        const { data: list, error } = await window.supabaseClient
+            .from('transactions')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(10);
+
         if (error) {
-            console.error("Veri çekme hatası:", error);
+            tbody.innerHTML = '<tr><td colspan="4" style="color:red;">Veri hatası!</td></tr>';
             return;
         }
 
-        // Hesaplamalar
-        let totalIncome = 0;
-        let totalExpense = 0;
-        let totalEscrow = 0;
+        // Tabloyu Temizle
+        tbody.innerHTML = '';
 
-        data.forEach(item => {
-            const amount = parseFloat(item.amount); // Sayıya çevir
+        if (list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#999;">Henüz işlem yok.</td></tr>';
+            return;
+        }
 
-            // Emanet ise (Turuncu Kart)
-            if (item.is_escrow) {
-                totalEscrow += amount; // Şimdilik döviz ayrımı yapmadan topluyoruz
-            } 
-            // Gelir ise (Mavi Kart)
-            else if (item.type === 'income') {
-                totalIncome += amount;
-            } 
-            // Gider ise (Kırmızı Kart)
-            else if (item.type === 'expense') {
-                totalExpense += amount;
-            }
+        // Satırları Ekle
+        list.forEach(item => {
+            const date = new Date(item.created_at).toLocaleDateString('tr-TR');
+            const colorClass = item.type === 'income' ? 'text-green' : (item.is_escrow ? 'text-orange' : 'text-red');
+            const symbol = item.type === 'income' ? '+' : '-';
+            const amountFmt = new Intl.NumberFormat('tr-TR', { style: 'currency', currency: item.currency }).format(item.amount);
+
+            let categoryLabel = item.category;
+            if(item.category === 'visa_service') categoryLabel = '<span class="badge bg-green-light">Vize Geliri</span>';
+            if(item.category === 'rent') categoryLabel = '<span class="badge bg-red-light">Kira/Ofis</span>';
+            if(item.is_escrow) categoryLabel = '<span class="badge bg-orange-light">Emanet</span>';
+
+            const row = `
+                <tr>
+                    <td style="color:#666; font-size:12px;">${date}</td>
+                    <td style="font-weight:500;">${item.description || '-'}</td>
+                    <td>${categoryLabel}</td>
+                    <td class="${colorClass}" style="font-weight:bold;">${symbol} ${amountFmt}</td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
         });
-
-        const netProfit = totalIncome - totalExpense;
-
-        // Ekrana Yazdır (Para formatında)
-        this.updateCard('money-profit', netProfit, 'TRY');
-        this.updateCard('money-income', totalIncome, 'TRY');
-        this.updateCard('money-expense', totalExpense, 'TRY');
-        this.updateCard('money-escrow', totalEscrow, 'EUR'); // Emanet genelde Euro olur
     },
 
-    // Karttaki rakamı güncelleme yardımcısı
     updateCard: function(elementId, amount, currency) {
         const el = document.getElementById(elementId);
-        if (el) {
-            // Para formatı (Örn: 1.250,00 ₺)
-            el.innerText = new Intl.NumberFormat('tr-TR', { style: 'currency', currency: currency }).format(amount);
-        }
+        if (el) el.innerText = new Intl.NumberFormat('tr-TR', { style: 'currency', currency: currency }).format(amount);
     },
 
-    // 2. GİDER KAYDETME (Kırmızı Form)
-    saveExpense: async function(event) {
-        event.preventDefault(); // Sayfanın yenilenmesini engelle
-
-        // Formdaki verileri al
-        const form = event.target;
-        const category = form.querySelector('select').value;
-        const desc = form.querySelector('input[type="text"]').value;
-        const amount = form.querySelector('input[type="number"]').value;
-        const currency = form.querySelectorAll('select')[1].value;
-
-        // Supabase'e Ekle
-        const { error } = await window.supabaseClient
-            .from('transactions')
-            .insert({
-                type: 'expense',
-                category: category,
-                description: desc,
-                amount: amount,
-                currency: currency,
-                is_escrow: false,
-                created_at: new Date()
-            });
-
-        if (error) {
-            alert("Hata: " + error.message);
-        } else {
-            alert("✅ Gider başarıyla kaydedildi!");
-            window.ui.closeModal('modal-expense'); // Pencereyi kapat
-            form.reset(); // Formu temizle
-            this.refreshDashboard(); // Rakamları güncelle
-        }
-    },
-
-    // 3. EMANET KAYDETME (Turuncu Form)
-    saveEscrow: async function(event) {
-        event.preventDefault();
-        const form = event.target;
-        
-        const customer = form.querySelector('input[type="text"]').value;
-        const category = form.querySelector('select').value;
-        const amount = form.querySelector('input[type="number"]').value;
-        const currency = form.querySelectorAll('select')[1].value;
-
-        const { error } = await window.supabaseClient
-            .from('transactions')
-            .insert({
-                type: 'income', // Para girişi olduğu için income, ama escrow=true
-                category: 'escrow_deposit',
-                description: `${category} - ${customer}`,
-                amount: amount,
-                currency: currency,
-                is_escrow: true, // BU ÇOK ÖNEMLİ (Ciroya katma)
-                created_at: new Date()
-            });
-
-        if (error) alert("Hata: " + error.message);
-        else {
-            alert("✅ Emanet para kasaya işlendi.");
-            window.ui.closeModal('modal-escrow');
-            form.reset();
-            this.refreshDashboard();
-        }
-    },
-
-    // 4. EK GELİR KAYDETME (Mavi Form)
-    saveExtraIncome: async function(event) {
-        event.preventDefault();
-        const form = event.target;
-
-        const category = form.querySelector('select').value;
-        const salePrice = form.querySelector('input[type="number"]').value; // Satış fiyatı
-        // Not: Maliyeti şimdilik basit tutalım, sadece satış fiyatını ciroya ekleyelim.
-        
-        const { error } = await window.supabaseClient
-            .from('transactions')
-            .insert({
-                type: 'income',
-                category: 'extra_service',
-                description: category,
-                amount: salePrice,
-                currency: 'TRY', // Varsayılan TL
-                is_escrow: false,
-                created_at: new Date()
-            });
-
-        if (error) alert("Hata: " + error.message);
-        else {
-            alert("✅ Satış başarıyla yapıldı.");
-            window.ui.closeModal('modal-extra-income');
-            form.reset();
-            this.refreshDashboard();
-        }
-    }
+    // ... (saveExpense, saveEscrow, saveExtraIncome kodları aynı kalacak, buraya ekleyebilirsin) ...
+    // Hepsini tekrar yazmamak için burayı kısa tuttum, mevcut kodlarını koru.
+    saveExpense: async function(event) { /* ...Eski kod... */ },
+    saveEscrow: async function(event) { /* ...Eski kod... */ },
+    saveExtraIncome: async function(event) { /* ...Eski kod... */ }
 };
 
-// Formları Dinlemeye Başla (Sayfa Yüklenince)
+// Yüklenince çalıştır
 window.addEventListener('load', () => {
-    // Dashboard'u ilk açılışta güncelle
     window.accounting.refreshDashboard();
-
-    // Form Submit Olaylarını Bağla
+    
+    // Form Listener'ları
     const expenseForm = document.getElementById('form-expense');
     if(expenseForm) expenseForm.onsubmit = window.accounting.saveExpense;
-
-    const escrowForm = document.getElementById('form-escrow');
-    if(escrowForm) escrowForm.onsubmit = window.accounting.saveEscrow;
-
-    const extraForm = document.getElementById('form-extra-income');
-    if(extraForm) extraForm.onsubmit = window.accounting.saveExtraIncome;
+    // ... diğerleri ...
 });
