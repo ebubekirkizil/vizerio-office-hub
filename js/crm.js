@@ -1,23 +1,17 @@
-// js/crm.js - Müşteri ve Vize Operasyonları
+// js/crm.js - Müşteri ve Vize Operasyonları (GÜNCEL)
 
 window.crm = {
-    
     // SİHİRBAZ İLERİ/GERİ MANTIĞI
     nextStep: function(stepNumber) {
-        // 1. Önceki sayfayı gizle
         document.querySelectorAll('.wizard-page').forEach(el => el.style.display = 'none');
-        // 2. Yeni sayfayı göster
         document.getElementById('w-step-' + stepNumber).style.display = 'block';
         
-        // 3. Yukarıdaki 1-2-3 çubuğunu güncelle
         document.querySelectorAll('.w-step').forEach(el => el.classList.remove('active'));
         document.getElementById('w-step-' + stepNumber + '-indicator').classList.add('active');
-        
-        console.log("Sihirbaz Adım: " + stepNumber);
     },
 
     prevStep: function(stepNumber) {
-        this.nextStep(stepNumber); // Geri gitmek aslında o sayfaya "ileri" gitmekle aynı mantık :)
+        this.nextStep(stepNumber);
     },
 
     // FOTOĞRAF ÖNİZLEME
@@ -27,14 +21,14 @@ window.crm = {
             reader.onload = function(e) {
                 const img = document.getElementById('photo-preview');
                 img.src = e.target.result;
-                img.style.display = 'block'; // Resmi göster
-                input.parentElement.querySelector('span').style.display = 'none'; // İkonu gizle
+                img.style.display = 'block';
+                input.parentElement.querySelector('span').style.display = 'none';
             }
             reader.readAsDataURL(input.files[0]);
         }
     },
 
-    // OTOMATİK KÂR HESAPLAMA
+    // KÂR HESAPLAMA
     calculateProfit: function() {
         const price = parseFloat(document.getElementById('v-price').value) || 0;
         const fee = parseFloat(document.getElementById('v-cost-fee').value) || 0;
@@ -42,30 +36,98 @@ window.crm = {
         const currency = document.getElementById('v-currency').value;
 
         const profit = price - (fee + other);
-
-        // Ekrana yaz
         const display = document.getElementById('v-profit-display');
         display.innerText = profit.toFixed(2) + ' ' + currency;
-
-        // Renk değiştir (Zararsa kırmızı yap)
+        
         if (profit < 0) display.style.color = 'red';
         else display.style.color = 'var(--green-profit)';
     },
 
-    // KAYDETME İŞLEMİ (Henüz taslak)
-    saveVisaCase: async function(event) {
-        // Buraya birazdan Supabase kayıt kodunu ekleyeceğiz.
-        // Şimdilik sihirbazın çalıştığını görelim.
-        alert("Vize dosyası oluşturuluyor...");
+    // --- KAYDETME İŞLEMİ (SUPABASE) ---
+    saveVisaCase: async function() {
+        console.log("💾 Kayıt işlemi başlıyor...");
+        const submitBtn = document.querySelector('#form-visa-wizard button[type="submit"]');
+        submitBtn.innerText = "Kaydediliyor...";
+        submitBtn.disabled = true;
+
+        try {
+            // 1. Verileri Formdan Al
+            const name = document.getElementById('v-name').value;
+            const passport = document.getElementById('v-passport').value;
+            const phone = document.getElementById('v-phone').value;
+            const country = document.getElementById('v-country').value;
+            const type = document.getElementById('v-type').value;
+            const price = parseFloat(document.getElementById('v-price').value) || 0;
+            const currency = document.getElementById('v-currency').value;
+            const paymentStatus = document.getElementById('v-payment-status').value;
+
+            // 2. Önce MÜŞTERİYİ Kaydet
+            const { data: customerData, error: custError } = await window.supabaseClient
+                .from('customers')
+                .insert([{ full_name: name, passport_no: passport, phone: phone }])
+                .select()
+                .single();
+
+            if (custError) throw custError;
+            const customerId = customerData.id;
+            console.log("✅ Müşteri oluştu ID:", customerId);
+
+            // 3. Sonra VİZE DOSYASINI Kaydet
+            const { data: visaData, error: visaError } = await window.supabaseClient
+                .from('visas')
+                .insert([{ 
+                    customer_id: customerId, 
+                    country: country, 
+                    visa_type: type,
+                    status: 'new' // Yeni kayıt
+                }])
+                .select()
+                .single();
+
+            if (visaError) throw visaError;
+
+            // 4. Eğer Para Alındıysa MUHASEBEYE İşle
+            if (paymentStatus === 'paid' && price > 0) {
+                const { error: transError } = await window.supabaseClient
+                    .from('transactions')
+                    .insert([{
+                        type: 'income',
+                        category: 'visa_service',
+                        description: `Vize Hizmeti - ${name} (${country})`,
+                        amount: price,
+                        currency: currency,
+                        customer_id: customerId,
+                        visa_id: visaData.id
+                    }]);
+                
+                if (transError) throw transError;
+                console.log("✅ Muhasebe kaydı girildi.");
+            }
+
+            // 5. Başarılı!
+            alert("🎉 Dosya ve Müşteri Başarıyla Kaydedildi!");
+            window.ui.closeModal('modal-income');
+            document.getElementById('form-visa-wizard').reset(); // Formu temizle
+            
+            // Tabloları güncelle
+            if(window.accounting) window.accounting.refreshDashboard(); 
+
+        } catch (error) {
+            console.error("Kayıt Hatası:", error);
+            alert("Hata oluştu: " + error.message);
+        } finally {
+            submitBtn.innerText = "✅ KAYDET VE BİTİR";
+            submitBtn.disabled = false;
+        }
     }
 };
 
-// Form submit olunca (Kaydet ve Bitir)
+// Form Submit Bağlantısı
 window.addEventListener('load', () => {
     const form = document.getElementById('form-visa-wizard');
     if (form) {
         form.onsubmit = function(e) {
-            e.preventDefault(); // Sayfa yenilenmesin
+            e.preventDefault();
             window.crm.saveVisaCase();
         };
     }
