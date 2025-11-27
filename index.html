@@ -64,14 +64,18 @@
                 </div>
             </header>
 
-            <section id="section-finance" class="content-section active">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h1>Finansal Durum</h1>
-                    <div>
-                        <button class="btn btn-green"><span class="material-icons-round">add</span> GELİR GİRİŞİ (Vize)</button>
-                        <button class="btn btn-red" style="margin-left: 10px;"><span class="material-icons-round">remove</span> GİDER EKLE</button>
-                    </div>
-                </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h1>Finansal Durum</h1>
+    <div>
+        <button class="btn btn-green" onclick="ui.openModal('modal-income')">
+            <span class="material-icons-round">add</span> GELİR GİRİŞİ (Vize)
+        </button>
+        
+        <button class="btn btn-red" style="margin-left: 10px;" onclick="ui.openModal('modal-expense')">
+            <span class="material-icons-round">remove</span> GİDER EKLE
+        </button>
+    </div>
+</div>
 
                 <div class="summary-cards">
                     <div class="card border-green">
