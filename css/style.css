@@ -137,3 +137,18 @@ body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-c
 .info-item span { display: block; font-size: 14px; color: #0f172a; font-weight: 500; }
 
 .drawer-footer { margin-top: auto; padding-top: 20px; border-top: 1px solid #f1f5f9; display: flex; gap: 10px; }
+
+/* --- EMANET DETAY MODALI --- */
+.escrow-pools { display: flex; gap: 15px; margin-bottom: 20px; }
+.pool-box { 
+    flex: 1; padding: 15px; border-radius: 10px; text-align: center; 
+    border: 1px solid #ffedd5; background: #fff7ed; 
+}
+.pool-title { font-size: 11px; color: #c2410c; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
+.pool-amount { font-size: 20px; font-weight: 800; color: #9a3412; }
+
+/* Emanet Tablosu */
+.escrow-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.escrow-table th { text-align: left; padding: 10px; font-size: 11px; color: #94a3b8; border-bottom: 1px solid #e2e8f0; }
+.escrow-table td { padding: 12px 10px; font-size: 13px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+.escrow-table tr:last-child td { border-bottom: none; }
