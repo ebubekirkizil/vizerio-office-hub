@@ -132,3 +132,15 @@ body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-c
 .row-exchange td:first-child { 
     border-left: 5px solid #6366f1 !important; /* İndigo/Mor */
 }
+/* --- TABLO RENK KODLARI (Sol Çizgiler) --- */
+/* Gelir -> Yeşil */
+.row-income td:first-child { border-left: 5px solid var(--green-profit) !important; }
+/* Gider -> Kırmızı */
+.row-expense td:first-child { border-left: 5px solid var(--red-expense) !important; }
+/* Emanet -> Turuncu */
+.row-escrow td:first-child { border-left: 5px solid var(--orange-escrow) !important; }
+/* Kur Dönüşümü -> Mor */
+.row-exchange td:first-child { border-left: 5px solid #6366f1 !important; }
+
+/* Pasif Kart Efekti */
+.card-clickable.inactive { opacity: 0.6; filter: grayscale(100%); }
