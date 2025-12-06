@@ -1,45 +1,54 @@
-// js/accounting.js - GRAFİK, BUTONLAR ve EMANET DETAYLARI
+// js/accounting.js - GRAFİK, KASA VE TABLO (TAMİR EDİLMİŞ VERSİYON)
 
 window.accounting = {
     
-    liveRates: { TRY: 1, USD: 34.50, EUR: 36.20 },
-    chartInstance: null, // Grafik objesini tutmak için
-    chartState: { profit: true, income: false, expense: false }, // Varsayılan açık/kapalı durumları
+    liveRates: { TRY: 1, USD: 34.50, EUR: 36.20 }, // Varsayılan Kurlar
+    chartInstance: null, // Grafik objesi
+    // Grafikte hangi çizgilerin açık olduğunu tutan hafıza:
+    chartState: { profit: true, income: false, expense: false }, 
 
-    // 1. BAŞLATMA
+    // 1. SİSTEMİ BAŞLAT
     refreshDashboard: async function() {
-        console.log("💰 Finans yenileniyor...");
+        console.log("💰 Finans verileri işleniyor...");
         
-        // Kurları Çek (Güvenli Mod)
+        // A. Kurları Çek (Hata verirse devam et)
         try {
             const res = await fetch('https://api.exchangerate-api.com/v4/latest/TRY');
             const d = await res.json();
             this.liveRates = { TRY: 1, USD: (1/d.rates.USD), EUR: (1/d.rates.EUR) };
-            if(document.getElementById('live-rates-display')) document.getElementById('live-rates-display').innerText = `USD: ${this.liveRates.USD.toFixed(2)} | EUR: ${this.liveRates.EUR.toFixed(2)}`;
+            if(document.getElementById('live-rates-display')) 
+                document.getElementById('live-rates-display').innerText = `USD: ${this.liveRates.USD.toFixed(2)} | EUR: ${this.liveRates.EUR.toFixed(2)}`;
         } catch (e) { console.warn("Kur çekilemedi."); }
 
-        // Verileri Çek
-        const { data: list, error } = await window.supabaseClient.from('transactions').select('*').order('created_at', { ascending: false });
-        if(error) return;
+        // B. Verileri Çek
+        const { data: list, error } = await window.supabaseClient
+            .from('transactions')
+            .select('*')
+            .order('created_at', { ascending: false });
 
-        // Hesaplamalar
-        let wTRY=0, wUSD=0, wEUR=0, tInc=0, tExp=0, tEsc=0;
-        
+        if (error) return;
+
+        // C. Hesaplamalar
+        let wTRY=0, wUSD=0, wEUR=0; // Kasalar
+        let tInc=0, tExp=0, tEsc=0; // Toplamlar
+
         list.forEach(t => {
             const amt = parseFloat(t.amount);
+            // Kasa Hesapla
             if(t.type==='income') {
                 if(t.currency==='TRY') wTRY+=amt; if(t.currency==='USD') wUSD+=amt; if(t.currency==='EUR') wEUR+=amt;
                 if(!t.is_escrow) tInc += amt * (this.liveRates[t.currency]||1);
-            } else {
+            } else { // Expense
                 if(t.currency==='TRY') wTRY-=amt; if(t.currency==='USD') wUSD-=amt; if(t.currency==='EUR') wEUR-=amt;
                 tExp += amt * (this.liveRates[t.currency]||1);
             }
+            // Emanet
             if(t.is_escrow) {
                 if(t.currency==='EUR') tEsc+=amt; else tEsc+=(amt/this.liveRates.EUR);
             }
         });
 
-        // Ekrana Yaz
+        // D. Ekrana Yaz
         this.updateText('wallet-try', this.fmt(wTRY, 'TRY'));
         this.updateText('wallet-usd', this.fmt(wUSD, 'USD'));
         this.updateText('wallet-eur', this.fmt(wEUR, 'EUR'));
@@ -52,50 +61,48 @@ window.accounting = {
         this.updateText('money-expense', this.fmt(tExp, 'TRY'));
         this.updateText('money-escrow', this.fmt(tEsc, 'EUR'));
 
-       // 2. TABLO DOLDURMA (RENKLİ ŞERİTLER EKLENDİ)
+        // Tabloyu ve Grafiği Çiz
+        this.renderTable(list.slice(0, 10)); // Son 10 işlem
+        this.initChart(); // Grafiği Başlat
+    },
+
+    // 2. RENKLİ TABLO DOLDURMA (Düzeltildi)
     renderTable: function(list) {
         const tbody = document.getElementById('transactions-body');
         if(!tbody) return;
         tbody.innerHTML = '';
         
         list.forEach(t => {
-            const date = new Date(t.created_at).toLocaleDateString('tr-TR');
-            const amountFmt = this.formatMoney(t.amount, t.currency);
+            const date = new Date(t.created_at).toLocaleDateString('tr-TR', {day:'numeric', month:'long', hour:'2-digit', minute:'2-digit'});
             
-            // Renk ve Sembol Mantığı
+            // Renk ve Sınıf Mantığı
             let rowClass = 'row-expense'; // Varsayılan Kırmızı
             let symbol = '-';
-            let amountColor = 'text-red';
+            let colorClass = 'text-red';
 
-            // Gelir ise
             if (t.type === 'income') {
                 rowClass = 'row-income'; // Yeşil Çizgi
                 symbol = '+';
-                amountColor = 'text-green'; // Yazı Rengi Yeşil
+                colorClass = 'text-green'; // Yazı Yeşil
             }
-
-            // Emanet ise
             if (t.is_escrow) {
                 rowClass = 'row-escrow'; // Turuncu Çizgi
-                symbol = ''; // Emanette artı/eksi yok
-                amountColor = 'text-orange';
+                symbol = ''; 
+                colorClass = 'text-orange';
             }
-
-            // Kur Dönüşümü ise (Özel Durum)
-            if (t.category && t.category.includes('exchange')) {
+            // Özel Durum: Kur Dönüşümü
+            if(t.category && t.category.includes('exchange')) {
                 rowClass = 'row-exchange'; // Mor Çizgi
-                symbol = t.type === 'income' ? '+' : '-';
-                amountColor = 'text-indigo'; // Yazı rengi mor olsun (CSS'de yoksa siyah kalır)
+                colorClass = 'text-indigo';
             }
 
-            // Satırı Oluştur
             const row = `
                 <tr class="${rowClass}">
                     <td style="color:#64748b; font-size:12px; padding:15px;">${date}</td>
                     <td style="padding:15px; font-weight:600; color:#334155;">${t.description || '-'}</td>
                     <td style="padding:15px;"><span class="badge badge-gray">${t.category}</span></td>
-                    <td style="padding:15px; text-align:right; font-weight:800; font-size:15px;" class="${amountColor}">
-                        ${symbol} ${amountFmt}
+                    <td style="padding:15px; text-align:right; font-weight:800; font-size:15px;" class="${colorClass}">
+                        ${symbol} ${this.fmt(t.amount, t.currency)}
                     </td>
                 </tr>
             `;
@@ -103,80 +110,94 @@ window.accounting = {
         });
     },
 
-    // 2. GRAFİK YÖNETİMİ (TOGGLE & ZAMAN)
+    // 3. GRAFİK YÖNETİMİ (Kutucuklara Tıklayınca Değişen)
     initChart: function() {
         const ctx = document.getElementById('financeChart');
         if (!ctx) return;
         if (this.chartInstance) this.chartInstance.destroy();
 
-        // Örnek Veriler (Gerçek veritabanı tarihçesi için daha kompleks sorgu gerekir)
-        // Şimdilik görsel olarak çalışmasını sağlıyoruz
+        // Şimdilik görsel olarak çalışması için örnek veri (Veritabanından çekince burayı güncelleyeceğiz)
         const labels = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
-        const dataProfit = [1000, 3000, 2000, 5000, 4000, 6000, 7000];
-        const dataIncome = [2000, 4000, 3000, 6000, 5000, 8000, 9000];
-        const dataExpense = [1000, 1000, 1000, 1000, 1000, 2000, 2000];
-
+        
         this.chartInstance = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: labels,
                 datasets: [
-                    { label: 'Net Kâr', data: dataProfit, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', fill: true, hidden: !this.chartState.profit },
-                    { label: 'Ciro', data: dataIncome, borderColor: '#3b82f6', borderDash: [5, 5], hidden: !this.chartState.income },
-                    { label: 'Gider', data: dataExpense, borderColor: '#ef4444', hidden: !this.chartState.expense }
+                    { 
+                        label: 'Net Kâr', 
+                        data: [1000, 3000, 2000, 5000, 4000, 6000, 7000], 
+                        borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', fill: true, tension: 0.4,
+                        hidden: !this.chartState.profit // Kutucuk kapalıysa gizle
+                    },
+                    { 
+                        label: 'Toplam Ciro', 
+                        data: [2000, 4000, 3000, 6000, 5000, 8000, 9000], 
+                        borderColor: '#3b82f6', borderDash: [5, 5], tension: 0.4,
+                        hidden: !this.chartState.income 
+                    },
+                    { 
+                        label: 'Toplam Gider', 
+                        data: [1000, 1000, 1000, 1000, 1000, 2000, 2000], 
+                        borderColor: '#ef4444', tension: 0.4,
+                        hidden: !this.chartState.expense 
+                    }
                 ]
             },
             options: { 
                 responsive: true, 
                 maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false },
-                plugins: { legend: { display: true, position: 'bottom' } }
+                plugins: { legend: { display: false } }, // Efsaneyi gizle, kutucuklar kullanılıyor
+                scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' } }, x: { grid: { display: false } } }
             }
         });
     },
 
-    // KARTLARA TIKLAYINCA ÇALIŞIR
+    // KUTUCUKLARA TIKLAYINCA (TOGGLE)
     toggleChartData: function(type, cardElement) {
-        // Durumu değiştir
+        // 1. Durumu tersine çevir (Açıksa kapat, kapalıysa aç)
         this.chartState[type] = !this.chartState[type];
         
-        // Görsel efekt (Pasifleşme)
-        if(this.chartState[type]) cardElement.classList.remove('inactive');
-        else cardElement.classList.add('inactive');
+        // 2. Kartın görünümünü güncelle (Soluklaştır/Parlat)
+        if(this.chartState[type]) {
+            cardElement.classList.remove('inactive');
+            // Başlıktaki (KAPALI) yazısını (AÇIK) yap
+            let title = cardElement.querySelector('.card-title');
+            if(title) title.innerText = title.innerText.replace('(KAPALI)', '(AÇIK)');
+        } else {
+            cardElement.classList.add('inactive');
+            let title = cardElement.querySelector('.card-title');
+            if(title) title.innerText = title.innerText.replace('(AÇIK)', '(KAPALI)');
+        }
 
-        // Grafiği güncelle
+        // 3. Grafiği Güncelle
         if(this.chartInstance) {
             // Dataset sırası: 0=Profit, 1=Income, 2=Expense
             let index = 0;
             if(type === 'income') index = 1;
             if(type === 'expense') index = 2;
             
-            // Chart.js'de görünürlüğü tersine çeviriyoruz (hidden = true ise gizli)
+            // Chart.js'de görünürlüğü değiştir
+            // Dikkat: Chart.js'de 'hidden: true' demek gizli demektir.
+            // Bizim 'chartState' true ise AÇIK demektir. O yüzden tersini alıyoruz.
             this.chartInstance.getDatasetMeta(index).hidden = !this.chartState[type];
             this.chartInstance.update();
         }
     },
 
-    // ZAMAN BUTONLARI
+    // ZAMAN BUTONLARI (Görsel Efekt)
     filterChartDate: function(period, btn) {
-        // Buton aktifliğini değiştir
         document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        
-        // Burada ilerde veritabanından o tarih aralığını çekeceğiz
-        console.log("Grafik filtrelendi:", period);
-        // Örnek: Grafiği salla (efekt)
-        if(this.chartInstance) {
-            this.chartInstance.data.datasets[0].data = this.chartInstance.data.datasets[0].data.map(v => v * Math.random() + 500);
-            this.chartInstance.update();
-        }
+        console.log("Zaman filtresi: " + period);
+        // İlerde buraya tarih sorgusu gelecek
     },
 
-    // 3. EMANET DETAYLARI (ÇİFT TIKLAMA)
+    // EMANET DETAYI (Çift Tıklama)
     openEscrowDetails: async function() {
         window.ui.openModal('modal-escrow-details');
         const tbody = document.getElementById('escrow-list-body');
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Veriler...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Veriler yükleniyor...</td></tr>';
 
         const { data: list } = await window.supabaseClient.from('transactions').select('*').eq('is_escrow', true).order('created_at', {ascending:false});
         
@@ -188,8 +209,8 @@ window.accounting = {
             if(t.currency==='EUR') pEUR+=amt; if(t.currency==='USD') pUSD+=amt; if(t.currency==='TRY') pTRY+=amt;
             
             tbody.innerHTML += `<tr>
-                <td>${new Date(t.created_at).toLocaleDateString()}</td>
-                <td style="font-weight:500;">${t.description}</td>
+                <td style="padding:10px;">${new Date(t.created_at).toLocaleDateString()}</td>
+                <td>${t.description}</td>
                 <td style="font-weight:bold; color:#f59e0b;">${this.fmt(amt, t.currency)}</td>
                 <td><span class="badge bg-orange-light">Emanette</span></td>
             </tr>`;
@@ -200,25 +221,60 @@ window.accounting = {
         this.updateText('pool-try', this.fmt(pTRY, 'TRY'));
     },
 
-    // Tablo ve Kayıt Fonksiyonları (Öncekilerin aynısı, kısa tutuyorum)
-    renderTable: function(list) {
-        const tb = document.getElementById('transactions-body'); tb.innerHTML='';
-        list.forEach(t => {
-            const sym = t.type==='income'?'+':'-'; const col = t.type==='income'?'text-green':'text-red';
-            tb.innerHTML += `<tr><td style="color:#666; font-size:12px; padding:10px;">${new Date(t.created_at).toLocaleDateString()}</td><td style="padding:10px;">${t.description}</td><td style="padding:10px;"><span class="badge badge-gray">${t.category}</span></td><td style="padding:10px; text-align:right;" class="${col}">${sym} ${this.fmt(t.amount, t.currency)}</td></tr>`;
-        });
+    // --- FORM KAYITLARI (Değişmedi, aynen ekliyoruz) ---
+    saveExchange: async function(e) { 
+        e.preventDefault(); 
+        const btn=e.target.querySelector('button'); btn.disabled=true;
+        const outA=document.getElementById('ex-amount-out').value, outC=document.getElementById('ex-currency-out').value;
+        const inA=document.getElementById('ex-amount-in').value, inC=document.getElementById('ex-currency-in').value;
+        const desc=document.getElementById('ex-desc').value;
+        
+        const { error } = await window.supabaseClient.from('transactions').insert([
+            {type:'expense', category:'exchange_out', description:`Döviz Bozum (${desc})`, amount:outA, currency:outC},
+            {type:'income', category:'exchange_in', description:`Döviz Giriş (${desc})`, amount:inA, currency:inC}
+        ]);
+        if(!error) { window.ui.closeModal('modal-exchange'); this.refreshDashboard(); } 
+        else alert(error.message); btn.disabled=false; 
     },
     
-    // Form Kayıtları
-    saveExchange: async function(e) { e.preventDefault(); /* ... */ alert("İşlem Kaydedildi"); window.ui.closeModal('modal-exchange'); this.refreshDashboard(); },
-    saveExpense: async function(e) { e.preventDefault(); /* ... */ window.ui.closeModal('modal-expense'); this.refreshDashboard(); },
-    
-    // Yardımcılar
+    saveExpense: async function(e) { e.preventDefault(); this.genericSave(e, 'expense', 'modal-expense'); },
+    saveEscrow: async function(e) { e.preventDefault(); this.genericSave(e, 'escrow', 'modal-escrow'); },
+    saveExtraIncome: async function(e) { e.preventDefault(); this.genericSave(e, 'income', 'modal-extra-income'); },
+
+    // Ortak Kayıt Fonksiyonu (Kod tekrarını önlemek için)
+    genericSave: async function(e, type, modalId) {
+        const form = e.target;
+        const btn = form.querySelector('button'); btn.disabled=true;
+        // Basit form okuma (Input ID'leri yerine form sırasına güveniyoruz veya özel mantık)
+        // Hızlı çözüm için form elemanlarını seçelim:
+        const cat = form.querySelector('select')?.value || 'general';
+        const descInput = form.querySelector('input[type="text"]');
+        const amtInput = form.querySelector('input[type="number"]');
+        const currInput = form.querySelectorAll('select')[1]; // Genelde 2. select para birimi
+        
+        const tData = {
+            type: type === 'income' ? 'income' : (type==='escrow'?'income':'expense'),
+            category: type === 'escrow' ? 'escrow_deposit' : (cat),
+            description: descInput ? descInput.value : 'İşlem',
+            amount: amtInput ? amtInput.value : 0,
+            currency: currInput ? currInput.value : 'TRY',
+            is_escrow: type === 'escrow'
+        };
+
+        const { error } = await window.supabaseClient.from('transactions').insert([tData]);
+        if(!error) { window.ui.closeModal(modalId); form.reset(); this.refreshDashboard(); }
+        else alert(error.message);
+        btn.disabled=false;
+    },
+
     updateText: function(id, t) { const el = document.getElementById(id); if(el) el.innerText = t; },
     fmt: function(a, c) { return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: c }).format(a); }
 };
 
 window.addEventListener('load', () => {
     window.accounting.refreshDashboard();
-    // Form listener'ları buraya eklenebilir
+    if(document.getElementById('form-exchange')) document.getElementById('form-exchange').onsubmit = window.accounting.saveExchange;
+    if(document.getElementById('form-expense')) document.getElementById('form-expense').onsubmit = window.accounting.saveExpense;
+    if(document.getElementById('form-escrow')) document.getElementById('form-escrow').onsubmit = window.accounting.saveEscrow;
+    if(document.getElementById('form-extra-income')) document.getElementById('form-extra-income').onsubmit = window.accounting.saveExtraIncome;
 });
