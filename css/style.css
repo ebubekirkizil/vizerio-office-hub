@@ -1,4 +1,4 @@
-/* css/style.css - Vizerio PRO (V2.5 - Full Genişlik Grafik) */
+/* css/style.css - Vizerio PRO (V2.7 - Renkli Tablo ve Lacivert Kur) */
 
 :root {
     --bg-color: #f8fafc;
@@ -9,6 +9,7 @@
     --red-expense: #ef4444;
     --orange-escrow: #f59e0b;
     --blue-info: #3b82f6;
+    --navy-exchange: #1e3a8a; /* YENİ: LACİVERT RENGİ */
     --white: #ffffff;
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
@@ -33,12 +34,11 @@ body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-c
 .content-section.active { display: block; animation: fadeIn 0.4s ease-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* FİNANS KARTLARI (Tıklanabilir Efekt) */
+/* KARTLAR */
 .summary-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px; margin-bottom: 30px; }
 .card { background: var(--white); padding: 25px; border-radius: 16px; box-shadow: var(--shadow); position: relative; overflow: hidden; border: 1px solid #e2e8f0; transition: transform 0.2s, box-shadow 0.2s; }
 .card-clickable:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); cursor: pointer; }
-.card-clickable.inactive { opacity: 0.5; filter: grayscale(100%); } /* Pasifken soluk olsun */
-
+.card-clickable.inactive { opacity: 0.6; filter: grayscale(100%); }
 .card-title { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 5px; }
 .money { font-size: 28px; font-weight: 800; color: var(--text-primary); }
 .border-green { border-bottom: 4px solid var(--green-profit); }
@@ -46,13 +46,13 @@ body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-c
 .border-red { border-bottom: 4px solid var(--red-expense); }
 .border-orange { border-bottom: 4px solid var(--orange-escrow); }
 
-/* ZAMAN FİLTRESİ BUTONLARI */
+/* GRAFİK BUTONLARI */
 .chart-controls { display: flex; gap: 5px; margin-top: 15px; justify-content: flex-end; }
 .time-btn { padding: 5px 12px; border: 1px solid #e2e8f0; background: white; border-radius: 6px; font-size: 11px; font-weight: 600; color: #64748b; cursor: pointer; transition: 0.2s; }
 .time-btn:hover { background: #f1f5f9; color: var(--blue-info); }
 .time-btn.active { background: var(--blue-info); color: white; border-color: var(--blue-info); }
 
-/* TABLOLAR */
+/* --- TABLOLAR ve RENKLER (ÖNEMLİ KISIM) --- */
 .data-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; margin-top: 10px; }
 .data-table th { text-align: left; padding: 15px 20px; color: #94a3b8; font-size: 11px; font-weight: 700; text-transform: uppercase; }
 .data-table th:last-child { text-align: right; }
@@ -60,18 +60,19 @@ body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-c
 .data-table tbody tr:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
 .data-table td { padding: 20px; font-size: 14px; color: var(--text-primary); border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
 .data-table td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; border-left: 1px solid #f1f5f9; }
-.data-table td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; border-right: 1px solid #f1f5f9; text-align: right; font-weight: 700; font-size: 15px; }
-.row-income td:first-child { border-left: 4px solid var(--green-profit); }
-.row-expense td:first-child { border-left: 4px solid var(--red-expense); }
-.row-escrow td:first-child { border-left: 4px solid var(--orange-escrow); }
+.data-table td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; border-right: 1px solid #f1f5f9; text-align: right; font-weight: 800; font-size: 15px; }
 
-/* EMANET DETAYLARI */
-.escrow-pools { display: flex; gap: 15px; margin-bottom: 20px; }
-.pool-box { flex: 1; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #ffedd5; background: #fff7ed; }
-.pool-title { font-size: 11px; color: #c2410c; font-weight: 700; }
-.pool-amount { font-size: 20px; font-weight: 800; color: #9a3412; }
-.escrow-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-.escrow-table td { padding: 12px 10px; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
+/* SOL ÇİZGİ RENKLERİ */
+.row-income td:first-child { border-left: 5px solid var(--green-profit) !important; }
+.row-expense td:first-child { border-left: 5px solid var(--red-expense) !important; }
+.row-escrow td:first-child { border-left: 5px solid var(--orange-escrow) !important; }
+.row-exchange td:first-child { border-left: 5px solid var(--navy-exchange) !important; } /* LACİVERT ÇİZGİ */
+
+/* RAKAM RENKLERİ */
+.text-green { color: var(--green-profit) !important; }
+.text-red { color: var(--red-expense) !important; }
+.text-orange { color: var(--orange-escrow) !important; }
+.text-navy { color: var(--navy-exchange) !important; } /* LACİVERT YAZI */
 
 /* MODAL & BUTONLAR */
 .btn { padding: 12px 20px; border-radius: 10px; border: none; color: white; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
@@ -87,7 +88,7 @@ body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-c
 .form-group { margin-bottom: 20px; }
 .form-control { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; }
 
-/* CRM TABLOSU */
+/* DİĞERLERİ (CRM, DRAWER vb.) */
 .crm-table { width: 100%; border-collapse: collapse; }
 .crm-table th { text-align: left; padding: 15px; color: #94a3b8; font-size: 11px; font-weight: 700; text-transform: uppercase; border-bottom: 1px solid #f1f5f9; background: #f8fafc; }
 .crm-table td { padding: 15px; font-size: 14px; color: var(--text-primary); border-bottom: 1px solid #f1f5f9; }
@@ -100,8 +101,6 @@ body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-c
 .status-danger { background: #fef2f2; color: #b91c1c; }
 .status-success { background: #f0fdf4; color: #15803d; }
 .status-process { background: #f3e8ff; color: #7e22ce; }
-
-/* DRAWER */
 .drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 1000; display: none; }
 .drawer-overlay.active { display: block; }
 .drawer-panel { position: fixed; top: 0; right: -450px; width: 450px; height: 100%; background: white; z-index: 1001; transition: 0.3s ease-in-out; display: flex; flex-direction: column; }
@@ -111,36 +110,20 @@ body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-c
 .d-tab.active { color: var(--blue-info); border-bottom: 2px solid var(--blue-info); font-weight: 600; }
 .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 .drawer-footer { margin-top: auto; padding-top: 20px; border-top: 1px solid #f1f5f9; display: flex; gap: 10px; }
-
-/* --- TABLO RENK KODLARI (GERİ GELDİ) --- */
-/* Gelir (Income) -> Yeşil Çizgi */
-.row-income td:first-child { 
-    border-left: 5px solid var(--green-profit) !important; 
-}
-
-/* Gider (Expense) -> Kırmızı Çizgi */
-.row-expense td:first-child { 
-    border-left: 5px solid var(--red-expense) !important; 
-}
-
-/* Emanet (Escrow) -> Turuncu Çizgi */
-.row-escrow td:first-child { 
-    border-left: 5px solid var(--orange-escrow) !important; 
-}
-
-/* Kur Dönüşümü (Exchange) -> Mor Çizgi */
-.row-exchange td:first-child { 
-    border-left: 5px solid #6366f1 !important; /* İndigo/Mor */
-}
-/* --- TABLO RENK KODLARI (Sol Çizgiler) --- */
-/* Gelir -> Yeşil */
-.row-income td:first-child { border-left: 5px solid var(--green-profit) !important; }
-/* Gider -> Kırmızı */
-.row-expense td:first-child { border-left: 5px solid var(--red-expense) !important; }
-/* Emanet -> Turuncu */
-.row-escrow td:first-child { border-left: 5px solid var(--orange-escrow) !important; }
-/* Kur Dönüşümü -> Mor */
-.row-exchange td:first-child { border-left: 5px solid #6366f1 !important; }
-
-/* Pasif Kart Efekti */
-.card-clickable.inactive { opacity: 0.6; filter: grayscale(100%); }
+.escrow-pools { display: flex; gap: 15px; margin-bottom: 20px; }
+.pool-box { flex: 1; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #ffedd5; background: #fff7ed; }
+.pool-title { font-size: 11px; color: #c2410c; font-weight: 700; }
+.pool-amount { font-size: 20px; font-weight: 800; color: #9a3412; }
+.escrow-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.escrow-table td { padding: 12px 10px; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
+.selection-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+.selection-card { padding: 25px; border: 1px solid #e2e8f0; border-radius: 12px; cursor: pointer; text-align: center; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 10px; background: white; }
+.selection-card:hover { border-color: var(--blue-info); background: #f0f9ff; }
+.photo-upload-area { text-align: center; width: 100px; }
+.photo-circle { width: 80px; height: 80px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; border: 2px dashed #cbd5e1; margin: 0 auto 5px; }
+.upload-zone { border: 2px dashed #cbd5e1; border-radius: 8px; padding: 30px; text-align: center; cursor: pointer; color: #64748b; background: #f8fafc; }
+.badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+.badge-gray { background: #f1f5f9; color: #64748b; }
+.bg-green-light { background: #dcfce7; color: #15803d; }
+.bg-red-light { background: #fee2e2; color: #b91c1c; }
+.bg-orange-light { background: #ffedd5; color: #c2410c; }
