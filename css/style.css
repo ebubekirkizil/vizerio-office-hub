@@ -111,3 +111,24 @@ body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-c
 .d-tab.active { color: var(--blue-info); border-bottom: 2px solid var(--blue-info); font-weight: 600; }
 .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 .drawer-footer { margin-top: auto; padding-top: 20px; border-top: 1px solid #f1f5f9; display: flex; gap: 10px; }
+
+/* --- TABLO RENK KODLARI (GERİ GELDİ) --- */
+/* Gelir (Income) -> Yeşil Çizgi */
+.row-income td:first-child { 
+    border-left: 5px solid var(--green-profit) !important; 
+}
+
+/* Gider (Expense) -> Kırmızı Çizgi */
+.row-expense td:first-child { 
+    border-left: 5px solid var(--red-expense) !important; 
+}
+
+/* Emanet (Escrow) -> Turuncu Çizgi */
+.row-escrow td:first-child { 
+    border-left: 5px solid var(--orange-escrow) !important; 
+}
+
+/* Kur Dönüşümü (Exchange) -> Mor Çizgi */
+.row-exchange td:first-child { 
+    border-left: 5px solid #6366f1 !important; /* İndigo/Mor */
+}
