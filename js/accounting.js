@@ -52,9 +52,55 @@ window.accounting = {
         this.updateText('money-expense', this.fmt(tExp, 'TRY'));
         this.updateText('money-escrow', this.fmt(tEsc, 'EUR'));
 
-        // Tablo ve Grafik
-        this.renderTable(list.slice(0, 10));
-        this.initChart(); // Grafiği çiz (Boş veya örnek verili)
+       // 2. TABLO DOLDURMA (RENKLİ ŞERİTLER EKLENDİ)
+    renderTable: function(list) {
+        const tbody = document.getElementById('transactions-body');
+        if(!tbody) return;
+        tbody.innerHTML = '';
+        
+        list.forEach(t => {
+            const date = new Date(t.created_at).toLocaleDateString('tr-TR');
+            const amountFmt = this.formatMoney(t.amount, t.currency);
+            
+            // Renk ve Sembol Mantığı
+            let rowClass = 'row-expense'; // Varsayılan Kırmızı
+            let symbol = '-';
+            let amountColor = 'text-red';
+
+            // Gelir ise
+            if (t.type === 'income') {
+                rowClass = 'row-income'; // Yeşil Çizgi
+                symbol = '+';
+                amountColor = 'text-green'; // Yazı Rengi Yeşil
+            }
+
+            // Emanet ise
+            if (t.is_escrow) {
+                rowClass = 'row-escrow'; // Turuncu Çizgi
+                symbol = ''; // Emanette artı/eksi yok
+                amountColor = 'text-orange';
+            }
+
+            // Kur Dönüşümü ise (Özel Durum)
+            if (t.category && t.category.includes('exchange')) {
+                rowClass = 'row-exchange'; // Mor Çizgi
+                symbol = t.type === 'income' ? '+' : '-';
+                amountColor = 'text-indigo'; // Yazı rengi mor olsun (CSS'de yoksa siyah kalır)
+            }
+
+            // Satırı Oluştur
+            const row = `
+                <tr class="${rowClass}">
+                    <td style="color:#64748b; font-size:12px; padding:15px;">${date}</td>
+                    <td style="padding:15px; font-weight:600; color:#334155;">${t.description || '-'}</td>
+                    <td style="padding:15px;"><span class="badge badge-gray">${t.category}</span></td>
+                    <td style="padding:15px; text-align:right; font-weight:800; font-size:15px;" class="${amountColor}">
+                        ${symbol} ${amountFmt}
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
     },
 
     // 2. GRAFİK YÖNETİMİ (TOGGLE & ZAMAN)
