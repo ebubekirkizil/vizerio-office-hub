@@ -141,3 +141,98 @@ select.form-control optgroup { font-weight: 700; color: var(--blue-info); font-s
 .sidebar-overlay.active { display: block; opacity: 1; }
 .close-btn { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; color: #64748b; }
 .close-btn:hover { background: #ef4444; color: white; transform: rotate(90deg); }
+
+/* --- PREMIUM GELİR SEÇİM KARTLARI (YENİ TASARIM) --- */
+
+.income-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: 10px;
+}
+
+.income-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 30px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Hover Efekti (Hafif Yükselme ve Gölge) */
+.income-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border-color: var(--blue-info);
+}
+
+/* İkon Kutusu (Yuvarlatılmış Kare - Squircle) */
+.income-icon-box {
+    width: 70px;
+    height: 70px;
+    border-radius: 18px; /* Modern Yumuşak Köşe */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    font-size: 32px;
+    transition: 0.3s;
+}
+
+.income-card:hover .income-icon-box {
+    transform: scale(1.1); /* Üzerine gelince ikon hafif büyüsün */
+}
+
+/* Başlık ve Açıklama */
+.income-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 5px;
+}
+
+.income-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* --- ÖZEL RENK TEMALARI --- */
+
+/* Vize (Yeşil/Mavi Karışımı - Güven) */
+.theme-visa .income-icon-box {
+    background: #ecfdf5; /* Çok açık yeşil */
+    color: #059669;      /* Koyu yeşil ikon */
+    border: 1px solid #d1fae5;
+}
+.theme-visa:hover { border-color: #059669; }
+
+/* Ek Gelir (Mavi - Kurumsal) */
+.theme-extra .income-icon-box {
+    background: #eff6ff; /* Çok açık mavi */
+    color: #2563eb;      /* Koyu mavi ikon */
+    border: 1px solid #dbeafe;
+}
+.theme-extra:hover { border-color: #2563eb; }
+
+/* Emanet (Turuncu - Dikkat) */
+.theme-escrow .income-icon-box {
+    background: #fff7ed; /* Çok açık turuncu */
+    color: #ea580c;      /* Koyu turuncu ikon */
+    border: 1px solid #ffedd5;
+}
+.theme-escrow:hover { border-color: #ea580c; }
+
+/* Mobilde Alt Alta */
+@media (max-width: 600px) {
+    .income-selection-grid { grid-template-columns: 1fr; }
+    .income-card { flex-direction: row; text-align: left; padding: 20px; justify-content: start; gap: 20px; }
+    .income-icon-box { margin-bottom: 0; width: 50px; height: 50px; font-size: 24px; }
+}
