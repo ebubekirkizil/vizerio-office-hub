@@ -233,8 +233,76 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="modal-extra-income"><div class="modal-box"><div class="modal-header"><h3>Ek Gelir</h3><button class="close-btn" onclick="ui.closeModal('modal-extra-income')"><span class="material-icons-round">close</span></button></div><div class="modal-body"><form id="form-extra-income"><div class="form-group"><label>Hizmet</label><select class="form-control"><option>Uçak Bileti</option><option>Otel</option><option>Sigorta</option><option>Danışmanlık</option></select></div><div class="form-group"><label>Fiyat</label><input type="number" class="form-control"></div><button type="submit" class="btn btn-blue" style="width:100%;">KAYDET</button></form></div></div></div>
+<div class="modal-overlay" id="modal-extra-income">
+        <div class="modal-box" style="width: 650px;">
+            <div class="modal-header">
+                <h3>Ek Hizmet Geliri</h3>
+                <button class="close-btn" onclick="ui.closeModal('modal-extra-income')"><span class="material-icons-round">close</span></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-extra-income">
+                    
+                    <div class="form-group">
+                        <label>Müşteri Adı / Dosya</label>
+                        <input type="text" class="form-control" id="ei-customer" placeholder="Örn: Mehmet Demir" required>
+                    </div>
 
+                    <div class="form-group">
+                        <label>Verilen Hizmet</label>
+                        <select class="form-control" id="ei-category" required>
+                            <option value="" disabled selected>Hizmet Seçiniz...</option>
+                            
+                            <optgroup label="ULAŞIM & SEYAHAT">
+                                <option value="flight_ticket">Uçak Bileti Satışı</option>
+                                <option value="transfer">Transfer / Araç Kiralama</option>
+                                <option value="train_bus">Tren / Otobüs Bileti</option>
+                            </optgroup>
+                            
+                            <optgroup label="KONAKLAMA">
+                                <option value="hotel_booking">Otel Rezervasyonu</option>
+                                <option value="airbnb">Ev / Daire Kiralama</option>
+                            </optgroup>
+                            
+                            <optgroup label="SİGORTA & GÜVENCE">
+                                <option value="travel_insurance">Seyahat Sağlık Sigortası</option>
+                                <option value="cancellation_insurance">İptal Güvencesi</option>
+                            </optgroup>
+                            
+                            <optgroup label="ÖZEL HİZMETLER">
+                                <option value="vip_lounge">VIP Lounge / Karşılama</option>
+                                <option value="translation">Tercüme / Noter İşlemleri</option>
+                                <option value="form_filling">Form Doldurma Desteği</option>
+                                <option value="consultancy_extra">Ekstra Danışmanlık</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="background: #eff6ff; padding: 20px; border-radius: 12px; border: 1px solid #dbeafe;">
+                        <label style="color: #2563eb; font-weight: 700; font-size: 12px; letter-spacing: 0.5px;">HİZMET BEDELİ (KAZANILAN)</label>
+                        <div style="display:flex; gap:15px; margin-top: 5px;">
+                            <input type="number" class="form-control" id="ei-amount" placeholder="0.00" step="0.01" style="font-size: 24px; font-weight: 800; color: #2563eb; height: 50px;" required>
+                            <select class="form-control" id="ei-currency" style="width:130px; font-weight: 800; color: #2563eb; height: 50px;">
+                                <option value="TRY">TRY (₺)</option>
+                                <option value="USD">USD ($)</option>
+                                <option value="EUR">EUR (€)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Açıklama / Detay</label>
+                        <input type="text" class="form-control" id="ei-desc" placeholder="Örn: THY İstanbul-Berlin Gidiş Dönüş">
+                    </div>
+
+                    <button type="submit" class="btn" style="background: #2563eb; color: white; width: 100%; font-size: 15px; padding: 16px; font-weight: 700; letter-spacing: 0.5px;">
+                        GELİRİ KAYDET
+                    </button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+    
 <div class="modal-overlay" id="modal-escrow">
         <div class="modal-box" style="width: 650px;">
             <div class="modal-header">
