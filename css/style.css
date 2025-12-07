@@ -236,3 +236,50 @@ select.form-control optgroup { font-weight: 700; color: var(--blue-info); font-s
     .income-card { flex-direction: row; text-align: left; padding: 20px; justify-content: start; gap: 20px; }
     .income-icon-box { margin-bottom: 0; width: 50px; height: 50px; font-size: 24px; }
 }
+
+/* --- VİZE DOSYASI V4.0 (PREMIUM) --- */
+
+/* Sekme Başlıkları */
+.wizard-header { display: flex; justify-content: space-between; margin-bottom: 25px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+.wizard-step { 
+    flex: 1; text-align: center; font-size: 13px; font-weight: 600; color: #94a3b8; 
+    padding-bottom: 10px; margin-bottom: -12px; cursor: pointer; transition: 0.3s; 
+    border-bottom: 3px solid transparent; 
+}
+.wizard-step.active { color: var(--blue-info); border-bottom-color: var(--blue-info); }
+.wizard-step span { display: block; font-size: 18px; margin-bottom: 5px; }
+
+/* Evrak Listesi (Premium Dosya Yönetimi) */
+.doc-grid { display: grid; gap: 10px; }
+.doc-item { 
+    display: flex; align-items: center; justify-content: space-between; 
+    padding: 15px; background: white; border: 1px solid #e2e8f0; border-radius: 10px; 
+    transition: 0.2s; 
+}
+.doc-item:hover { border-color: var(--blue-info); box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+.doc-info { display: flex; align-items: center; gap: 12px; }
+.doc-icon { 
+    width: 40px; height: 40px; background: #f1f5f9; color: #64748b; 
+    border-radius: 8px; display: flex; align-items: center; justify-content: center; 
+}
+.doc-item.uploaded .doc-icon { background: #dcfce7; color: #15803d; } /* Yüklendi ise Yeşil */
+.doc-actions { display: flex; gap: 8px; }
+.btn-sm { padding: 6px 10px; font-size: 12px; border-radius: 6px; }
+
+/* Finansal Planlama Tablosu */
+.finance-summary { 
+    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; 
+    margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; 
+}
+.fin-box { text-align: center; }
+.fin-label { font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase; }
+.fin-amount { font-size: 20px; font-weight: 800; color: #1e293b; margin-top: 5px; }
+.text-danger { color: #ef4444 !important; }
+.text-success { color: #10b981 !important; }
+
+/* Gider Aşamaları */
+.expense-stage { 
+    display: flex; align-items: center; gap: 10px; padding: 10px; 
+    border-bottom: 1px solid #f1f5f9; font-size: 13px; 
+}
+.expense-stage:last-child { border: none; }
