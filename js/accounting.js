@@ -234,7 +234,43 @@ window.accounting = {
 
     // Kayıtlar (Aynı)
     saveExpense: async function(e) { e.preventDefault(); this.genericSave(e, 'expense', 'modal-expense'); },
-    saveEscrow: async function(e) { e.preventDefault(); this.genericSave(e, 'escrow', 'modal-escrow'); },
+    // EMANET KAYDET (GÜNCELLENMİŞ)
+    saveEscrow: async function(event) {
+        event.preventDefault();
+        const btn = event.target.querySelector('button'); 
+        btn.disabled = true; btn.innerHTML = "Kaydediliyor...";
+
+        // Form Verilerini Al
+        const customer = document.getElementById('esc-customer').value;
+        const category = document.getElementById('esc-category').value; // emanet türü
+        const amount = document.getElementById('esc-amount').value;
+        const currency = document.getElementById('esc-currency').value;
+        const date = document.getElementById('esc-date').value;
+        const desc = document.getElementById('esc-desc').value;
+
+        // Açıklamayı birleştir (Müşteri + Tür + Tarih)
+        const fullDescription = `${customer} - ${category.toUpperCase()} (Tarih: ${date}) - ${desc}`;
+
+        const { error } = await window.supabaseClient.from('transactions').insert({
+            type: 'income', // Kasaya girdiği için income gibi davranır
+            category: 'escrow_deposit', 
+            description: fullDescription, 
+            amount: amount, 
+            currency: currency, 
+            is_escrow: true, // Emanet olduğunu işaretle
+            created_at: new Date()
+        });
+
+        if(!error) {
+            window.ui.closeModal('modal-escrow'); 
+            document.getElementById('form-escrow').reset(); 
+            window.accounting.refreshDashboard();
+            alert("✅ Emanet başarıyla kaydedildi.");
+        } else { 
+            alert("Hata: " + error.message); 
+        }
+        btn.disabled = false; btn.innerHTML = '<span class="material-icons-round">save_alt</span> EMANETİ KASAYA AL';
+    },
     saveExtraIncome: async function(e) { e.preventDefault(); this.genericSave(e, 'income', 'modal-extra-income'); },
     saveExchange: async function(e) { 
         e.preventDefault(); const btn=e.target.querySelector('button'); btn.disabled=true;
