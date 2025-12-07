@@ -1,4 +1,4 @@
-/* css/style.css - Vizerio PRO (V5.2 - Ferah Tasarım & Fixler) */
+/* css/style.css - Vizerio PRO (V5.4 - Premium Butonlar & Büyük Fontlar) */
 
 :root {
     --bg-color: #f8fafc;
@@ -43,8 +43,7 @@ body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-c
 .search-bar { background: #f1f5f9; padding: 10px 15px; border-radius: 8px; width: 300px; display: flex; align-items: center; }
 .search-bar input { border: none; background: transparent; outline: none; margin-left: 10px; width: 100%; color: var(--text-primary); }
 
-/* --- DÜZEN (FERAHLIK AYARI) --- */
-/* Kenarlardan daha fazla boşluk (40px) bıraktık */
+/* --- DÜZEN --- */
 .content-section { padding: 40px; display: none; width: 100%; max-width: 100%; margin: 0 auto; box-sizing: border-box; }
 .content-section.active { display: block; animation: fadeIn 0.4s ease-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -65,22 +64,77 @@ body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-c
 .wallet-item:last-child { border-right: none; background: #fff; }
 .wallet-label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 5px; }
 .wallet-amount { font-size: 22px; font-weight: 800; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
-.wallet-sub { font-size: 11px; color: #94a3b8; margin-top: 5px; font-weight: 600; } /* Küçük TL yazısı */
+.wallet-sub { font-size: 11px; color: #94a3b8; margin-top: 5px; font-weight: 600; } 
 
-/* --- TABLOLAR --- */
+/* --- TABLOLAR (YENİLENMİŞ FONT & BOŞLUK) --- */
 .table-container { width: 100%; overflow-x: auto; padding-bottom: 5px; }
-.data-table, .crm-table, .escrow-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; min-width: 600px; }
-.data-table td, .crm-table td, .escrow-table td { padding: 15px; font-size: 13px; background: white; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
-.data-table td:first-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; border-left: 1px solid #f1f5f9; }
-.data-table td:last-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-right: 1px solid #f1f5f9; text-align: right; }
-.data-table th { padding: 10px 15px; font-size: 11px; color: #94a3b8; font-weight: 700; text-transform: uppercase; }
+.data-table, .crm-table, .escrow-table { width: 100%; border-collapse: separate; border-spacing: 0 12px; min-width: 600px; } /* Satır arası açıldı */
 
-/* Renkler */
-.row-income td:first-child { border-left: 5px solid var(--green-profit) !important; } .row-expense td:first-child { border-left: 5px solid var(--red-expense) !important; } .row-escrow td:first-child { border-left: 5px solid var(--orange-escrow) !important; } .row-exchange td:first-child { border-left: 5px solid var(--navy-exchange) !important; }
-.text-green { color: var(--green-profit) !important; } .text-red { color: var(--red-expense) !important; } .text-orange { color: var(--orange-escrow) !important; } .text-navy { color: var(--navy-exchange) !important; }
+.data-table th, .crm-table th, .escrow-table th { 
+    text-align: left; padding: 12px 20px; color: #94a3b8; 
+    font-size: 12px; font-weight: 700; text-transform: uppercase; white-space: nowrap; 
+}
+
+.data-table td, .crm-table td, .escrow-table td { 
+    padding: 20px; /* İç boşluklar artırıldı */
+    font-size: 15px; /* YAZI BOYUTU BÜYÜTÜLDÜ (13px -> 15px) */
+    background: white; 
+    border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; 
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.data-table td:first-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; border-left: 1px solid #f1f5f9; }
+.data-table td:last-child { 
+    border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-right: 1px solid #f1f5f9; 
+    text-align: right; 
+    font-size: 16px; /* Tutar kısmı daha da büyük */
+    font-weight: 800;
+}
+
+/* Tablo Renkleri */
+.row-income td:first-child { border-left: 5px solid var(--green-profit) !important; }
+.row-expense td:first-child { border-left: 5px solid var(--red-expense) !important; }
+.row-escrow td:first-child { border-left: 5px solid var(--orange-escrow) !important; }
+.row-exchange td:first-child { border-left: 5px solid var(--navy-exchange) !important; }
+.text-green { color: var(--green-profit) !important; }
+.text-red { color: var(--red-expense) !important; }
+.text-orange { color: var(--orange-escrow) !important; }
+.text-navy { color: var(--navy-exchange) !important; }
+.row-hover:hover { background-color: #f0f9ff !important; transform: scale(1.005); cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.03); transition: 0.2s; }
+
+/* Border Renkleri */
 .border-green { border-bottom: 4px solid var(--green-profit); } .border-blue { border-bottom: 4px solid var(--blue-info); } .border-red { border-bottom: 4px solid var(--red-expense); } .border-orange { border-bottom: 4px solid var(--orange-escrow); }
 
-/* --- PREMIUM VİZE SİHİRBAZI --- */
+/* --- GRAFİK ZAMAN BUTONLARI (YENİ PREMIUM TASARIM) --- */
+.chart-controls { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+
+.time-btn { 
+    padding: 6px 16px; /* Daha geniş */
+    border: 1px solid #e2e8f0; 
+    background: #fff; 
+    border-radius: 20px; /* Hap Şekli (Pill) */
+    font-size: 12px; 
+    font-weight: 600; 
+    color: #64748b; 
+    cursor: pointer; 
+    transition: all 0.2s ease;
+}
+
+.time-btn:hover {
+    border-color: var(--blue-info);
+    color: var(--blue-info);
+    background: #eff6ff;
+}
+
+.time-btn.active { 
+    background: var(--blue-info); 
+    color: white; 
+    border-color: var(--blue-info); 
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3); /* Mavi Gölge */
+}
+
+/* --- VİZE SİHİRBAZI --- */
 .wizard-header { display: flex; justify-content: space-between; margin-bottom: 30px; position: relative; padding: 0 10px; }
 .wizard-header::before { content: ''; position: absolute; top: 22px; left: 0; width: 100%; height: 3px; background: #e2e8f0; z-index: 0; border-radius: 10px; }
 .wizard-step { position: relative; z-index: 1; background: #fff; text-align: center; cursor: pointer; width: 100px; }
@@ -89,6 +143,7 @@ body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-c
 .wizard-step.completed .step-icon-box { border-color: var(--green-profit); background: var(--green-profit); color: #fff; }
 .step-title { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.3s; }
 .wizard-step.active .step-title { color: var(--blue-info); font-weight: 800; }
+.wizard-page { animation: fadeIn 0.3s ease-out; }
 
 /* Evrak Listesi */
 .doc-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
@@ -98,35 +153,40 @@ body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-c
 .doc-icon-small { color: var(--blue-info); font-size: 20px; }
 .doc-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
 .doc-actions { display: flex; gap: 5px; }
-
-/* Evrak Ekleme Butonu (Dashed) */
-.btn-dashed { 
-    border: 2px dashed #cbd5e1; background: #f8fafc; color: #64748b; 
-    width: 100%; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 600; 
-    cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px;
-}
+.btn-dashed { border: 2px dashed #cbd5e1; background: #f8fafc; color: #64748b; width: 100%; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px; }
 .btn-dashed:hover { border-color: var(--blue-info); color: var(--blue-info); background: #eff6ff; }
-
 .btn-icon { width: 32px; height: 32px; border-radius: 6px; border: 1px solid #e2e8f0; background: white; color: #64748b; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .btn-icon:hover { background: #f1f5f9; color: var(--blue-info); }
 .btn-icon.delete:hover { background: #fee2e2; color: #ef4444; border-color: #fee2e2; }
 
 /* Finans Tablosu */
-.finance-summary { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
-.fin-box { text-align: center; }
-.fin-label { font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase; }
-.fin-amount { font-size: 20px; font-weight: 800; color: #1e293b; margin-top: 5px; }
+.finance-summary { 
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 1px solid #e2e8f0; border-radius: 20px; padding: 30px; margin-bottom: 25px; 
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; position: relative; overflow: hidden;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+}
+.fin-box { text-align: center; border-right: 1px solid #e2e8f0; }
+.fin-label { font-size: 11px; color: #64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.fin-amount { font-size: 28px; font-weight: 900; letter-spacing: -0.5px; }
+.text-blue { color: #3b82f6; } .text-green { color: #10b981; } .text-red { color: #ef4444; }
 .expense-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 8px; }
 .badge-escrow { background: #ffedd5; color: #ea580c; font-size: 10px; padding: 3px 8px; border-radius: 4px; font-weight: 700; border: 1px solid #fed7aa; }
 
 /* Gelir Kartları */
 .income-selection-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 10px; }
-.income-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 30px 20px; text-align: center; cursor: pointer; transition: all 0.3s; display: flex; flex-direction: column; align-items: center; }
+.income-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 30px 20px; text-align: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .income-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border-color: var(--blue-info); }
 .income-icon-box { width: 70px; height: 70px; border-radius: 18px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; font-size: 32px; transition: 0.3s; }
+.income-card:hover .income-icon-box { transform: scale(1.1); }
+.income-title { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 5px; }
+.income-desc { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
 .theme-visa .income-icon-box { background: #ecfdf5; color: #059669; border: 1px solid #d1fae5; }
+.theme-visa:hover { border-color: #059669; }
 .theme-extra .income-icon-box { background: #eff6ff; color: #2563eb; border: 1px solid #dbeafe; }
+.theme-extra:hover { border-color: #2563eb; }
 .theme-escrow .income-icon-box { background: #fff7ed; color: #ea580c; border: 1px solid #ffedd5; }
+.theme-escrow:hover { border-color: #ea580c; }
 
 /* Modaller */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 2000; }
@@ -134,12 +194,15 @@ body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-c
 .modal-box { background: white; width: 600px; max-width: 95%; border-radius: 16px; display: flex; flex-direction: column; max-height: 85vh; }
 .modal-body { padding: 20px; overflow-y: auto; }
 .modal-header { padding: 20px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
-.close-btn { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #64748b; transition: 0.2s; }
+.close-btn { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; color: #64748b; }
 .close-btn:hover { background: #ef4444; color: white; transform: rotate(90deg); }
 .btn { padding: 12px; border-radius: 8px; border: none; color: white; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; width: 100%; }
 .btn-green { background: var(--green-profit); } .btn-red { background: var(--red-expense); } .btn-orange { background: var(--orange-escrow); } .btn-blue { background: var(--blue-info); }
+.btn-sm { padding: 6px 10px; font-size: 12px; border-radius: 6px; }
 .form-control { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; }
+.form-control:focus { border-color: var(--blue-info); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); outline: none; }
 .form-group { margin-bottom: 15px; } .form-row { display: flex; gap: 15px; } .form-group.half { flex: 1; }
+.form-group label { font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 6px; display: block; }
 select.form-control option { padding: 10px; } select.form-control optgroup { font-weight: 700; color: var(--blue-info); font-style: normal; }
 
 /* Responsive */
@@ -153,71 +216,3 @@ select.form-control option { padding: 10px; } select.form-control optgroup { fon
     .form-row { flex-direction: column; gap: 0; } .form-group.half { width: 100%; }
 }
 .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1900; display: none; opacity: 0; transition: opacity 0.3s; } .sidebar-overlay.active { display: block; opacity: 1; }
-
-/* --- V5.3 PREMIUM GÜNCELLEMELERİ --- */
-
-/* 1. Vize Sihirbazı - Finans Özeti (BANKA KARTI GÖRÜNÜMÜ) */
-.finance-summary {
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-    border: 1px solid #e2e8f0;
-    border-radius: 20px; /* Daha yuvarlak */
-    padding: 30px;
-    margin-bottom: 25px;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 0;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); /* Gölge */
-    position: relative;
-    overflow: hidden;
-}
-
-.fin-box { 
-    text-align: center; 
-    position: relative; 
-    border-right: 1px solid #e2e8f0; 
-}
-.fin-box:last-child { border-right: none; }
-
-.fin-label { 
-    font-size: 11px; 
-    color: #64748b; 
-    font-weight: 800; 
-    text-transform: uppercase; 
-    letter-spacing: 1px; 
-    margin-bottom: 8px;
-}
-
-.fin-amount { 
-    font-size: 28px; /* Daha büyük rakamlar */
-    font-weight: 900; 
-    letter-spacing: -0.5px;
-}
-
-.text-blue { color: #3b82f6; }
-.text-green { color: #10b981; }
-.text-red { color: #ef4444; }
-
-/* 2. Liste Satır Efekti (Çift Tıklama İçin İpucu) */
-.row-hover { transition: all 0.2s; }
-.row-hover:hover { 
-    background-color: #f0f9ff !important; 
-    transform: scale(1.01); 
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    z-index: 10;
-    position: relative;
-}
-
-/* 3. Form Güzelleştirme */
-.form-group label {
-    font-size: 12px;
-    font-weight: 700;
-    color: #475569;
-    margin-bottom: 6px;
-    display: block;
-}
-.form-control:focus {
-    border-color: var(--blue-info);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    outline: none;
-}
