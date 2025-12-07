@@ -152,12 +152,126 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="modal-income">
+   <div class="modal-overlay" id="modal-income">
         <div class="modal-box" style="width: 900px; max-height: 95vh;">
             <div class="modal-header">
                 <h3>Yeni Vize Dosyası</h3>
                 <button class="close-btn" onclick="ui.closeModal('modal-income')"><span class="material-icons-round">close</span></button>
             </div>
+            
+            <div style="padding: 20px 40px 0; background: #fff;">
+                <div class="wizard-header">
+                    <div class="wizard-step active" id="ws-1" onclick="crm.goToStep(1)"><div class="step-icon-box"><span class="material-icons-round">person</span></div><div class="step-title">KİMLİK</div></div>
+                    <div class="wizard-step" id="ws-2" onclick="crm.goToStep(2)"><div class="step-icon-box"><span class="material-icons-round">flight_takeoff</span></div><div class="step-title">SEYAHAT</div></div>
+                    <div class="wizard-step" id="ws-3" onclick="crm.goToStep(3)"><div class="step-icon-box"><span class="material-icons-round">folder_open</span></div><div class="step-title">EVRAK</div></div>
+                    <div class="wizard-step" id="ws-4" onclick="crm.goToStep(4)"><div class="step-icon-box"><span class="material-icons-round">payments</span></div><div class="step-title">FİNANS</div></div>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <form id="form-visa-wizard">
+                    
+                    <div class="wizard-page" id="step-1">
+                        <div class="form-row"><div class="form-group half"><label>Adı</label><input type="text" class="form-control" id="v-name" required></div><div class="form-group half"><label>Soyadı</label><input type="text" class="form-control" id="v-surname" required></div></div>
+                        <div class="form-row"><div class="form-group half"><label>Pasaport No</label><input type="text" class="form-control" id="v-passport" required></div><div class="form-group half"><label>TC Kimlik</label><input type="text" class="form-control" id="v-tcid"></div></div>
+                        <div class="form-row"><div class="form-group half"><label>Telefon</label><input type="tel" class="form-control" id="v-phone" required></div><div class="form-group half"><label>Meslek</label><input type="text" class="form-control" id="v-job"></div></div>
+                        <div style="text-align:right; margin-top:20px;"><button type="button" class="btn btn-blue" style="width:auto;" onclick="window.crm.goToStep(2)">İLERİ &rarr;</button></div>
+                    </div>
+
+                    <div class="wizard-page" id="step-2" style="display:none;">
+                        <div class="form-row">
+                            <div class="form-group half">
+                                <label>Gidilecek Ülke</label>
+                                <select class="form-control" id="v-country">
+                                    <option value="" disabled selected>Ülke Seçiniz...</option>
+                                    <optgroup label="Popüler">
+                                        <option value="DE">Almanya</option><option value="FR">Fransa</option><option value="US">ABD</option><option value="GB">İngiltere</option><option value="NL">Hollanda</option><option value="IT">İtalya</option><option value="ES">İspanya</option><option value="CA">Kanada</option>
+                                    </optgroup>
+                                    <optgroup label="Diğer">
+                                        <option value="AT">Avusturya</option><option value="BE">Belçika</option><option value="BG">Bulgaristan</option><option value="CZ">Çekya</option><option value="CN">Çin</option><option value="DK">Danimarka</option><option value="FI">Finlandiya</option><option value="GR">Yunanistan</option><option value="HU">Macaristan</option><option value="IE">İrlanda</option><option value="JP">Japonya</option><option value="NO">Norveç</option><option value="PL">Polonya</option><option value="PT">Portekiz</option><option value="RO">Romanya</option><option value="RU">Rusya</option><option value="SE">İsveç</option><option value="CH">İsviçre</option><option value="AE">Dubai (BAE)</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div class="form-group half">
+                                <label>Vize Tipi</label>
+                                <select class="form-control" id="v-type" onchange="crm.updateDocList()">
+                                    <option value="tourist">Turistik</option>
+                                    <option value="commercial">Ticari / Fuar</option>
+                                    <option value="family">Aile Ziyareti</option>
+                                    <option value="student">Eğitim / Öğrenci</option>
+                                    <option value="seaman">Gemi Adamı</option>
+                                    <option value="vip">VIP / Express</option>
+                                    <option value="medical">Sağlık</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row"><div class="form-group half"><label>Gidiş</label><input type="date" class="form-control" id="v-start"></div><div class="form-group half"><label>Dönüş</label><input type="date" class="form-control" id="v-end"></div></div>
+                        <div id="dynamic-inputs"></div>
+                        <div style="display:flex; justify-content:space-between; margin-top:20px;"><button type="button" class="btn" style="background:#e2e8f0; color:#334155; width:auto;" onclick="window.crm.goToStep(1)">&larr; GERİ</button><button type="button" class="btn btn-blue" style="width:auto;" onclick="window.crm.goToStep(3)">İLERİ &rarr;</button></div>
+                    </div>
+
+                    <div class="wizard-page" id="step-3" style="display:none;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                            <h4 style="margin:0; font-size:14px; color:#64748b;">Gerekli Evrak Listesi</h4>
+                            <button type="button" class="btn-sm" style="background:#eff6ff; color:#2563eb; border:1px solid #dbeafe; cursor:pointer;" onclick="crm.addManualDoc()">
+                                <span class="material-icons-round" style="font-size:16px;">add</span> Dosya Ekle
+                            </button>
+                        </div>
+                        <div class="doc-grid" id="doc-list-container"></div>
+                        <div style="display:flex; justify-content:space-between; margin-top:20px;"><button type="button" class="btn" style="background:#e2e8f0; color:#334155; width:auto;" onclick="window.crm.goToStep(2)">&larr; GERİ</button><button type="button" class="btn btn-blue" style="width:auto;" onclick="window.crm.goToStep(4)">İLERİ &rarr;</button></div>
+                    </div>
+
+                    <div class="wizard-page" id="step-4" style="display:none;">
+                        <div class="finance-summary">
+                            <div class="fin-box"><div class="fin-label">Toplam Tutar</div><div class="fin-amount text-blue" id="disp-total">0 ₺</div></div>
+                            <div class="fin-box"><div class="fin-label">Alınan (Kasa)</div><div class="fin-amount text-green" id="disp-paid">0 ₺</div></div>
+                            <div class="fin-box"><div class="fin-label">Kalan Borç</div><div class="fin-amount text-red" id="disp-remain">0 ₺</div></div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group half">
+                                <label>Müşteriyle Anlaşılan Tutar</label>
+                                <div style="display:flex; gap:10px;">
+                                    <input type="number" class="form-control" id="v-total-price" placeholder="5000" oninput="crm.calcFinance()">
+                                    <select class="form-control" style="width:100px;" id="v-currency" onchange="crm.calcFinance()"><option>TRY</option><option>USD</option><option>EUR</option></select>
+                                </div>
+                            </div>
+                            <div class="form-group half">
+                                <label>Peşinat (Şimdi Alınan)</label>
+                                <input type="number" class="form-control" id="v-paid-now" placeholder="0" oninput="crm.calcFinance()">
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="background:#fff7ed; padding:15px; border-radius:10px; border:1px solid #ffedd5;">
+                            <label style="color:#ea580c; font-weight:700; margin-bottom:10px; display:block;">Operasyonel Giderler (Emanet)</label>
+                            
+                            <div class="expense-row">
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <input type="checkbox" id="chk-fee">
+                                    <span>Konsolosluk / Başvuru Harcı</span>
+                                    <span class="badge-escrow">EMANET</span>
+                                </div>
+                                <input type="number" id="v-fee-amount" class="form-control" style="width:100px; height:30px;" placeholder="Tutar">
+                            </div>
+
+                            <div class="expense-row">
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <input type="checkbox" id="chk-ins">
+                                    <span>Seyahat Sağlık Sigortası</span>
+                                </div>
+                                <input type="number" id="v-ins-amount" class="form-control" style="width:100px; height:30px;" placeholder="Tutar">
+                            </div>
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; margin-top:20px;">
+                            <button type="button" class="btn" style="background:#e2e8f0; color:#334155; width:auto;" onclick="window.crm.goToStep(3)">&larr; GERİ</button>
+                            <button type="submit" class="btn btn-green" style="width:auto;">DOSYAYI OLUŞTUR</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
             <div style="padding: 20px 40px 0; background: #fff;">
                 <div class="wizard-header">
                     <div class="wizard-step active" id="ws-1" onclick="crm.goToStep(1)"><div class="step-icon-box"><span class="material-icons-round">person</span></div><div class="step-title">KİMLİK</div></div>
