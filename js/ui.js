@@ -1,29 +1,95 @@
-// js/ui.js - Arayüz Kontrolcüsü
+// js/ui.js - DOKUNMATİK MENÜ ve ARAYÜZ YÖNETİMİ
 
 window.ui = {
-    // Modal Açma Fonksiyonu
+    // --- TEMEL FONKSİYONLAR ---
     openModal: function(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.classList.add('active'); // CSS'deki .active sınıfını ekler
-            console.log("Pencere açıldı: " + modalId);
-        } else {
-            console.error("Modal bulunamadı: " + modalId);
-        }
+        const el = document.getElementById(modalId);
+        if(el) el.classList.add('active');
     },
 
-    // Modal Kapatma Fonksiyonu
     closeModal: function(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.classList.remove('active');
+        const el = document.getElementById(modalId);
+        if(el) el.classList.remove('active');
+    },
+
+    // --- AKILLI MENÜ YÖNETİMİ ---
+    toggleSidebar: function() {
+        const sidebar = document.getElementById('sidebar'); // index.html'de aside id="sidebar" olmalı
+        const overlay = document.getElementById('sidebar-overlay');
+        const isMobile = window.innerWidth <= 768;
+
+        if (isMobile) {
+            // Mobilde: Görünürlüğü aç/kapat (.active)
+            // Eğer id yoksa class ile bulmaya çalış (Yedek)
+            const sb = sidebar || document.querySelector('.sidebar');
+            sb.classList.toggle('active');
+            if(overlay) overlay.classList.toggle('active');
+        } else {
+            // Masaüstünde: Daralt/Genişlet (.collapsed)
+            const sb = sidebar || document.querySelector('.sidebar');
+            sb.classList.toggle('collapsed');
         }
     },
 
-    // Para Birimi Değişince (Şimdilik sadece log atar)
-    updateCurrency: function() {
-        const currency = document.getElementById('currencySelect').value;
-        console.log("Para birimi değişti: " + currency);
-        // İlerde buraya tüm rakamları çarpan kod gelecek
-    }
+    updateCurrency: function() { console.log("Para birimi güncellendi"); }
 };
+
+// --- DOKUNMATİK (SWIPE) ALGILAYICI ---
+document.addEventListener('DOMContentLoaded', () => {
+    
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchEndX = 0;
+    let touchEndY = 0;
+
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+
+    // 1. Dokunma Başladı
+    document.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+    }, {passive: true});
+
+    // 2. Dokunma Bitti
+    document.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        touchEndY = e.changedTouches[0].screenY;
+        handleGesture();
+    }, {passive: true});
+
+    function handleGesture() {
+        const isMobile = window.innerWidth <= 768;
+        if (!isMobile) return; // Bilgisayarda çalışma
+
+        const xDiff = touchEndX - touchStartX;
+        const yDiff = touchEndY - touchStartY;
+
+        // Yatay hareket dikeyden fazlaysa (Kaydırma niyeti)
+        if (Math.abs(xDiff) > Math.abs(yDiff)) {
+            
+            // SAĞA KAYDIRMA (Menüyü AÇ)
+            // Şart: Hareket soldan sağa (>50px) VE Başlangıç noktası ekranın en solu (<30px)
+            if (xDiff > 50 && touchStartX < 40) {
+                if (!sidebar.classList.contains('active')) {
+                    window.ui.toggleSidebar();
+                }
+            }
+
+            // SOLA KAYDIRMA (Menüyü KAPAT)
+            // Şart: Hareket sağdan sola (<-50px) VE Menü zaten açıksa
+            if (xDiff < -50) {
+                if (sidebar.classList.contains('active')) {
+                    window.ui.toggleSidebar();
+                }
+            }
+        }
+    }
+
+    // Modal Dışına Tıklama Kapatıcısı
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal-overlay')) {
+            event.target.classList.remove('active');
+        }
+    }
+});
