@@ -127,6 +127,8 @@
                 </div>
             </section>
         </main>
+            <div class="sidebar-overlay" id="sidebar-overlay" onclick="ui.toggleSidebar()"></div>
+
     </div>
 
     <div class="modal-overlay" id="modal-select-income-type"><div class="modal-box" style="width: 600px;"><div class="modal-header"><h3>Gelir Türü</h3><button class="close-btn" onclick="ui.closeModal('modal-select-income-type')">&times;</button></div><div class="modal-body"><div class="selection-grid"><div class="selection-card" onclick="ui.openModal('modal-income'); ui.closeModal('modal-select-income-type');"><span style="font-size:30px; color:var(--green-profit);">🛂</span><strong>Vize</strong></div><div class="selection-card" onclick="ui.openModal('modal-extra-income'); ui.closeModal('modal-select-income-type');"><span style="font-size:30px; color:var(--blue-info);">✈️</span><strong>Ek Gelir</strong></div><div class="selection-card" onclick="ui.openModal('modal-escrow'); ui.closeModal('modal-select-income-type');"><span style="font-size:30px; color:var(--orange-escrow);">🟠</span><strong>Emanet</strong></div></div></div></div></div>
