@@ -153,3 +153,71 @@ select.form-control option { padding: 10px; } select.form-control optgroup { fon
     .form-row { flex-direction: column; gap: 0; } .form-group.half { width: 100%; }
 }
 .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1900; display: none; opacity: 0; transition: opacity 0.3s; } .sidebar-overlay.active { display: block; opacity: 1; }
+
+/* --- V5.3 PREMIUM GÜNCELLEMELERİ --- */
+
+/* 1. Vize Sihirbazı - Finans Özeti (BANKA KARTI GÖRÜNÜMÜ) */
+.finance-summary {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 20px; /* Daha yuvarlak */
+    padding: 30px;
+    margin-bottom: 25px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); /* Gölge */
+    position: relative;
+    overflow: hidden;
+}
+
+.fin-box { 
+    text-align: center; 
+    position: relative; 
+    border-right: 1px solid #e2e8f0; 
+}
+.fin-box:last-child { border-right: none; }
+
+.fin-label { 
+    font-size: 11px; 
+    color: #64748b; 
+    font-weight: 800; 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+    margin-bottom: 8px;
+}
+
+.fin-amount { 
+    font-size: 28px; /* Daha büyük rakamlar */
+    font-weight: 900; 
+    letter-spacing: -0.5px;
+}
+
+.text-blue { color: #3b82f6; }
+.text-green { color: #10b981; }
+.text-red { color: #ef4444; }
+
+/* 2. Liste Satır Efekti (Çift Tıklama İçin İpucu) */
+.row-hover { transition: all 0.2s; }
+.row-hover:hover { 
+    background-color: #f0f9ff !important; 
+    transform: scale(1.01); 
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    z-index: 10;
+    position: relative;
+}
+
+/* 3. Form Güzelleştirme */
+.form-group label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 6px;
+    display: block;
+}
+.form-control:focus {
+    border-color: var(--blue-info);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    outline: none;
+}
