@@ -110,7 +110,50 @@
         </main>
     </div>
 
-    <div class="modal-overlay" id="modal-select-income-type"><div class="modal-box" style="width: 600px;"><div class="modal-header"><h3>Gelir Türü</h3><button class="close-btn" onclick="ui.closeModal('modal-select-income-type')"><span class="material-icons-round">close</span></button></div><div class="modal-body"><div class="selection-grid"><div class="selection-card" onclick="ui.openModal('modal-income'); ui.closeModal('modal-select-income-type');"><span style="font-size:30px; color:var(--green-profit);">🛂</span><strong>Vize</strong></div><div class="selection-card" onclick="ui.openModal('modal-extra-income'); ui.closeModal('modal-select-income-type');"><span style="font-size:30px; color:var(--blue-info);">✈️</span><strong>Ek Gelir</strong></div><div class="selection-card" onclick="ui.openModal('modal-escrow'); ui.closeModal('modal-select-income-type');"><span style="font-size:30px; color:var(--orange-escrow);">🟠</span><strong>Emanet</strong></div></div></div></div></div>
+   <div class="modal-overlay" id="modal-select-income-type">
+        <div class="modal-box" style="width: 750px;">
+            <div class="modal-header">
+                <h3>İşlem Türünü Seçiniz</h3>
+                <button class="close-btn" onclick="ui.closeModal('modal-select-income-type')"><span class="material-icons-round">close</span></button>
+            </div>
+            <div class="modal-body" style="background: #f8fafc;">
+                
+                <div class="income-selection-grid">
+                    
+                    <div class="income-card theme-visa" onclick="ui.openModal('modal-income'); ui.closeModal('modal-select-income-type');">
+                        <div class="income-icon-box">
+                            <span class="material-icons-round">post_add</span>
+                        </div>
+                        <div class="income-content">
+                            <div class="income-title">Vize Dosyası</div>
+                            <div class="income-desc">Yeni müşteri kaydı ve vize işlemi başlat</div>
+                        </div>
+                    </div>
+
+                    <div class="income-card theme-extra" onclick="ui.openModal('modal-extra-income'); ui.closeModal('modal-select-income-type');">
+                        <div class="income-icon-box">
+                            <span class="material-icons-round">airplane_ticket</span>
+                        </div>
+                        <div class="income-content">
+                            <div class="income-title">Ek Hizmet Geliri</div>
+                            <div class="income-desc">Uçak bileti, otel, sigorta vb. satışlar</div>
+                        </div>
+                    </div>
+
+                    <div class="income-card theme-escrow" onclick="ui.openModal('modal-escrow'); ui.closeModal('modal-select-income-type');">
+                        <div class="income-icon-box">
+                            <span class="material-icons-round">account_balance_wallet</span>
+                        </div>
+                        <div class="income-content">
+                            <div class="income-title">Emanet Girişi</div>
+                            <div class="income-desc">Müşteriden geçici olarak alınan paralar</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
     
     <div class="modal-overlay" id="modal-expense">
         <div class="modal-box">
