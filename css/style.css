@@ -204,3 +204,53 @@ select.form-control option { padding: 10px; } select.form-control optgroup { fon
 /* Sidebar Overlay */
 .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1900; display: none; opacity: 0; transition: opacity 0.3s; }
 .sidebar-overlay.active { display: block; opacity: 1; }
+
+/* --- V5.1 GÜNCELLEMELERİ --- */
+
+/* 1. Aktif Sekme Vurgusu (Daha Belirgin) */
+.wizard-step.active .step-icon-box {
+    background: var(--blue-info);
+    color: white;
+    border-color: var(--blue-info);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2); /* Parlama Efekti */
+    transform: scale(1.1); /* Hafif Büyüme */
+}
+.wizard-step.active .step-title {
+    color: var(--blue-info);
+    font-weight: 800;
+}
+
+/* 2. Evrak Yönetimi Aksiyonları */
+.doc-actions {
+    display: flex;
+    gap: 5px;
+}
+.btn-icon {
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    color: #64748b;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: 0.2s;
+}
+.btn-icon:hover { background: #f1f5f9; color: var(--blue-info); }
+.btn-icon.delete:hover { background: #fee2e2; color: #ef4444; border-color: #fee2e2; }
+
+/* 3. Finansal Harç Kutusu */
+.expense-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+.badge-escrow {
+    background: #ffedd5; color: #ea580c; 
+    font-size: 10px; padding: 3px 8px; border-radius: 4px; 
+    font-weight: 700; border: 1px solid #fed7aa;
+}
