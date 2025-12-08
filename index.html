@@ -178,31 +178,6 @@
         </main>
     </div>
 
-    <div class="modal-overlay" id="modal-select-income-type">
-        <div class="modal-box" style="width: 750px;">
-            <div class="modal-header">
-                <h3>İşlem Türünü Seçiniz</h3>
-                <button class="close-btn" onclick="ui.closeModal('modal-select-income-type')"><span class="material-icons-round">close</span></button>
-            </div>
-            <div class="modal-body" style="background: #f8fafc;">
-                <div class="income-selection-grid">
-                    <div class="income-card theme-visa" onclick="ui.closeModal('modal-select-income-type'); ui.openModal('modal-income');">
-                        <div class="income-icon-box"><span class="material-icons-round">post_add</span></div>
-                        <div class="income-content"><div class="income-title">VİZE DOSYASI</div><div class="income-desc">Yeni başvuru oluştur</div></div>
-                    </div>
-                    <div class="income-card theme-extra" onclick="ui.closeModal('modal-select-income-type'); ui.openModal('modal-extra-income');">
-                        <div class="income-icon-box"><span class="material-icons-round">airplane_ticket</span></div>
-                        <div class="income-content"><div class="income-title">EK HİZMET</div><div class="income-desc">Uçak, Sigorta, Otel</div></div>
-                    </div>
-                    <div class="income-card theme-escrow" onclick="ui.closeModal('modal-select-income-type'); ui.openModal('modal-escrow');">
-                        <div class="income-icon-box"><span class="material-icons-round">account_balance_wallet</span></div>
-                        <div class="income-content"><div class="income-title">EMANET</div><div class="income-desc">Geçici para girişi</div></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
  <div class="modal-overlay" id="modal-income">
         <div class="modal-box" style="width: 950px; max-height: 95vh;">
             <div class="modal-header" style="background:#fff; border:none;"><h3 style="font-size:18px;">Yeni Vize Dosyası</h3><button class="close-btn" onclick="ui.closeModal('modal-income')"><span class="material-icons-round">close</span></button></div>
