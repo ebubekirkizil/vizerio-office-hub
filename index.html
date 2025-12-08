@@ -63,8 +63,31 @@
                     </div>
                 </div>
 
-                <div class="chart-table-wrapper">
-                    <div class="card" style="margin-bottom:25px; height:350px;"><canvas id="financeChart"></canvas></div>
+                <div class="card" style="padding: 25px; margin-bottom: 25px; min-height: 400px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap: wrap; gap: 10px;">
+                        
+                        <div style="display:flex; align-items:center; gap:15px;">
+                            <h4 style="margin:0; font-size:16px; color:#1e293b; font-weight:700;">FİNANSAL ANALİZ</h4>
+                            <select id="chart-currency" onchange="accounting.refreshDashboard()" class="form-control" style="width:auto; padding: 5px 10px; font-size:12px; height:auto;">
+                                <option value="TRY">₺ TRY</option>
+                                <option value="USD">$ USD</option>
+                                <option value="EUR">€ EUR</option>
+                            </select>
+                        </div>
+
+                        <div class="chart-controls">
+                            <button class="time-btn" onclick="accounting.filterChartDate('24h', this)">24S</button>
+                            <button class="time-btn" onclick="accounting.filterChartDate('1w', this)">1H</button>
+                            <button class="time-btn" onclick="accounting.filterChartDate('1m', this)">1A</button>
+                            <button class="time-btn" onclick="accounting.filterChartDate('1y', this)">1Y</button>
+                            <button class="time-btn active" onclick="accounting.filterChartDate('all', this)">TÜM</button>
+                        </div>
+                    </div>
+                    
+                    <div style="height: 320px; width: 100%; position: relative;">
+                        <canvas id="financeChart"></canvas>
+                    </div>
+                </div>
                     
                     <div class="card" style="padding:0; overflow:visible;">
                         <div style="padding:20px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center;">
