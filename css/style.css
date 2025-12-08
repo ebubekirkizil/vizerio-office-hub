@@ -220,3 +220,57 @@ select.form-control option { padding: 10px; } select.form-control optgroup { fon
 .act-btn:hover { border-color: var(--orange-escrow); background: #fff7ed; }
 .act-btn span { display: block; font-size: 32px; margin-bottom: 10px; color: var(--orange-escrow); }
 .act-btn h4 { margin: 0; font-size: 14px; color: #1e293b; }
+
+/* --- V6.0 FINAL CSS EKLENTİLERİ --- */
+
+/* 1. Premium Dosya Yükleme Kartı */
+.doc-upload-card {
+    background: #fff;
+    border: 1px dashed #cbd5e1;
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s;
+    margin-bottom: 10px;
+}
+.doc-upload-card:hover {
+    border-color: var(--blue-info);
+    background: #f8fafc;
+}
+.doc-upload-card.uploaded {
+    border: 1px solid #86efac;
+    background: #f0fdf4;
+}
+.doc-meta { display: flex; align-items: center; gap: 15px; }
+.doc-icon-box {
+    width: 42px; height: 42px;
+    background: #f1f5f9; color: #64748b;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+}
+.doc-upload-card.uploaded .doc-icon-box {
+    background: #16a34a; color: white;
+}
+.file-name { font-size: 13px; font-weight: 600; color: #334155; }
+.file-status { font-size: 11px; color: #94a3b8; }
+.doc-upload-card.uploaded .file-status { color: #16a34a; font-weight: 600; }
+
+/* 2. Kur Çeviri Göstergesi */
+.exchange-rate-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+    margin: 15px 0;
+    font-size: 13px;
+    color: #475569;
+    font-weight: 600;
+}
+.exchange-rate-box span {
+    color: var(--blue-info);
+    font-weight: 800;
+    font-size: 15px;
+}
