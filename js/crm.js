@@ -1,66 +1,115 @@
-// js/crm.js - VİZE OPERASYON (V5.1 - DINAMIK EVRAK YÖNETİMİ)
+// js/crm.js - VIZERIO PRO (V6.0 - DOSYA YÜKLEME VE SİHİRBAZ)
 
 window.crm = {
     currentStep: 1,
-    currentDocs: [], // Evrak listesini hafızada tutuyoruz
+    currentDocs: [], // Evrak listesi hafızası
 
-    // 1. ADIM GEÇİŞLERİ
+    // 1. SİHİRBAZ GEZİNİMİ
     goToStep: function(targetStep) {
+        // Sayfaları Yönet
         document.querySelectorAll('.wizard-page').forEach(el => el.style.display = 'none');
-        document.getElementById(`step-${targetStep}`).style.display = 'block';
+        const targetPage = document.getElementById(`step-${targetStep}`);
+        if(targetPage) targetPage.style.display = 'block';
         
-        document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
-        // Öncekileri completed yap (Görsel)
-        for(let i=1; i<targetStep; i++) document.getElementById(`ws-${i}`).classList.add('completed');
-        document.getElementById(`ws-${targetStep}`).classList.add('active');
+        // Üst Barı (Stepper) Yönet
+        document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active', 'completed'));
+        for(let i=1; i<=4; i++) {
+            const stepEl = document.getElementById(`ws-${i}`);
+            if(i < targetStep) stepEl.classList.add('completed');
+            if(i === targetStep) stepEl.classList.add('active');
+        }
         
         this.currentStep = targetStep;
 
-        // Evrak listesi boşsa ve 3. adımdaysak varsayılanları yükle
-        if(targetStep === 3 && this.currentDocs.length === 0) this.initDocList();
+        // Eğer 3. Adıma (Evrak) geldiysek ve liste boşsa doldur
+        if(targetStep === 3 && this.currentDocs.length === 0) {
+            this.updateDocList();
+        }
     },
 
-    // 2. EVRAK YÖNETİMİ (INIT)
-    initDocList: function() {
+    // 2. EVRAK LİSTESİ OLUŞTURMA (Vize Tipine Göre)
+    updateDocList: function() {
         const type = document.getElementById('v-type').value;
-        this.currentDocs = ['Pasaport', '2x Biyometrik Fotoğraf', 'Kimlik Fotokopisi'];
+        const dynamicInputs = document.getElementById('dynamic-inputs');
+        
+        // Listeyi Sıfırla
+        this.currentDocs = ['Pasaport (En az 6 ay)', '2x Biyometrik Fotoğraf', 'Kimlik Fotokopisi', 'Tam Tekmil Nüfus Kayıt'];
+        if(dynamicInputs) dynamicInputs.innerHTML = '';
 
+        // Tipe Özel Ekle
         if(type === 'commercial') {
-            this.currentDocs.push('Ticari Davetiye', 'Şirket Dilekçesi', 'Vergi Levhası');
+            this.currentDocs.push('Ticari Davetiye (Invitation)');
+            this.currentDocs.push('Şirket Antetli Dilekçe');
+            this.currentDocs.push('Vergi Levhası / Faaliyet Belgesi');
+            if(dynamicInputs) dynamicInputs.innerHTML = '<div class="form-group"><label>Davet Eden Firma</label><input type="text" class="form-control" placeholder="Örn: Siemens AG"></div>';
         } else if (type === 'student') {
-            this.currentDocs.push('Öğrenci Belgesi', 'Okul Kabul Yazısı', 'Sponsor Evrakları');
+            this.currentDocs.push('Öğrenci Belgesi (E-Devlet)');
+            this.currentDocs.push('Okul Kabul Yazısı');
+            this.currentDocs.push('Sponsor Dilekçesi');
+            this.currentDocs.push('Sponsor Mali Evrakları');
         } else if (type === 'seaman') {
-            this.currentDocs.push('Gemi Adamı Cüzdanı', 'Kontrat', 'Acenta Garantisi');
+            this.currentDocs.push('Gemi Adamı Cüzdanı');
+            this.currentDocs.push('Kontrat (Contract)');
+            this.currentDocs.push('Acenta Garanti Yazısı');
         } else if (type === 'vip') {
-            this.currentDocs.push('VIP Davetiye', 'Banka Özel Müşteri Yazısı');
+            this.currentDocs.push('VIP Davetiye');
+            this.currentDocs.push('Banka Özel Müşteri Yazısı');
         } else { // Turistik
-            this.currentDocs.push('Otel Rezervasyonu', 'Uçak Rezervasyonu', 'Banka Dökümü');
+            this.currentDocs.push('Otel Rezervasyonu');
+            this.currentDocs.push('Uçak Bileti Rezervasyonu');
+            this.currentDocs.push('İşveren İzin Yazısı');
+            this.currentDocs.push('Banka Hesap Dökümü (Son 3 ay)');
         }
+
         this.renderDocs();
     },
 
-    // EVRAK LİSTESİNİ ÇİZ
+    // 3. EVRAK LİSTESİNİ ÇİZ (PREMIUM DOSYA YÜKLEME GÖRÜNÜMÜ)
     renderDocs: function() {
         const container = document.getElementById('doc-list-container');
+        if(!container) return;
         container.innerHTML = '';
 
         this.currentDocs.forEach((doc, index) => {
+            const fileId = `file-input-${index}`;
+            
             container.innerHTML += `
-                <div class="doc-item">
-                    <div class="doc-left">
-                        <span class="material-icons-round doc-icon-small">description</span>
-                        <span class="doc-name">${doc}</span>
+                <div class="doc-upload-card" id="doc-card-${index}">
+                    <div class="doc-meta">
+                        <div class="doc-icon-box" id="doc-icon-${index}">
+                            <span class="material-icons-round">description</span>
+                        </div>
+                        <div>
+                            <div class="file-name">${doc}</div>
+                            <div class="file-status" id="doc-status-${index}">Dosya Bekleniyor...</div>
+                        </div>
                     </div>
-                    <div class="doc-actions">
-                        <button type="button" class="btn-icon" onclick="crm.renameDoc(${index})" title="Düzenle"><span class="material-icons-round" style="font-size:16px;">edit</span></button>
-                        <button type="button" class="btn-icon delete" onclick="crm.removeDoc(${index})" title="Sil"><span class="material-icons-round" style="font-size:16px;">delete</span></button>
-                        <button type="button" class="btn-sm" style="background:#f1f5f9; border:1px solid #e2e8f0;">Yükle</button>
+                    <div>
+                        <input type="file" id="${fileId}" style="display:none;" onchange="crm.handleFileSelect(this, ${index})">
+                        <button type="button" class="btn-sm" style="background:#fff; border:1px solid #e2e8f0; color:#334155;" onclick="document.getElementById('${fileId}').click()">YÜKLE</button>
                     </div>
-                </div>`;
+                </div>
+            `;
         });
     },
 
-    // EKLE / SİL / DÜZENLE
+    // 4. DOSYA SEÇİLİNCE (YEŞİL YAPMA EFEKTİ)
+    handleFileSelect: function(input, index) {
+        if (input.files && input.files[0]) {
+            const fileName = input.files[0].name;
+            
+            // Kartı Yeşile Çevir
+            document.getElementById(`doc-card-${index}`).classList.add('uploaded');
+            
+            // İkonu Check Yap
+            document.getElementById(`doc-icon-${index}`).innerHTML = '<span class="material-icons-round">check_circle</span>';
+            
+            // Yazıyı Güncelle
+            document.getElementById(`doc-status-${index}`).innerText = fileName;
+        }
+    },
+
+    // 5. MANUEL EVRAK EKLEME
     addManualDoc: function() {
         const name = prompt("Eklemek istediğiniz evrak adı:");
         if(name) {
@@ -68,58 +117,54 @@ window.crm = {
             this.renderDocs();
         }
     },
-    removeDoc: function(index) {
-        if(confirm("Bu evrağı listeden çıkarmak istiyor musunuz?")) {
-            this.currentDocs.splice(index, 1);
-            this.renderDocs();
-        }
-    },
-    renameDoc: function(index) {
-        const newName = prompt("Evrak adını düzenle:", this.currentDocs[index]);
-        if(newName) {
-            this.currentDocs[index] = newName;
-            this.renderDocs();
-        }
-    },
 
-    // 3. FİNANS HESAPLAMA
+    // 6. FİNANS HESAPLAMA (CANLI)
     calcFinance: function() {
         const total = parseFloat(document.getElementById('v-total-price').value) || 0;
         const paid = parseFloat(document.getElementById('v-paid-now').value) || 0;
         const currency = document.getElementById('v-currency').value;
-        
+        const remain = total - paid;
+
         document.getElementById('disp-total').innerText = total.toLocaleString() + ' ' + currency;
         document.getElementById('disp-paid').innerText = paid.toLocaleString() + ' ' + currency;
         
-        const remain = total - paid;
         const remEl = document.getElementById('disp-remain');
         remEl.innerText = remain.toLocaleString() + ' ' + currency;
         remEl.className = remain > 0 ? 'fin-amount text-red' : 'fin-amount text-green';
     },
 
-    // 4. KAYIT
+    // 7. KAYIT İŞLEMİ
     saveVisaCase: async function(e) {
         e.preventDefault();
         const btn = e.target.querySelector('button[type="submit"]');
-        btn.disabled = true; btn.innerText = "Kaydediliyor...";
+        btn.disabled = true; btn.innerText = "İşleniyor...";
 
-        // Verileri Topla
         const name = document.getElementById('v-name').value;
         const paid = parseFloat(document.getElementById('v-paid-now').value) || 0;
         const curr = document.getElementById('v-currency').value;
-        
-        // Harç (Emanet) Kontrolü
-        const feeAmount = parseFloat(document.getElementById('v-fee-amount').value) || 0;
-        if(document.getElementById('chk-fee').checked && feeAmount > 0) {
-            // Harç parasını Emanet olarak kaydet (Veritabanına)
+
+        // 1. EMANET GİDERLERİ (Harç vs.)
+        const fee = parseFloat(document.getElementById('v-fee-amount').value) || 0;
+        if(document.getElementById('chk-fee').checked && fee > 0) {
             await window.supabaseClient.from('transactions').insert({
                 type: 'income', category: 'escrow_deposit',
                 description: `Vize Harcı (Emanet) - ${name}`,
-                amount: feeAmount, currency: curr, is_escrow: true
+                amount: fee, currency: curr, is_escrow: true
             });
         }
 
-        // Ana Ödeme Kaydı
+        // 2. ŞİRKET GİDERİ (Varsa)
+        const expAmt = parseFloat(document.getElementById('v-exp-amount').value) || 0;
+        const expDesc = document.getElementById('v-exp-desc').value;
+        if(expAmt > 0) {
+            await window.supabaseClient.from('transactions').insert({
+                type: 'expense', category: 'consultancy',
+                description: `Dosya Masrafı (${expDesc}) - ${name}`,
+                amount: expAmt, currency: curr, is_escrow: false
+            });
+        }
+
+        // 3. PEŞİNAT (Gelir)
         if(paid > 0) {
             await window.supabaseClient.from('transactions').insert({
                 type: 'income', category: 'visa_service',
@@ -128,13 +173,14 @@ window.crm = {
             });
         }
 
-        alert("✅ Dosya oluşturuldu ve finansal kayıtlar işlendi.");
+        alert("✅ Dosya başarıyla oluşturuldu.");
         window.ui.closeModal('modal-income');
         window.accounting.refreshDashboard();
-        btn.disabled = false; btn.innerText = "DOSYAYI OLUŞTUR";
+        btn.disabled = false; btn.innerText = "KAYDET VE BİTİR";
     }
 };
 
+// Form Listener
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('form-visa-wizard');
     if(form) form.onsubmit = window.crm.saveVisaCase;
