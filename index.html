@@ -501,99 +501,90 @@
         <div class="modal-body"><form id="form-exchange"><div class="form-group"><label>Bozulacak</label><div style="display:flex; gap:10px;"><input type="number" class="form-control" id="ex-amount-out" required><select class="form-control" style="width:100px;" id="ex-currency-out"><option value="USD">USD</option><option value="EUR">EUR</option></select></div></div><div class="form-group"><label>Alınan (Net)</label><div style="display:flex; gap:10px;"><input type="number" class="form-control" id="ex-amount-in" required><select class="form-control" style="width:100px;" id="ex-currency-in"><option value="TRY">TRY</option></select></div></div><div class="form-group"><label>Not</label><input type="text" class="form-control" id="ex-desc"></div><button type="submit" class="btn btn-blue">KAYDET</button></form></div></div>
     </div>
 
-    <div class="modal-overlay" id="modal-escrow-details">
-        <div class="modal-box" style="width: 750px;">
+   <div class="modal-overlay" id="modal-escrow-details">
+        <div class="modal-box" style="width: 800px;">
             <div class="modal-header">
-                <h3>Emanet Hesabı Detayları</h3>
+                <h3>🟠 Emanet Havuzu</h3>
                 <button class="close-btn" onclick="ui.closeModal('modal-escrow-details')"><span class="material-icons-round">close</span></button>
             </div>
-            <div class="modal-body" style="padding: 25px;">
+            <div class="modal-body" style="padding: 25px; background: #f8fafc;">
                 
-                <div class="wallet-grid" style="margin-bottom: 30px; box-shadow: none; border: 1px solid #e2e8f0;">
-                    <div class="wallet-item">
-                        <div class="wallet-label">TRY EMANET (₺)</div>
-                        <div class="wallet-amount" id="esc-total-try">₺0,00</div>
+                <div class="escrow-grid-premium">
+                    <div class="escrow-card bg-eur">
+                        <span class="material-icons-round esc-icon">euro</span>
+                        <div class="esc-label">EUR BAKİYE</div>
+                        <div class="esc-amount" id="esc-total-eur">€ 0,00</div>
                     </div>
-                    <div class="wallet-item">
-                        <div class="wallet-label">USD EMANET ($)</div>
-                        <div class="wallet-amount" id="esc-total-usd">$0,00</div>
-                        <div class="wallet-sub" id="esc-total-usd-tl">≈ ₺0,00</div>
+                    <div class="escrow-card bg-usd">
+                        <span class="material-icons-round esc-icon">attach_money</span>
+                        <div class="esc-label">USD BAKİYE</div>
+                        <div class="esc-amount" id="esc-total-usd">$ 0,00</div>
                     </div>
-                    <div class="wallet-item" style="border-right: none;">
-                        <div class="wallet-label">EUR EMANET (€)</div>
-                        <div class="wallet-amount" id="esc-total-eur">€0,00</div>
-                        <div class="wallet-sub" id="esc-total-eur-tl">≈ ₺0,00</div>
+                    <div class="escrow-card bg-try">
+                        <span class="material-icons-round esc-icon">currency_lira</span>
+                        <div class="esc-label">TL BAKİYE</div>
+                        <div class="esc-amount" id="esc-total-try">₺ 0,00</div>
                     </div>
                 </div>
 
-                <h4 style="font-size: 14px; font-weight: 600; color: var(--text-secondary); margin-bottom: 15px;">Son Emanet Hareketleri</h4>
-                <div class="table-container" style="max-height: 300px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 12px;">
-                    <table class="data-table" style="width: 100%; margin: 0;">
-                        <thead style="position: sticky; top: 0; background: #fff; z-index: 1;">
-                            <tr>
-                                <th style="padding-left: 20px;">Tarih</th>
-                                <th>Açıklama</th>
-                                <th style="text-align: right; padding-right: 25px;">İşlem Tutarı</th>
-                            </tr>
-                        </thead>
-                        <tbody id="escrow-list-body">
-                            </tbody>
-                    </table>
-                </div>
-
-                <div style="margin-top: 25px;">
-                    <button class="btn btn-orange" style="width: 100%; padding: 15px; font-size: 16px;" onclick="accounting.openEscrowWithdrawModal()">
-                        <span class="material-icons-round" style="margin-right: 10px;">payments</span> EMANET ÇIKIŞI / İADE YAP
-                    </button>
+                <div style="background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden;">
+                    <div style="padding: 15px; border-bottom: 1px solid #f1f5f9; font-weight: 700; color: #64748b; font-size: 13px;">
+                        SON HAREKETLER (İşlem yapmak için satıra çift tıkla)
+                    </div>
+                    <div class="table-container" style="max-height: 300px; overflow-y: auto;">
+                        <table class="data-table" style="margin:0;">
+                            <thead><tr><th>Tarih</th><th>Açıklama / Müşteri</th><th>Tutar</th><th>Durum</th></tr></thead>
+                            <tbody id="escrow-list-body"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="modal-overlay" id="modal-escrow-withdraw">
+    <div class="modal-overlay" id="modal-escrow-action">
         <div class="modal-box" style="width: 500px;">
             <div class="modal-header">
                 <h3>Emanet Çıkışı / İade</h3>
-                <button class="close-btn" onclick="ui.closeModal('modal-escrow-withdraw'); ui.openModal('modal-escrow-details');"><span class="material-icons-round">arrow_back</span></button>
+                <button class="close-btn" onclick="ui.closeModal('modal-escrow-action')"><span class="material-icons-round">close</span></button>
             </div>
-            <div class="modal-body">
-                <form id="form-escrow-withdraw">
-                    <div class="form-group">
-                        <label>İşlem Türü</label>
-                        <select class="form-control" id="ew-type" required style="font-weight: 600;">
-                            <option value="refund">Müşteriye Nakit İade</option>
-                            <option value="service_payment">Hizmet Karşılığı Kesinti (Gelire Say)</option>
+            <div class="modal-body" style="padding: 25px;">
+                
+                <div style="background: #fff7ed; padding: 15px; border-radius: 10px; border: 1px solid #ffedd5; margin-bottom: 20px;">
+                    <div style="font-size: 12px; color: #ea580c; font-weight: 700;">İŞLEM YAPILACAK KAYIT</div>
+                    <div id="act-source-desc" style="font-weight: 600; margin-top: 5px; color: #1e293b;">...</div>
+                    <div id="act-source-amount" style="font-size: 18px; font-weight: 800; color: #ea580c; margin-top: 5px;">...</div>
+                </div>
+
+                <form id="form-escrow-action">
+                    <input type="hidden" id="act-source-id"> <div class="form-group">
+                        <label>Yapılacak İşlem</label>
+                        <select class="form-control" id="act-type" required>
+                            <option value="refund">Müşteriye İade Et (Para Çıkışı)</option>
+                            <option value="payment">Hizmet/Konsolosluk Ödemesi Yap</option>
+                            <option value="transfer">Şirket Kasasına Aktar (Gelir Yaz)</option>
                         </select>
-                        <small style="display: block; margin-top: 5px; color: #64748b;">"Müşteriye İade" sadece emanet bakiyesini düşer. "Hizmet Karşılığı Kesinti" emaneti düşer, kasaya gelir olarak yansımaz.</small>
                     </div>
-                    
+
                     <div class="form-group">
                         <label>Çıkış Tutarı</label>
-                        <div class="form-row">
-                            <input type="number" class="form-control" id="ew-amount" placeholder="0.00" required step="0.01" min="0">
-                            <select class="form-control" id="ew-currency" style="width: 120px;" required>
-                                <option value="TRY">TRY</option>
-                                <option value="USD">USD</option>
-                                <option value="EUR">EUR</option>
-                            </select>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="number" class="form-control" id="act-amount" required>
+                            <input type="text" class="form-control" id="act-currency" readonly style="width: 80px; background: #f1f5f9;">
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label>Açıklama / Müşteri Adı</label>
-                        <input type="text" class="form-control" id="ew-desc" placeholder="Örn: Ahmet Yılmaz iade, Vize ücreti mahsubu..." required>
+                        <label>Açıklama</label>
+                        <input type="text" class="form-control" id="act-desc" placeholder="Örn: Konsolosluk harcı ödendi" required>
                     </div>
 
-                    <div style="margin-top: 30px;">
-                        <button type="submit" class="btn btn-orange" style="width: 100%; padding: 15px;">
-                            <span class="material-icons-round" style="margin-right: 8px;">check_circle</span> İŞLEMİ ONAYLA
-                        </button>
-                    </div>
+                    <button type="submit" class="btn btn-orange" style="width: 100%;">İŞLEMİ ONAYLA</button>
                 </form>
             </div>
         </div>
     </div>
-
+    
     <div class="drawer-overlay" id="customer-drawer" onclick="crm.closeDrawer()"></div>
     <div class="drawer-panel" id="drawer-content"><div class="drawer-header"><h2 id="d-name">...</h2><button class="close-btn" onclick="crm.closeDrawer()"><span class="material-icons-round">close</span></button></div><div class="drawer-body"><div style="text-align:center;"><h3 id="drawer-customer-name">...</h3><p id="drawer-passport" style="color:#666;">...</p><div id="drawer-status-badge"></div></div><div class="drawer-tabs"><div class="d-tab active" onclick="crm.switchDrawerTab('tab-identity')">Kimlik</div><div class="d-tab" onclick="crm.switchDrawerTab('tab-passport')">Pasaport</div><div class="d-tab" onclick="crm.switchDrawerTab('tab-work')">İş/Aile</div><div class="d-tab" onclick="crm.switchDrawerTab('tab-files')">Evrak</div></div><div id="tab-identity" class="drawer-tab-content active"><div class="info-grid"><div class="info-item"><label>Telefon</label><span id="d-phone">-</span></div></div></div><div class="drawer-footer"><button class="btn btn-blue" style="flex:1;">DÜZENLE</button><button class="btn btn-red" onclick="crm.deleteVisaCase()">SİL</button></div></div></div>
 
