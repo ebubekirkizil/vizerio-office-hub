@@ -1,23 +1,12 @@
-/* css/style.css - Vizerio PRO (V6.0 - FINAL STABLE PREMIUM) */
+/* css/style.css - Vizerio PRO V6.0 (FINAL STABLE PREMIUM) */
 
 :root {
-    --bg-color: #f8fafc;
-    --sidebar-bg: #1e293b;
-    --text-primary: #0f172a;
-    --text-secondary: #64748b;
-    --green-profit: #10b981;
-    --red-expense: #ef4444;
-    --orange-escrow: #f59e0b;
-    --blue-info: #3b82f6;
-    --navy-exchange: #1e3a8a;
-    --white: #ffffff;
-    --sidebar-width: 260px;
-    --sidebar-width-collapsed: 70px;
+    --bg-color: #f8fafc; --sidebar-bg: #1e293b; --text-primary: #0f172a; --text-secondary: #64748b;
+    --green-profit: #10b981; --red-expense: #ef4444; --orange-escrow: #f59e0b; --blue-info: #3b82f6; --navy-exchange: #1e3a8a;
+    --white: #ffffff; --sidebar-width: 260px; --sidebar-width-collapsed: 70px;
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
-
 * { box-sizing: border-box; }
-
 body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-primary); height: 100vh; overflow: hidden; }
 .app-container { display: flex; height: 100vh; width: 100vw; transition: all 0.3s ease; }
 
@@ -40,7 +29,7 @@ body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-c
 .search-bar { background: #f1f5f9; padding: 10px 15px; border-radius: 8px; width: 300px; display: flex; align-items: center; }
 .search-bar input { border: none; background: transparent; outline: none; margin-left: 10px; width: 100%; color: var(--text-primary); }
 
-/* CONTENT & GRIDS */
+/* CONTENT */
 .content-section { padding: 40px; display: none; width: 100%; max-width: 100%; margin: 0 auto; box-sizing: border-box; }
 .content-section.active { display: block; animation: fadeIn 0.4s ease-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -49,15 +38,13 @@ body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-c
 
 /* KARTLAR */
 .card { background: var(--white); padding: 25px; border-radius: 16px; box-shadow: var(--shadow); position: relative; border: 1px solid #e2e8f0; transition: transform 0.2s; }
+.card.visible-overflow { overflow: visible !important; }
 .card-clickable:hover { transform: translateY(-3px); cursor: pointer; border-color: var(--blue-info); }
 .card-clickable.inactive { opacity: 0.5; filter: grayscale(100%); }
 .card-title { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 5px; }
 .money { font-size: 26px; font-weight: 800; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* !ÖNEMLİ! FİLTRE MENÜSÜNÜN KESİLMEMESİ İÇİN */
-.card.visible-overflow { overflow: visible !important; }
-
-/* KASALAR */
+/* KASA */
 .wallet-grid { gap: 0; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; }
 .wallet-item { padding: 20px; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; justify-content: center; }
 .wallet-item:last-child { border-right: none; background: #fff; }
@@ -65,35 +52,41 @@ body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-c
 .wallet-amount { font-size: 22px; font-weight: 800; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
 .wallet-sub { font-size: 11px; color: #94a3b8; margin-top: 5px; font-weight: 600; }
 
-/* TABLO */
+/* TABLOLAR */
 .table-container { width: 100%; overflow-x: auto; padding-bottom: 5px; }
 .data-table, .crm-table { width: 100%; border-collapse: separate; border-spacing: 0 12px; table-layout: auto; }
 .data-table th, .crm-table th { text-align: left; padding: 12px 20px; color: #94a3b8; font-size: 12px; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
 .data-table td, .crm-table td { padding: 20px; font-size: 15px; background: white; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; color: var(--text-primary); font-weight: 500; }
 .data-table td:first-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; border-left: 1px solid #f1f5f9; }
 .data-table td:last-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-right: 1px solid #f1f5f9; text-align: right; font-size: 16px; font-weight: 800; }
-
-/* RENKLER */
-.row-income td:first-child { border-left: 5px solid var(--green-profit) !important; }
-.row-expense td:first-child { border-left: 5px solid var(--red-expense) !important; }
-.row-escrow td:first-child { border-left: 5px solid var(--orange-escrow) !important; }
-.row-exchange td:first-child { border-left: 5px solid var(--navy-exchange) !important; }
+.row-income td:first-child { border-left: 5px solid var(--green-profit) !important; } .row-expense td:first-child { border-left: 5px solid var(--red-expense) !important; } .row-escrow td:first-child { border-left: 5px solid var(--orange-escrow) !important; } .row-exchange td:first-child { border-left: 5px solid var(--navy-exchange) !important; }
 .text-green { color: var(--green-profit) !important; } .text-red { color: var(--red-expense) !important; } .text-orange { color: var(--orange-escrow) !important; } .text-navy { color: var(--navy-exchange) !important; }
 .border-green { border-bottom: 4px solid var(--green-profit); } .border-blue { border-bottom: 4px solid var(--blue-info); } .border-red { border-bottom: 4px solid var(--red-expense); } .border-orange { border-bottom: 4px solid var(--orange-escrow); }
 
-/* FİLTRE MENÜSÜ */
+/* FİLTRE */
 .filter-wrapper { position: relative; display: inline-block; z-index: 100; }
 .btn-filter { background: #fff; border: 1px solid #e2e8f0; color: #64748b; padding: 8px 15px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: 0.2s; }
 .btn-filter:hover { background: #f8fafc; color: var(--blue-info); border-color: var(--blue-info); }
-.filter-dropdown { position: absolute; top: 45px; right: 0; width: 300px; background: white; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 999; padding: 20px; display: none; animation: slideDown 0.2s ease-out; }
+.filter-dropdown { position: absolute; top: 45px; right: 0; width: 320px; background: white; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); z-index: 999; padding: 25px; display: none; }
 .filter-dropdown.show { display: block; }
 .filter-row { margin-bottom: 15px; } .filter-label { font-size: 11px; font-weight: 700; color: #94a3b8; margin-bottom: 5px; display: block; }
-@keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* GRAFİK BUTONLARI (PREMIUM) */
+/* GRAFİK BUTONLARI (Pill Style) */
 .chart-controls { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
 .time-btn { padding: 6px 16px; border: 1px solid #e2e8f0; background: #fff; border-radius: 20px; font-size: 12px; font-weight: 600; color: #64748b; cursor: pointer; transition: 0.2s; }
 .time-btn.active { background: var(--blue-info); color: white; border-color: var(--blue-info); box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3); }
+
+/* GELİR KARTLARI (PREMIUM) */
+.income-selection-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 10px; }
+.income-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 30px 20px; text-align: center; cursor: pointer; transition: all 0.3s; display: flex; flex-direction: column; align-items: center; }
+.income-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border-color: var(--blue-info); }
+.income-icon-box { width: 70px; height: 70px; border-radius: 18px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; font-size: 32px; transition: 0.3s; }
+.income-card:hover .income-icon-box { transform: scale(1.1); }
+.income-title { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 5px; }
+.income-desc { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+.theme-visa .income-icon-box { background: #ecfdf5; color: #059669; border: 1px solid #d1fae5; }
+.theme-extra .income-icon-box { background: #eff6ff; color: #2563eb; border: 1px solid #dbeafe; }
+.theme-escrow .income-icon-box { background: #fff7ed; color: #ea580c; border: 1px solid #ffedd5; }
 
 /* VİZE SİHİRBAZI */
 .wizard-header { display: flex; justify-content: space-between; margin-bottom: 30px; position: relative; padding: 0 10px; }
@@ -101,35 +94,48 @@ body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-c
 .wizard-step { position: relative; z-index: 1; background: #fff; text-align: center; cursor: pointer; width: 100px; }
 .step-icon-box { width: 44px; height: 44px; background: #fff; border: 2px solid #cbd5e1; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; color: #94a3b8; transition: all 0.3s ease; font-size: 20px; }
 .wizard-step.active .step-icon-box { border-color: var(--blue-info); background: var(--blue-info); color: #fff; box-shadow: 0 0 0 5px rgba(59, 130, 246, 0.15); transform: scale(1.1); }
-.wizard-step.completed .step-icon-box { border-color: var(--green-profit); background: var(--green-profit); color: #fff; }
-.step-title { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.3s; }
 .wizard-step.active .step-title { color: var(--blue-info); font-weight: 800; }
-.finance-summary { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid #e2e8f0; border-radius: 20px; padding: 30px; margin-bottom: 25px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; position: relative; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
-.fin-box { text-align: center; border-right: 1px solid #e2e8f0; } .fin-amount { font-size: 28px; font-weight: 900; letter-spacing: -0.5px; }
-.income-selection-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 10px; }
-.income-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 30px 20px; text-align: center; cursor: pointer; transition: all 0.3s; display: flex; flex-direction: column; align-items: center; }
-.income-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border-color: var(--blue-info); }
-.income-icon-box { width: 70px; height: 70px; border-radius: 18px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; font-size: 32px; transition: 0.3s; }
-.theme-visa .income-icon-box { background: #ecfdf5; color: #059669; border: 1px solid #d1fae5; }
-.theme-extra .income-icon-box { background: #eff6ff; color: #2563eb; border: 1px solid #dbeafe; }
-.theme-escrow .income-icon-box { background: #fff7ed; color: #ea580c; border: 1px solid #ffedd5; }
+.step-title { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.3s; }
+.wizard-page { animation: fadeIn 0.3s ease-out; }
 
-/* MODALLAR */
+/* DOSYA YÜKLEME (PREMIUM) */
+.doc-upload-card { background: #fff; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.doc-upload-card:hover { border-color: var(--blue-info); background: #f8fafc; }
+.doc-upload-card.uploaded { border: 1px solid #86efac; background: #f0fdf4; }
+.doc-meta { display: flex; align-items: center; gap: 15px; }
+.doc-icon-box { width: 42px; height: 42px; background: #f1f5f9; color: #64748b; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.doc-upload-card.uploaded .doc-icon-box { background: #16a34a; color: white; }
+.file-name { font-size: 13px; font-weight: 600; color: #334155; }
+.file-status { font-size: 11px; color: #94a3b8; }
+.doc-upload-card.uploaded .file-status { color: #16a34a; font-weight: 600; }
+
+/* MODALLAR & FORM */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 2000; }
 .modal-overlay.active { display: flex; }
-.modal-box { background: white; width: 600px; max-width: 95%; border-radius: 16px; display: flex; flex-direction: column; max-height: 85vh; }
+.modal-box { background: white; width: 600px; max-width: 95%; border-radius: 16px; display: flex; flex-direction: column; max-height: 90vh; }
 .modal-body { padding: 20px; overflow-y: auto; }
 .modal-header { padding: 20px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
 .close-btn { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; color: #64748b; }
 .close-btn:hover { background: #ef4444; color: white; transform: rotate(90deg); }
 .btn { padding: 12px; border-radius: 8px; border: none; color: white; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; width: 100%; }
 .btn-green { background: var(--green-profit); } .btn-red { background: var(--red-expense); } .btn-orange { background: var(--orange-escrow); } .btn-blue { background: var(--blue-info); }
+.btn-dashed { border: 2px dashed #cbd5e1; background: #f8fafc; color: #64748b; width: auto; padding: 8px 15px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; }
 .btn-sm { padding: 6px 10px; font-size: 12px; border-radius: 6px; }
 .form-control { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; }
+.form-control:focus { border-color: var(--blue-info); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); outline: none; }
 .form-group { margin-bottom: 15px; } .form-row { display: flex; gap: 15px; } .form-group.half { flex: 1; }
+.form-group label { font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 6px; display: block; }
 select.form-control option { padding: 10px; } select.form-control optgroup { font-weight: 700; color: var(--blue-info); font-style: normal; }
 
-/* DEKONT */
+/* Finans Tablosu */
+.finance-summary { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid #e2e8f0; border-radius: 20px; padding: 30px; margin-bottom: 25px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; position: relative; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
+.fin-box { text-align: center; border-right: 1px solid #e2e8f0; } .fin-amount { font-size: 28px; font-weight: 900; letter-spacing: -0.5px; }
+.expense-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 8px; }
+.badge-escrow { background: #ffedd5; color: #ea580c; font-size: 10px; padding: 3px 8px; border-radius: 4px; font-weight: 700; border: 1px solid #fed7aa; }
+.exchange-rate-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; text-align: center; margin: 15px 0; font-size: 13px; color: #475569; font-weight: 600; }
+.exchange-rate-box span { color: var(--blue-info); font-weight: 800; font-size: 15px; }
+
+/* Dekont & İşlem Detay */
 .receipt-header { text-align: center; padding-bottom: 20px; border-bottom: 2px dashed #e2e8f0; margin-bottom: 20px; }
 .receipt-amount { font-size: 32px; font-weight: 900; margin: 10px 0; letter-spacing: -1px; }
 .receipt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -141,136 +147,3 @@ select.form-control option { padding: 10px; } select.form-control optgroup { fon
 @media (max-width: 1024px) { .wallet-grid { grid-template-columns: 1fr 1fr; } .wallet-item { border-bottom: 1px solid #e2e8f0; } .wallet-item:nth-child(2) { border-right: none; } }
 @media (max-width: 768px) { .sidebar { position: fixed; height: 100%; left: -260px; } .top-header { position: relative; top: auto; } .wallet-grid { grid-template-columns: 1fr; } .income-selection-grid { grid-template-columns: 1fr; } }
 .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1900; display: none; opacity: 0; transition: opacity 0.3s; } .sidebar-overlay.active { display: block; opacity: 1; }
-
-/* css/style.css dosyasının sonuna ekleyin */
-
-/* Emanet için Turuncu Buton */
-.btn-orange {
-    background-color: var(--orange-escrow); /* #f59e0b */
-    color: white;
-    border: none;
-    transition: background-color 0.2s;
-}
-
-.btn-orange:hover {
-    background-color: #d97706; /* Daha koyu bir turuncu */
-}
-
-/* Modal içindeki tablolar için */
-.modal-body .data-table th {
-    background-color: #f8fafc;
-    position: sticky;
-    top: 0;
-}
-
-/* Emanet tablosu satır hover efekti */
-#escrow-list-body tr:hover td {
-    background-color: #f1f5f9;
-}
-
-/* --- V7.0 EMANET PREMIUM TASARIM --- */
-
-/* Modal İçi Yatay Kartlar */
-.escrow-grid-premium {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr; /* 3'lü Yan Yana */
-    gap: 15px;
-    margin-bottom: 25px;
-}
-
-.escrow-card {
-    padding: 20px;
-    border-radius: 16px;
-    color: white;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    transition: transform 0.2s;
-}
-.escrow-card:hover { transform: translateY(-3px); }
-
-/* Arka Plan Desenleri */
-.bg-eur { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); } /* Mavi */
-.bg-usd { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); } /* Yeşil */
-.bg-try { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); } /* Mor */
-
-.esc-icon {
-    position: absolute;
-    top: 10px; right: 10px;
-    font-size: 40px;
-    opacity: 0.2;
-}
-
-.esc-label {
-    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-    opacity: 0.9; margin-bottom: 5px;
-}
-.esc-amount {
-    font-size: 24px; font-weight: 800;
-}
-
-/* İşlem Seçim Modalı (Küçük) */
-.action-btn-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;
-}
-.act-btn {
-    padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;
-    background: white; cursor: pointer; text-align: center; transition: 0.2s;
-}
-.act-btn:hover { border-color: var(--orange-escrow); background: #fff7ed; }
-.act-btn span { display: block; font-size: 32px; margin-bottom: 10px; color: var(--orange-escrow); }
-.act-btn h4 { margin: 0; font-size: 14px; color: #1e293b; }
-
-/* --- V6.0 FINAL CSS EKLENTİLERİ --- */
-
-/* 1. Premium Dosya Yükleme Kartı */
-.doc-upload-card {
-    background: #fff;
-    border: 1px dashed #cbd5e1;
-    border-radius: 12px;
-    padding: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    transition: all 0.2s;
-    margin-bottom: 10px;
-}
-.doc-upload-card:hover {
-    border-color: var(--blue-info);
-    background: #f8fafc;
-}
-.doc-upload-card.uploaded {
-    border: 1px solid #86efac;
-    background: #f0fdf4;
-}
-.doc-meta { display: flex; align-items: center; gap: 15px; }
-.doc-icon-box {
-    width: 42px; height: 42px;
-    background: #f1f5f9; color: #64748b;
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-}
-.doc-upload-card.uploaded .doc-icon-box {
-    background: #16a34a; color: white;
-}
-.file-name { font-size: 13px; font-weight: 600; color: #334155; }
-.file-status { font-size: 11px; color: #94a3b8; }
-.doc-upload-card.uploaded .file-status { color: #16a34a; font-weight: 600; }
-
-/* 2. Kur Çeviri Göstergesi */
-.exchange-rate-box {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 12px;
-    text-align: center;
-    margin: 15px 0;
-    font-size: 13px;
-    color: #475569;
-    font-weight: 600;
-}
-.exchange-rate-box span {
-    color: var(--blue-info);
-    font-weight: 800;
-    font-size: 15px;
-}
