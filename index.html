@@ -364,28 +364,6 @@
         </div>
     </div>
 
-   <div class="modal-overlay" id="modal-extra-income">
-        <div class="modal-box" style="width: 650px;">
-            <div class="modal-header"><h3>Ek Hizmet Geliri</h3><button class="close-btn" onclick="ui.closeModal('modal-extra-income')"><span class="material-icons-round">close</span></button></div>
-            <div class="modal-body">
-                <form id="form-extra-income">
-                    <div class="form-group"><label>Müşteri</label><input type="text" class="form-control" id="ei-customer" required></div>
-                    <div class="form-group"><label>Hizmet</label>
-                        <select class="form-control" id="ei-category">
-                            <optgroup label="SEYAHAT"><option value="flight_ticket">Uçak Bileti</option><option value="hotel_booking">Otel Rezervasyonu</option><option value="transfer">Transfer</option></optgroup>
-                            <optgroup label="SİGORTA"><option value="travel_insurance">Seyahat Sigortası</option><option value="health_insurance">Yabancı Sağlık Sigortası</option></optgroup>
-                            <optgroup label="DANIŞMANLIK"><option value="consultancy">Vize Danışmanlığı</option><option value="citizenship">Vatandaşlık İşlemleri</option><option value="residence">Oturum İzni</option></optgroup>
-                            <option value="other">Diğer Hizmet</option>
-                        </select>
-                    </div>
-                    <div class="form-group"><label>Tutar</label><div style="display:flex; gap:10px;"><input type="number" class="form-control" id="ei-amount" required><select class="form-control" id="ei-currency" style="width:100px;"><option>TRY</option><option>USD</option><option>EUR</option></select></div></div>
-                    <div class="form-group"><label>Açıklama</label><input type="text" class="form-control" id="ei-desc"></div>
-                    <button type="submit" class="btn btn-blue">KAYDET</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <div class="modal-overlay" id="modal-escrow">
         <div class="modal-box" style="width: 650px;">
             <div class="modal-header"><h3>🟠 Emanet Girişi</h3><button class="close-btn" onclick="ui.closeModal('modal-escrow')"><span class="material-icons-round">close</span></button></div>
