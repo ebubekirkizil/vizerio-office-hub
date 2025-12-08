@@ -400,57 +400,6 @@
         </div>
     </div>
 
-   <div class="modal-overlay" id="modal-expense">
-        <div class="modal-box">
-            <div class="modal-header"><h3>Gider Ekle</h3><button class="close-btn" onclick="ui.closeModal('modal-expense')"><span class="material-icons-round">close</span></button></div>
-            <div class="modal-body">
-                <form id="form-expense">
-                    <div class="form-group">
-                        <label>Gider Başlığı / Konu</label>
-                        <input type="text" class="form-control" id="exp-title" placeholder="Örn: Ofis Kirası, Mutfak Alışverişi..." required>
-                    </div>
-                    <div class="form-group">
-                        <label>Kategori</label>
-                        <select class="form-control" id="exp-category" required>
-                            <option value="" disabled selected>Seçiniz...</option>
-                            <optgroup label=" OFİS & İŞLETME">
-                                <option value="rent">Kira / Aidat</option>
-                                <option value="bills">Fatura (Elektrik/Su/İnternet)</option>
-                                <option value="office_supplies">Kırtasiye / Sarf Malzeme</option>
-                                <option value="cleaning">Temizlik / Bakım</option>
-                            </optgroup>
-                            <optgroup label=" PERSONEL">
-                                <option value="salary">Maaş Ödemesi</option>
-                                <option value="bonus">Prim / Avans</option>
-                                <option value="food">Yemek / Yol</option>
-                                <option value="sgk">SGK / Vergi</option>
-                            </optgroup>
-                            <optgroup label=" OPERASYONEL">
-                                <option value="courier">Kargo / Kurye</option>
-                                <option value="consultancy">Dış Danışmanlık</option>
-                                <option value="transport">Ulaşım / Transfer</option>
-                            </optgroup>
-                            <optgroup label=" PAZARLAMA">
-                                <option value="marketing_digital">Google / Instagram Reklam</option>
-                                <option value="marketing_print">Tabela / Broşür</option>
-                                <option value="software">Yazılım / Web Sitesi</option>
-                            </optgroup>
-                            <option value="other">Diğer (Genel)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Tutar</label>
-                        <div style="display:flex; gap:10px;">
-                            <input type="number" class="form-control" id="exp-amount" required>
-                            <select class="form-control" style="width:100px;" id="exp-currency"><option>TRY</option><option>USD</option><option>EUR</option></select>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-red">KAYDET</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <div class="modal-overlay" id="modal-transaction-detail">
         <div class="modal-box" style="width: 500px;">
             <div class="modal-header">
