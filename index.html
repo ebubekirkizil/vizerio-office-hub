@@ -540,11 +540,41 @@
         </div>
     </div>
     
-    <div class="modal-overlay" id="modal-exchange">
-        <div class="modal-box"><div class="modal-header"><h3>💱 Kur Dönüşümü</h3><button class="close-btn" onclick="ui.closeModal('modal-exchange')"><span class="material-icons-round">close</span></button></div>
-        <div class="modal-body"><form id="form-exchange"><div class="form-group"><label>Bozulacak</label><div style="display:flex; gap:10px;"><input type="number" class="form-control" id="ex-amount-out" required><select class="form-control" style="width:100px;" id="ex-currency-out"><option value="USD">USD</option><option value="EUR">EUR</option></select></div></div><div class="form-group"><label>Alınan (Net)</label><div style="display:flex; gap:10px;"><input type="number" class="form-control" id="ex-amount-in" required><select class="form-control" style="width:100px;" id="ex-currency-in"><option value="TRY">TRY</option></select></div></div><div class="form-group"><label>Not</label><input type="text" class="form-control" id="ex-desc"></div><button type="submit" class="btn btn-blue">KAYDET</button></form></div></div>
-    </div>
+   <div class="modal-overlay" id="modal-exchange">
+        <div class="modal-box">
+            <div class="modal-header"><h3>💱 Kur Dönüşümü</h3><button class="close-btn" onclick="ui.closeModal('modal-exchange')"><span class="material-icons-round">close</span></button></div>
+            <div class="modal-body">
+                <form id="form-exchange">
+                    <div class="form-group">
+                        <label>Bozulacak Para (Kasadan Çıkan)</label>
+                        <div style="display:flex; gap:10px;">
+                            <input type="number" class="form-control" id="ex-amount-out" placeholder="100" oninput="accounting.calcExchangeRate()" required>
+                            <select class="form-control" style="width:100px;" id="ex-currency-out" onchange="accounting.calcExchangeRate()">
+                                <option value="USD">USD</option><option value="EUR">EUR</option><option value="TRY">TRY</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="exchange-rate-box" id="ex-rate-display">
+                        Oran Hesaplanıyor...
+                    </div>
 
+                    <div class="form-group">
+                        <label>Alınan Para (Kasaya Giren)</label>
+                        <div style="display:flex; gap:10px;">
+                            <input type="number" class="form-control" id="ex-amount-in" placeholder="3450" oninput="accounting.calcExchangeRate()" required>
+                            <select class="form-control" style="width:100px;" id="ex-currency-in" onchange="accounting.calcExchangeRate()">
+                                <option value="TRY">TRY</option><option value="USD">USD</option><option value="EUR">EUR</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group"><label>Not</label><input type="text" class="form-control" id="ex-desc"></div>
+                    <button type="submit" class="btn btn-blue">İŞLEMİ KAYDET</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
    <div class="modal-overlay" id="modal-escrow-details">
         <div class="modal-box" style="width: 800px;">
             <div class="modal-header">
