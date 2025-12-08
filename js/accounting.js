@@ -378,6 +378,38 @@ window.accounting = {
         }
     },
 
+// KUR HESAPLAMA
+    calcExchangeRate: function() {
+        const outAmt = parseFloat(document.getElementById('ex-amount-out').value) || 0;
+        const inAmt = parseFloat(document.getElementById('ex-amount-in').value) || 0;
+        const outCurr = document.getElementById('ex-currency-out').value;
+        const inCurr = document.getElementById('ex-currency-in').value;
+        const display = document.getElementById('ex-rate-display');
+        if (outAmt > 0 && inAmt > 0) {
+            const rate = inAmt / outAmt;
+            display.innerHTML = `1 ${outCurr} = <span>${rate.toFixed(4)} ${inCurr}</span>`;
+        } else { display.innerText = "Miktarları girince kur hesaplanır."; }
+    },
+
+    // GİDER KAYDI (BAŞLIKLI)
+    saveExpense: async function(e) {
+        e.preventDefault(); const btn = e.target.querySelector('button'); btn.disabled = true;
+        const title = document.getElementById('exp-title').value;
+        const cat = document.getElementById('exp-category').value;
+        const desc = document.getElementById('exp-desc').value;
+        const amount = document.getElementById('exp-amount').value;
+        const currency = document.getElementById('exp-currency').value;
+        
+        // Başlık ve Açıklamayı Birleştir
+        const fullDesc = `${title} - ${desc}`;
+
+        await window.supabaseClient.from('transactions').insert({
+            type: 'expense', category: cat, description: fullDesc, 
+            amount: amount, currency: currency, is_escrow: false
+        });
+        window.ui.closeModal('modal-expense'); this.refreshDashboard(); btn.disabled = false;
+    }
+
 window.addEventListener('load', () => { 
     window.accounting.refreshDashboard(); 
     if(document.getElementById('form-exchange')) document.getElementById('form-exchange').onsubmit=window.accounting.saveExchange; 
