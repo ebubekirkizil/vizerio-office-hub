@@ -44,11 +44,23 @@
                     </div>
                 </div>
 
-                <div class="summary-cards">
-                    <div class="card border-green"><div class="card-title">NET KÂR</div><div class="money" id="money-profit">0</div></div>
-                    <div class="card border-blue"><div class="card-title">TOPLAM CİRO</div><div class="money" id="money-income">0</div></div>
-                    <div class="card border-red"><div class="card-title">TOPLAM GİDER</div><div class="money" id="money-expense">0</div></div>
-                    <div class="card border-orange card-clickable" onclick="accounting.openEscrowDetails()"><div class="card-title">EMANET (TIKLA)</div><div class="money" id="money-escrow">0</div></div>
+              <div class="summary-cards">
+                    <div class="card summary-item border-green" style="cursor: pointer;" onclick="accounting.toggleChartData('profit', this)">
+                        <div class="card-title">NET KÂR (AÇIK/KAPAT)</div>
+                        <div class="money" id="money-profit">0</div>
+                    </div>
+                    <div class="card summary-item border-blue inactive" style="cursor: pointer;" onclick="accounting.toggleChartData('income', this)">
+                        <div class="card-title">TOPLAM CİRO (AÇIK/KAPAT)</div>
+                        <div class="money" id="money-income">0</div>
+                    </div>
+                    <div class="card summary-item border-red inactive" style="cursor: pointer;" onclick="accounting.toggleChartData('expense', this)">
+                        <div class="card-title">TOPLAM GİDER (AÇIK/KAPAT)</div>
+                        <div class="money" id="money-expense">0</div>
+                    </div>
+                    <div class="card summary-item border-orange" style="cursor: pointer;" ondblclick="accounting.openEscrowDetails()">
+                        <div class="card-title">EMANET (ÇİFT TIKLA)</div>
+                        <div class="money" id="money-escrow">0</div>
+                    </div>
                 </div>
 
                 <div class="chart-table-wrapper">
