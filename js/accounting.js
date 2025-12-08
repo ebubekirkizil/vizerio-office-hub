@@ -1,11 +1,11 @@
-// js/accounting.js - Vizerio PRO (V6.1 - TAMİR PAKETİ)
+// js/accounting.js - VIZERIO PRO (FULL FİNAL SÜRÜM - EMANET & FİLTRE DAHİL)
 
 window.accounting = {
     
     liveRates: { TRY: 1, USD: 34.50, EUR: 36.20 },
     chartInstance: null,
     chartState: { profit: true, income: false, expense: false },
-    currentPeriod: 'all', // Varsayılan TÜMÜ (Grafik dolsun diye)
+    currentPeriod: 'all', // Varsayılan TÜMÜ
     allTransactions: [],
     filteredTransactions: [],
     selectedTxId: null,
@@ -13,24 +13,24 @@ window.accounting = {
 
     // 1. SİSTEMİ BAŞLAT
     refreshDashboard: async function() {
-        console.log("💰 Sistem ve Veriler Yükleniyor...");
+        console.log("💰 Sistem yenileniyor...");
         
-        // A. Kullanıcıyı Bul
+        // Kullanıcıyı Bul
         const { data: { user } } = await window.supabaseClient.auth.getUser();
         if(user && user.email) this.currentUserEmail = user.email;
 
-        // B. Kurları Çek
+        // Kurları Çek
         try {
             const res = await fetch('https://api.exchangerate-api.com/v4/latest/TRY');
             const d = await res.json();
             this.liveRates = { TRY: 1, USD: (1/d.rates.USD), EUR: (1/d.rates.EUR) };
             if(document.getElementById('live-rates-display')) 
                 document.getElementById('live-rates-display').innerText = `USD: ${this.liveRates.USD.toFixed(2)} | EUR: ${this.liveRates.EUR.toFixed(2)}`;
-        } catch (e) { console.warn("Kur API hatası, varsayılanlar devrede."); }
+        } catch (e) {}
 
-        // C. Verileri Çek
+        // Verileri Çek
         const { data: list, error } = await window.supabaseClient.from('transactions').select('*').order('created_at', { ascending: false });
-        if (error) { console.error(error); return; }
+        if (error) return;
         
         this.allTransactions = list;
         this.filteredTransactions = list;
@@ -39,7 +39,7 @@ window.accounting = {
         this.renderTable(this.filteredTransactions);
         
         // Grafiği çiz
-        setTimeout(() => this.updateChartRender(), 200);
+        setTimeout(() => this.updateChartRender(), 100);
     },
 
     // 2. KASA VE İSTATİSTİK HESAPLAMA
@@ -92,7 +92,7 @@ window.accounting = {
         this.updateText('money-escrow', this.fmt(tEsc, selectedCurr));
     },
 
-    // 3. GRAFİK MOTORU (Düzeltildi)
+    // 3. GRAFİK MOTORU
     updateChartRender: function() {
         const ctx = document.getElementById('financeChart');
         if (!ctx) return;
@@ -117,7 +117,6 @@ window.accounting = {
         filteredData.forEach(t => {
             const d = new Date(t.created_at);
             let key = '';
-            
             if(timeFormat === 'hour') key = d.getHours() + ":00";
             else if(timeFormat === 'day') key = d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
             else if(timeFormat === 'month') key = d.toLocaleDateString('tr-TR', { month: 'long', year: '2-digit' });
@@ -158,26 +157,17 @@ window.accounting = {
         });
     },
 
-    // 4. TABLO VE ÇEVİRİ (SORUNUN ÇÖZÜLDÜĞÜ YER)
+    // 4. TABLO VE ÇEVİRİ
     translateCat: function(cat) { 
         const dict = {
-            'visa_service': 'Vize Hizmeti',
-            'extra_service': 'Ek Hizmet',
-            'escrow_deposit': 'Emanet Girişi',
-            'exchange_in': 'Döviz Giriş',
-            'exchange_out': 'Döviz Çıkış',
-            'rent': 'Kira/Ofis',
-            'bills': 'Fatura',
-            'food': 'Yemek/Mutfak',
-            'consulate_fee': 'Konsolosluk Harcı',
-            'salary': 'Personel Maaş',
-            'marketing': 'Reklam Gideri',
-            'office_supplies': 'Ofis Malzemesi',
-            'flight_ticket': 'Uçak Bileti',
-            'hotel_booking': 'Otel Rezervasyonu',
-            'travel_insurance': 'Seyahat Sigortası'
+            'visa_service': 'Vize Hizmeti', 'extra_service': 'Ek Hizmet', 'escrow_deposit': 'Emanet Girişi',
+            'escrow_refund': 'Emanet İadesi', 'escrow_service_deduction': 'Emanet Hizmet Kesintisi',
+            'exchange_in': 'Döviz Giriş', 'exchange_out': 'Döviz Çıkış', 'rent': 'Kira/Ofis',
+            'bills': 'Fatura', 'food': 'Yemek/Mutfak', 'consulate_fee': 'Konsolosluk Harcı',
+            'salary': 'Personel Maaş', 'marketing': 'Reklam Gideri', 'office_supplies': 'Ofis Malzemesi',
+            'flight_ticket': 'Uçak Bileti', 'hotel_booking': 'Otel Rezervasyonu', 'travel_insurance': 'Seyahat Sigortası'
         }; 
-        return dict[cat] || cat; // Eğer listede yoksa olduğu gibi yaz
+        return dict[cat] || cat;
     },
 
     renderTable: function(list) {
@@ -196,7 +186,6 @@ window.accounting = {
             if (t.is_escrow) { rowClass = 'row-escrow'; textClass = 'text-orange'; symbol = ''; }
             if (t.category && t.category.includes('exchange')) { rowClass = 'row-exchange'; textClass = 'text-navy'; symbol = t.type==='income'?'+':'-'; }
 
-            // Kategori ismini translateCat ile düzeltiyoruz
             const categoryName = this.translateCat(t.category);
 
             tbody.innerHTML += `<tr class="${rowClass} row-hover" onclick="accounting.openTransactionDetail('${t.id}')">
@@ -208,37 +197,120 @@ window.accounting = {
         });
     },
 
-    // 5. DETAY PENCERESİ
-    openTransactionDetail: function(txId) {
-        const tx = this.allTransactions.find(t => t.id === txId);
-        if(!tx) return;
-        this.selectedTxId = txId;
+    // 5. YENİ EMANET SİSTEMİ (PREMIUM & İŞLEVSEL)
+    openEscrowDetails: async function() {
+        window.ui.openModal('modal-escrow-details');
+        document.getElementById('escrow-list-body').innerHTML = '<tr><td colspan="3" style="text-align:center; padding:30px;">Yükleniyor...</td></tr>';
 
-        const amountEl = document.getElementById('td-amount');
-        amountEl.className = tx.type === 'income' ? 'receipt-amount text-green' : 'receipt-amount text-red';
+        // Sadece emanet işlemlerini çek
+        const { data: list } = await window.supabaseClient.from('transactions').select('*').eq('is_escrow', true).order('created_at', { ascending: false });
 
-        document.getElementById('td-amount').innerText = this.fmt(tx.amount, tx.currency);
-        document.getElementById('td-cat').innerText = this.translateCat(tx.category);
-        document.getElementById('td-date').innerText = new Date(tx.created_at).toLocaleString('tr-TR');
-        document.getElementById('td-id').innerText = tx.id.substring(0, 12) + '...';
-        document.getElementById('td-desc').innerText = tx.description;
+        let totalEUR = 0, totalUSD = 0, totalTRY = 0;
+        let tableHTML = '';
+
+        if (list && list.length > 0) {
+            list.forEach(t => {
+                const amt = parseFloat(t.amount);
+                // Giriş/Çıkış Hesabı
+                if (t.type === 'income') { 
+                    if (t.currency === 'EUR') totalEUR += amt;
+                    else if (t.currency === 'USD') totalUSD += amt;
+                    else if (t.currency === 'TRY') totalTRY += amt;
+                } else if (t.type === 'expense') { 
+                    if (t.currency === 'EUR') totalEUR -= amt;
+                    else if (t.currency === 'USD') totalUSD -= amt;
+                    else if (t.currency === 'TRY') totalTRY -= amt;
+                }
+
+                // Tablo Satırı
+                const date = new Date(t.created_at).toLocaleDateString('tr-TR');
+                const colorClass = t.type === 'income' ? 'text-green' : 'text-red';
+                const prefix = t.type === 'income' ? '+' : '-';
+                
+                tableHTML += `
+                    <tr style="border-bottom:1px solid #f1f5f9;">
+                        <td style="padding:12px;">${date}</td>
+                        <td style="padding:12px; font-weight:600;">${t.description}</td>
+                        <td style="padding:12px; text-align:right;" class="${colorClass}">
+                            ${prefix} ${this.fmt(amt, t.currency)}
+                        </td>
+                    </tr>`;
+            });
+        } else {
+            tableHTML = '<tr><td colspan="3" style="text-align:center; padding:30px;">Emanet işlem yok.</td></tr>';
+        }
+
+        // Özet Kartları Doldur
+        document.getElementById('esc-total-eur').innerText = this.fmt(totalEUR, 'EUR');
+        document.getElementById('esc-total-usd').innerText = this.fmt(totalUSD, 'USD');
+        document.getElementById('esc-total-try').innerText = this.fmt(totalTRY, 'TRY');
         
-        // Gerçek kullanıcı
-        document.getElementById('td-user').innerText = this.currentUserEmail; 
-        document.querySelector('.user-avatar').innerText = this.currentUserEmail.charAt(0).toUpperCase();
+        // Alt TL karşılıkları
+        const eurInTry = totalEUR * (this.liveRates.EUR || 0);
+        const usdInTry = totalUSD * (this.liveRates.USD || 0);
+        document.getElementById('esc-total-eur-tl').innerText = `≈ ${this.fmt(eurInTry, 'TRY')}`;
+        document.getElementById('esc-total-usd-tl').innerText = `≈ ${this.fmt(usdInTry, 'TRY')}`;
 
-        window.ui.openModal('modal-transaction-detail');
+        document.getElementById('escrow-list-body').innerHTML = tableHTML;
     },
 
-    // YARDIMCI FONKSİYONLAR
-    filterChartDate: function(period, btn) { document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); this.currentPeriod = period; this.updateChartRender(); },
-    toggleChartData: function(type, cardElement) { this.chartState[type] = !this.chartState[type]; if(this.chartState[type]) cardElement.classList.remove('inactive'); else cardElement.classList.add('inactive'); this.updateChartRender(); },
+    // 6. EMANET ÇIKIŞ / İADE PENCERESİNİ AÇ
+    openEscrowWithdrawModal: function() {
+        window.ui.closeModal('modal-escrow-details');
+        window.ui.openModal('modal-escrow-withdraw');
+        document.getElementById('form-escrow-withdraw').reset();
+    },
+
+    // 7. EMANET ÇIKIŞINI KAYDET
+    saveEscrowWithdraw: async function(e) {
+        e.preventDefault();
+        const btn = e.target.querySelector('button[type="submit"]');
+        btn.disabled = true; btn.innerHTML = "İşleniyor...";
+
+        const type = document.getElementById('ew-type').value;
+        const amount = document.getElementById('ew-amount').value;
+        const currency = document.getElementById('ew-currency').value;
+        const desc = document.getElementById('ew-desc').value;
+
+        let category = 'escrow_refund';
+        let descPrefix = 'İade: ';
+        
+        if (type === 'service_payment') {
+            category = 'escrow_service_deduction';
+            descPrefix = 'Hizmet Kesintisi: ';
+        }
+
+        const { error } = await window.supabaseClient.from('transactions').insert([{
+            type: 'expense', // Emanetten çıkış olduğu için expense
+            category: category,
+            description: descPrefix + desc,
+            amount: amount,
+            currency: currency,
+            is_escrow: true, // Emanet hesabını etkile
+            created_at: new Date()
+        }]);
+
+        if(!error) {
+            window.ui.closeModal('modal-escrow-withdraw');
+            this.refreshDashboard(); // Ana ekranı güncelle
+            setTimeout(() => {
+                this.openEscrowDetails(); // Emanet detayını tekrar aç ve güncelle
+                alert("✅ Emanet çıkışı yapıldı.");
+            }, 500);
+        } else {
+            alert("Hata: " + error.message);
+        }
+        btn.disabled = false; btn.innerHTML = "İŞLEMİ ONAYLA";
+    },
+
+    // 8. FİLTRELEME & YARDIMCILAR
     toggleFilterMenu: function() { document.getElementById('filter-menu').classList.toggle('show'); },
     applyFilters: function() {
         const fType = document.getElementById('f-type').value;
         const fCurr = document.getElementById('f-currency').value;
         const fMin = parseFloat(document.getElementById('f-min').value) || 0;
         const fMax = parseFloat(document.getElementById('f-max').value) || 999999999;
+
         this.filteredTransactions = this.allTransactions.filter(t => {
             let pass = true;
             if (fType !== 'all') {
@@ -254,18 +326,69 @@ window.accounting = {
         this.renderTable(this.filteredTransactions);
         document.getElementById('filter-menu').classList.remove('show');
     },
-    deleteTransaction: async function() { if(!this.selectedTxId) return; if(!confirm("Silmek istediğine emin misin?")) return; await window.supabaseClient.from('transactions').delete().eq('id', this.selectedTxId); window.ui.closeModal('modal-transaction-detail'); this.refreshDashboard(); },
+
+    openTransactionDetail: function(txId) {
+        const tx = this.allTransactions.find(t => t.id === txId);
+        if(!tx) return;
+        this.selectedTxId = txId;
+        const amountEl = document.getElementById('td-amount');
+        amountEl.className = tx.type === 'income' ? 'receipt-amount text-green' : 'receipt-amount text-red';
+        document.getElementById('td-amount').innerText = this.fmt(tx.amount, tx.currency);
+        document.getElementById('td-cat').innerText = this.translateCat(tx.category);
+        document.getElementById('td-date').innerText = new Date(tx.created_at).toLocaleString('tr-TR');
+        document.getElementById('td-id').innerText = tx.id.substring(0, 8) + '...';
+        document.getElementById('td-desc').innerText = tx.description;
+        document.getElementById('td-user').innerText = this.currentUserEmail; 
+        document.querySelector('.user-avatar').innerText = this.currentUserEmail.charAt(0).toUpperCase();
+        window.ui.openModal('modal-transaction-detail');
+    },
     
-    // KAYIT FONKSİYONLARI
+    deleteTransaction: async function() { 
+        if(!this.selectedTxId) return; 
+        if(!confirm("Silmek istediğine emin misin?")) return; 
+        await window.supabaseClient.from('transactions').delete().eq('id', this.selectedTxId); 
+        window.ui.closeModal('modal-transaction-detail'); this.refreshDashboard(); 
+    },
+
+    // KAYIT FONKSİYONLARI (STANDART)
     saveExpense: async function(e) { e.preventDefault(); this.genericSave(e, 'expense', 'modal-expense'); },
-    saveEscrow: async function(e) { e.preventDefault(); const btn=e.target.querySelector('button'); btn.disabled=true; const c=document.getElementById('esc-customer').value, cat=document.getElementById('esc-category').value, a=document.getElementById('esc-amount').value, cur=document.getElementById('esc-currency').value, d=document.getElementById('esc-date').value, desc=document.getElementById('esc-desc').value; await window.supabaseClient.from('transactions').insert({type:'income', category:'escrow_deposit', description:`${c} - ${cat.toUpperCase()} (${d}) - ${desc}`, amount:a, currency:cur, is_escrow:true}); window.ui.closeModal('modal-escrow'); this.refreshDashboard(); btn.disabled=false; },
-    saveExtraIncome: async function(e) { e.preventDefault(); const btn=e.target.querySelector('button'); btn.disabled=true; const c=document.getElementById('ei-customer').value, cat=document.getElementById('ei-category').value, a=document.getElementById('ei-amount').value, cur=document.getElementById('ei-currency').value, desc=document.getElementById('ei-desc').value; await window.supabaseClient.from('transactions').insert({type:'income', category:'extra_service', description:`${cat.toUpperCase()} - ${c} (${desc})`, amount:a, currency:cur, is_escrow:false}); window.ui.closeModal('modal-extra-income'); this.refreshDashboard(); btn.disabled=false; },
-    saveExchange: async function(e) { e.preventDefault(); const btn=e.target.querySelector('button'); btn.disabled=true; const oa=document.getElementById('ex-amount-out').value, oc=document.getElementById('ex-currency-out').value, ia=document.getElementById('ex-amount-in').value, ic=document.getElementById('ex-currency-in').value, d=document.getElementById('ex-desc').value; await window.supabaseClient.from('transactions').insert([{type:'expense',category:'exchange_out',description:`Döviz Bozum (${d})`,amount:oa,currency:oc},{type:'income',category:'exchange_in',description:`Döviz Giriş (${d})`,amount:ia,currency:ic}]); window.ui.closeModal('modal-exchange'); this.refreshDashboard(); btn.disabled=false; },
-    genericSave: async function(e, type, modalId) { const form=e.target; const btn=form.querySelector('button'); btn.disabled=true; const cat=form.querySelector('select').value, desc=form.querySelector('input[type="text"]').value, amt=form.querySelector('input[type="number"]').value, cur=form.querySelectorAll('select')[1].value; await window.supabaseClient.from('transactions').insert([{type:'expense',category:cat,description:desc,amount:amt,currency:cur,is_escrow:false}]); window.ui.closeModal(modalId); form.reset(); this.refreshDashboard(); btn.disabled=false; },
-    openEscrowDetails: async function() { window.ui.openModal('modal-escrow-details'); const {data:l}=await window.supabaseClient.from('transactions').select('*').eq('is_escrow',true).order('created_at',{ascending:false}); let h=''; if(l) l.forEach(t=>{h+=`<tr><td>${new Date(t.created_at).toLocaleDateString()}</td><td>${t.description}</td><td style="font-weight:bold; color:#f59e0b;">${this.fmt(t.amount,t.currency)}</td><td><span class="badge badge-escrow">Emanet</span></td></tr>`}); document.getElementById('escrow-list-body').innerHTML=h||'<tr><td colspan="4">Veri yok</td></tr>'; },
+    saveEscrow: async function(e) { 
+        e.preventDefault(); const btn=e.target.querySelector('button'); btn.disabled=true; 
+        const c=document.getElementById('esc-customer').value, cat=document.getElementById('esc-category').value, a=document.getElementById('esc-amount').value, cur=document.getElementById('esc-currency').value, d=document.getElementById('esc-date').value, desc=document.getElementById('esc-desc').value; 
+        await window.supabaseClient.from('transactions').insert({type:'income', category:'escrow_deposit', description:`${c} - ${cat.toUpperCase()} (${d}) - ${desc}`, amount:a, currency:cur, is_escrow:true}); 
+        window.ui.closeModal('modal-escrow'); this.refreshDashboard(); btn.disabled=false; 
+    },
+    saveExtraIncome: async function(e) { 
+        e.preventDefault(); const btn=e.target.querySelector('button'); btn.disabled=true; 
+        const c=document.getElementById('ei-customer').value, cat=document.getElementById('ei-category').value, a=document.getElementById('ei-amount').value, cur=document.getElementById('ei-currency').value, desc=document.getElementById('ei-desc').value; 
+        await window.supabaseClient.from('transactions').insert({type:'income', category:'extra_service', description:`${cat.toUpperCase()} - ${c} (${desc})`, amount:a, currency:cur, is_escrow:false}); 
+        window.ui.closeModal('modal-extra-income'); this.refreshDashboard(); btn.disabled=false; 
+    },
+    saveExchange: async function(e) { 
+        e.preventDefault(); const btn=e.target.querySelector('button'); btn.disabled=true; 
+        const oa=document.getElementById('ex-amount-out').value, oc=document.getElementById('ex-currency-out').value, ia=document.getElementById('ex-amount-in').value, ic=document.getElementById('ex-currency-in').value, d=document.getElementById('ex-desc').value; 
+        await window.supabaseClient.from('transactions').insert([{type:'expense',category:'exchange_out',description:`Döviz Bozum (${d})`,amount:oa,currency:oc},{type:'income',category:'exchange_in',description:`Döviz Giriş (${d})`,amount:ia,currency:ic}]); 
+        window.ui.closeModal('modal-exchange'); this.refreshDashboard(); btn.disabled=false; 
+    },
+    genericSave: async function(e, type, modalId) { 
+        const form=e.target; const btn=form.querySelector('button'); btn.disabled=true; 
+        const cat=form.querySelector('select').value, desc=form.querySelector('input[type="text"]').value, amt=form.querySelector('input[type="number"]').value, cur=form.querySelectorAll('select')[1].value; 
+        await window.supabaseClient.from('transactions').insert([{type:'expense',category:cat,description:desc,amount:amt,currency:cur,is_escrow:false}]); 
+        window.ui.closeModal(modalId); form.reset(); this.refreshDashboard(); btn.disabled=false; 
+    },
 
     updateText: function(id, t) { const el = document.getElementById(id); if(el) el.innerText = t; },
-    fmt: function(a, c) { return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: c }).format(a); }
+    fmt: function(a, c) { return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: c }).format(a); },
+    filterChartDate: function(period, btn) { document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); this.currentPeriod = period; this.updateChartRender(); },
+    toggleChartData: function(type, cardElement) { this.chartState[type] = !this.chartState[type]; if(this.chartState[type]) cardElement.classList.remove('inactive'); else cardElement.classList.add('inactive'); this.updateChartRender(); }
 };
 
-window.addEventListener('load', () => { window.accounting.refreshDashboard(); if(document.getElementById('form-exchange')) document.getElementById('form-exchange').onsubmit=window.accounting.saveExchange; if(document.getElementById('form-expense')) document.getElementById('form-expense').onsubmit=window.accounting.saveExpense; if(document.getElementById('form-escrow')) document.getElementById('form-escrow').onsubmit=window.accounting.saveEscrow; if(document.getElementById('form-extra-income')) document.getElementById('form-extra-income').onsubmit=window.accounting.saveExtraIncome; });
+window.addEventListener('load', () => { 
+    window.accounting.refreshDashboard(); 
+    if(document.getElementById('form-exchange')) document.getElementById('form-exchange').onsubmit=window.accounting.saveExchange; 
+    if(document.getElementById('form-expense')) document.getElementById('form-expense').onsubmit=window.accounting.saveExpense; 
+    if(document.getElementById('form-escrow')) document.getElementById('form-escrow').onsubmit=window.accounting.saveEscrow; 
+    if(document.getElementById('form-extra-income')) document.getElementById('form-extra-income').onsubmit=window.accounting.saveExtraIncome;
+    // YENİ: EMANET ÇIKIŞ LİSTENER'I
+    if(document.getElementById('form-escrow-withdraw')) document.getElementById('form-escrow-withdraw').onsubmit=window.accounting.saveEscrowWithdraw.bind(window.accounting);
+});
