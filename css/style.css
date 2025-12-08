@@ -167,3 +167,56 @@ select.form-control option { padding: 10px; } select.form-control optgroup { fon
 #escrow-list-body tr:hover td {
     background-color: #f1f5f9;
 }
+
+/* --- V7.0 EMANET PREMIUM TASARIM --- */
+
+/* Modal İçi Yatay Kartlar */
+.escrow-grid-premium {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr; /* 3'lü Yan Yana */
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.escrow-card {
+    padding: 20px;
+    border-radius: 16px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+.escrow-card:hover { transform: translateY(-3px); }
+
+/* Arka Plan Desenleri */
+.bg-eur { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); } /* Mavi */
+.bg-usd { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); } /* Yeşil */
+.bg-try { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); } /* Mor */
+
+.esc-icon {
+    position: absolute;
+    top: 10px; right: 10px;
+    font-size: 40px;
+    opacity: 0.2;
+}
+
+.esc-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    opacity: 0.9; margin-bottom: 5px;
+}
+.esc-amount {
+    font-size: 24px; font-weight: 800;
+}
+
+/* İşlem Seçim Modalı (Küçük) */
+.action-btn-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;
+}
+.act-btn {
+    padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;
+    background: white; cursor: pointer; text-align: center; transition: 0.2s;
+}
+.act-btn:hover { border-color: var(--orange-escrow); background: #fff7ed; }
+.act-btn span { display: block; font-size: 32px; margin-bottom: 10px; color: var(--orange-escrow); }
+.act-btn h4 { margin: 0; font-size: 14px; color: #1e293b; }
