@@ -158,3 +158,29 @@ body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-c
 .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1900; display: none; }
 .close-btn { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .close-btn:hover { background: #ef4444; color: white; }
+
+/* --- V7.5 FINAL FIXLER --- */
+
+/* 1. Döviz Transferi Rengi (Kar/Zarar Değil) */
+.text-transfer { color: #4f46e5 !important; font-weight: 700; } /* İndigo/Mor */
+.row-transfer td:first-child { border-left: 5px solid #4f46e5 !important; }
+
+/* 2. Grafik Butonları (Aktiflik) */
+.legend-btn {
+    border: 1px solid #e2e8f0; background: white; padding: 5px 10px; 
+    border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 600; color: #64748b;
+    display: inline-flex; align-items: center; gap: 5px; margin-right: 5px;
+}
+.legend-btn.active { background: #eff6ff; border-color: #3b82f6; color: #3b82f6; }
+.legend-btn.inactive { opacity: 0.5; text-decoration: line-through; }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+/* 3. Evrak Düzenle/Sil Butonları */
+.doc-tools { display: flex; gap: 5px; }
+.tool-btn {
+    width: 28px; height: 28px; border-radius: 6px; border: 1px solid #e2e8f0;
+    background: white; color: #64748b; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: 0.2s;
+}
+.tool-btn:hover { background: #f1f5f9; color: var(--blue-info); }
+.tool-btn.del:hover { background: #fef2f2; color: #ef4444; border-color: #fca5a5; }
