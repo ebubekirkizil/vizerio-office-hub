@@ -141,3 +141,29 @@ select.form-control option { padding: 10px; } select.form-control optgroup { fon
 @media (max-width: 1024px) { .wallet-grid { grid-template-columns: 1fr 1fr; } .wallet-item { border-bottom: 1px solid #e2e8f0; } .wallet-item:nth-child(2) { border-right: none; } }
 @media (max-width: 768px) { .sidebar { position: fixed; height: 100%; left: -260px; } .top-header { position: relative; top: auto; } .wallet-grid { grid-template-columns: 1fr; } .income-selection-grid { grid-template-columns: 1fr; } }
 .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1900; display: none; opacity: 0; transition: opacity 0.3s; } .sidebar-overlay.active { display: block; opacity: 1; }
+
+/* css/style.css dosyasının sonuna ekleyin */
+
+/* Emanet için Turuncu Buton */
+.btn-orange {
+    background-color: var(--orange-escrow); /* #f59e0b */
+    color: white;
+    border: none;
+    transition: background-color 0.2s;
+}
+
+.btn-orange:hover {
+    background-color: #d97706; /* Daha koyu bir turuncu */
+}
+
+/* Modal içindeki tablolar için */
+.modal-body .data-table th {
+    background-color: #f8fafc;
+    position: sticky;
+    top: 0;
+}
+
+/* Emanet tablosu satır hover efekti */
+#escrow-list-body tr:hover td {
+    background-color: #f1f5f9;
+}
