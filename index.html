@@ -44,17 +44,17 @@
                     </div>
                 </div>
 
-              <div class="summary-cards">
+             <div class="summary-cards">
                     <div class="card summary-item border-green" style="cursor: pointer;" onclick="accounting.toggleChartData('profit', this)">
-                        <div class="card-title">NET KÂR (AÇIK/KAPAT)</div>
+                        <div class="card-title" id="lbl-profit">NET KÂR (AÇIK)</div>
                         <div class="money" id="money-profit">0</div>
                     </div>
-                    <div class="card summary-item border-blue inactive" style="cursor: pointer;" onclick="accounting.toggleChartData('income', this)">
-                        <div class="card-title">TOPLAM CİRO (AÇIK/KAPAT)</div>
+                    <div class="card summary-item border-blue" style="cursor: pointer;" onclick="accounting.toggleChartData('income', this)">
+                        <div class="card-title" id="lbl-income">TOPLAM CİRO (AÇIK)</div>
                         <div class="money" id="money-income">0</div>
                     </div>
-                    <div class="card summary-item border-red inactive" style="cursor: pointer;" onclick="accounting.toggleChartData('expense', this)">
-                        <div class="card-title">TOPLAM GİDER (AÇIK/KAPAT)</div>
+                    <div class="card summary-item border-red" style="cursor: pointer;" onclick="accounting.toggleChartData('expense', this)">
+                        <div class="card-title" id="lbl-expense">TOPLAM GİDER (AÇIK)</div>
                         <div class="money" id="money-expense">0</div>
                     </div>
                     <div class="card summary-item border-orange" style="cursor: pointer;" ondblclick="accounting.openEscrowDetails()">
