@@ -362,6 +362,22 @@ window.accounting = {
     }
 };
 
+// KUR HESAPLAMA GÖSTERGESİ
+    calcExchangeRate: function() {
+        const outAmt = parseFloat(document.getElementById('ex-amount-out').value) || 0;
+        const inAmt = parseFloat(document.getElementById('ex-amount-in').value) || 0;
+        const outCurr = document.getElementById('ex-currency-out').value;
+        const inCurr = document.getElementById('ex-currency-in').value;
+        const display = document.getElementById('ex-rate-display');
+
+        if (outAmt > 0 && inAmt > 0) {
+            const rate = inAmt / outAmt;
+            display.innerHTML = `1 ${outCurr} = <span>${rate.toFixed(4)} ${inCurr}</span> işleminden bozuluyor.`;
+        } else {
+            display.innerText = "Miktarları girince kur otomatik hesaplanır.";
+        }
+    },
+
 window.addEventListener('load', () => { 
     window.accounting.refreshDashboard(); 
     if(document.getElementById('form-exchange')) document.getElementById('form-exchange').onsubmit=window.accounting.saveExchange; 
