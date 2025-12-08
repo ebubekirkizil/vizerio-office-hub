@@ -470,21 +470,32 @@
 
     <div class="modal-overlay" id="modal-transaction-detail">
         <div class="modal-box" style="width: 500px;">
-            <div class="modal-header"><h3>🔍 İşlem Detayı</h3><button class="close-btn" onclick="ui.closeModal('modal-transaction-detail')"><span class="material-icons-round">close</span></button></div>
-            <div class="modal-body">
-                <div class="info-grid" style="grid-template-columns: 1fr;">
-                    <div class="info-item"><label>Tarih</label><span id="td-date">-</span></div>
-                    <div class="info-item"><label>Açıklama</label><span id="td-desc" style="font-weight:700;">-</span></div>
-                    <div class="info-item"><label>Kategori</label><span id="td-cat"><span class="badge badge-gray">-</span></span></div>
-                    <div class="info-item"><label>Tutar</label><span id="td-amount" style="font-size:18px;">-</span></div>
-                    <hr style="border:0; border-top:1px solid #f1f5f9; width:100%;">
-                    <div class="info-item"><label>ID</label><span id="td-id" style="font-family:monospace; color:#999;">-</span></div>
+            <div class="modal-header">
+                <h3>İşlem Fişi</h3>
+                <button class="close-btn" onclick="ui.closeModal('modal-transaction-detail')"><span class="material-icons-round">close</span></button>
+            </div>
+            <div class="modal-body" style="padding: 30px;">
+                <div class="receipt-header">
+                    <div style="font-size:12px; color:#94a3b8; font-weight:600;">İŞLEM TUTARI</div>
+                    <div class="receipt-amount" id="td-amount">-</div>
+                    <div class="badge badge-gray" id="td-cat">Kategori</div>
                 </div>
-                <div style="margin-top:20px; text-align:right;"><button class="btn btn-red" onclick="accounting.deleteTransaction()">SİL</button></div>
+                <div class="receipt-grid">
+                    <div class="receipt-item"><label>İşlem Tarihi</label><span id="td-date">-</span></div>
+                    <div class="receipt-item"><label>İşlem ID</label><span id="td-id" style="font-family:monospace; font-size:12px;">-</span></div>
+                </div>
+                <div class="receipt-item" style="margin-top:15px;"><label>Açıklama</label><span id="td-desc" style="line-height:1.5;">-</span></div>
+                <div class="receipt-item" style="margin-top:20px; background:#f8fafc; padding:15px; border-radius:10px;">
+                    <label style="margin-bottom:5px;">İşlemi Yapan Yetkili</label>
+                    <div class="user-badge"><div class="user-avatar">EK</div><span id="td-user">Ebubekir Kızıldaş</span></div>
+                </div>
+                <div style="margin-top:25px; text-align:center;">
+                    <button class="btn btn-red" style="width:100%; opacity:0.8;" onclick="accounting.deleteTransaction()"><span class="material-icons-round">delete</span> BU KAYDI SİL</button>
+                </div>
             </div>
         </div>
     </div>
-
+    
     <div class="modal-overlay" id="modal-exchange">
         <div class="modal-box"><div class="modal-header"><h3>💱 Kur Dönüşümü</h3><button class="close-btn" onclick="ui.closeModal('modal-exchange')"><span class="material-icons-round">close</span></button></div>
         <div class="modal-body"><form id="form-exchange"><div class="form-group"><label>Bozulacak</label><div style="display:flex; gap:10px;"><input type="number" class="form-control" id="ex-amount-out" required><select class="form-control" style="width:100px;" id="ex-currency-out"><option value="USD">USD</option><option value="EUR">EUR</option></select></div></div><div class="form-group"><label>Alınan (Net)</label><div style="display:flex; gap:10px;"><input type="number" class="form-control" id="ex-amount-in" required><select class="form-control" style="width:100px;" id="ex-currency-in"><option value="TRY">TRY</option></select></div></div><div class="form-group"><label>Not</label><input type="text" class="form-control" id="ex-desc"></div><button type="submit" class="btn btn-blue">KAYDET</button></form></div></div>
