@@ -104,50 +104,14 @@
                         <div style="height: 320px; width: 100%; position:relative;"><canvas id="financeChart"></canvas></div>
                     </div>
 
-                   <div class="card card-visible" style="padding:0; display:flex; flex-direction:column;">
+                  <<div class="card" style="padding:0; display:flex; flex-direction:column;">
                         
                         <div style="padding:20px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center;">
-                            <span style="font-weight:700; color:#64748b; font-size:13px;">SON İŞLEMLER VE HAREKETLER</span>
+                            <span style="font-weight:800; color:#1e293b; font-size:14px; letter-spacing:0.5px;">SON İŞLEMLER</span>
                             
-                            <div style="display:flex; gap:10px;">
-                                <div class="filter-wrapper">
-                                    <button class="btn-filter" onclick="accounting.toggleFilterMenu()">
-                                        <span class="material-icons-round">filter_list</span> Filtrele
-                                    </button>
-                                    <div class="filter-dropdown" id="filter-menu">
-                                        <div class="filter-row">
-                                            <span class="filter-label">İşlem Türü</span>
-                                            <select class="form-control" id="f-type">
-                                                <option value="all">Tümü</option>
-                                                <option value="income">Gelirler</option>
-                                                <option value="expense">Giderler</option>
-                                                <option value="escrow">Emanetler</option>
-                                            </select>
-                                        </div>
-                                        <div class="filter-row">
-                                            <span class="filter-label">Para Birimi</span>
-                                            <select class="form-control" id="f-currency">
-                                                <option value="all">Tümü</option>
-                                                <option value="TRY">TRY</option>
-                                                <option value="USD">USD</option>
-                                                <option value="EUR">EUR</option>
-                                            </select>
-                                        </div>
-                                        <div class="filter-row">
-                                            <span class="filter-label">Tutar Aralığı</span>
-                                            <div style="display:flex; gap:5px;">
-                                                <input type="number" class="form-control" id="f-min" placeholder="Min">
-                                                <input type="number" class="form-control" id="f-max" placeholder="Max">
-                                            </div>
-                                        </div>
-                                        <button class="btn btn-blue" style="width:100%;" onclick="accounting.applyFilters()">Uygula</button>
-                                    </div>
-                                </div>
-
-                                <button class="btn-filter" onclick="accounting.refreshDashboard()">
-                                    <span class="material-icons-round">refresh</span> Yenile
-                                </button>
-                            </div>
+                            <button class="btn-filter" onclick="accounting.refreshDashboard()">
+                                <span class="material-icons-round">refresh</span> Yenile
+                            </button>
                         </div>
                         
                         <div class="table-container">
