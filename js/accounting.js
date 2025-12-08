@@ -1,38 +1,36 @@
-// js/accounting.js - V6.0 FİNAL (FULL FUNCTIONAL)
+// js/accounting.js - Vizerio PRO (V6.1 - TAMİR PAKETİ)
 
 window.accounting = {
     
     liveRates: { TRY: 1, USD: 34.50, EUR: 36.20 },
     chartInstance: null,
     chartState: { profit: true, income: false, expense: false },
-    currentPeriod: 'all', // Varsayılanı 'all' yaptık ki veri kesin görünsün
+    currentPeriod: 'all', // Varsayılan TÜMÜ (Grafik dolsun diye)
     allTransactions: [],
     filteredTransactions: [],
     selectedTxId: null,
-    currentUserEmail: 'Yetkili Personel', // Varsayılan
+    currentUserEmail: 'Yetkili Personel',
 
-    // 1. BAŞLATMA
+    // 1. SİSTEMİ BAŞLAT
     refreshDashboard: async function() {
-        console.log("💰 Sistem yenileniyor...");
+        console.log("💰 Sistem ve Veriler Yükleniyor...");
         
-        // GERÇEK KULLANICIYI BUL
+        // A. Kullanıcıyı Bul
         const { data: { user } } = await window.supabaseClient.auth.getUser();
-        if(user && user.email) {
-            this.currentUserEmail = user.email; // E-postayı al
-        }
+        if(user && user.email) this.currentUserEmail = user.email;
 
-        // KURLAR
+        // B. Kurları Çek
         try {
             const res = await fetch('https://api.exchangerate-api.com/v4/latest/TRY');
             const d = await res.json();
             this.liveRates = { TRY: 1, USD: (1/d.rates.USD), EUR: (1/d.rates.EUR) };
             if(document.getElementById('live-rates-display')) 
                 document.getElementById('live-rates-display').innerText = `USD: ${this.liveRates.USD.toFixed(2)} | EUR: ${this.liveRates.EUR.toFixed(2)}`;
-        } catch (e) {}
+        } catch (e) { console.warn("Kur API hatası, varsayılanlar devrede."); }
 
-        // VERİLERİ ÇEK
+        // C. Verileri Çek
         const { data: list, error } = await window.supabaseClient.from('transactions').select('*').order('created_at', { ascending: false });
-        if (error) return;
+        if (error) { console.error(error); return; }
         
         this.allTransactions = list;
         this.filteredTransactions = list;
@@ -41,32 +39,60 @@ window.accounting = {
         this.renderTable(this.filteredTransactions);
         
         // Grafiği çiz
-        setTimeout(() => this.updateChartRender(), 100);
+        setTimeout(() => this.updateChartRender(), 200);
     },
 
-    // 2. DETAY PENCERESİ (DİNAMİK İSİM)
-    openTransactionDetail: function(txId) {
-        const tx = this.allTransactions.find(t => t.id === txId);
-        if(!tx) return;
-        this.selectedTxId = txId;
-
-        const amountEl = document.getElementById('td-amount');
-        amountEl.className = tx.type === 'income' ? 'receipt-amount text-green' : 'receipt-amount text-red';
-
-        document.getElementById('td-amount').innerText = this.fmt(tx.amount, tx.currency);
-        document.getElementById('td-cat').innerText = this.translateCat(tx.category);
-        document.getElementById('td-date').innerText = new Date(tx.created_at).toLocaleString('tr-TR');
-        document.getElementById('td-id').innerText = tx.id.substring(0, 8) + '...';
-        document.getElementById('td-desc').innerText = tx.description;
+    // 2. KASA VE İSTATİSTİK HESAPLAMA
+    calculateStats: function(list) {
+        const selectedCurr = document.getElementById('chart-currency') ? document.getElementById('chart-currency').value : 'TRY';
         
-        // BURASI DÜZELTİLDİ: Artık giriş yapan kişinin mailini gösterir
-        document.getElementById('td-user').innerText = this.currentUserEmail; 
-        document.querySelector('.user-avatar').innerText = this.currentUserEmail.charAt(0).toUpperCase();
+        let wTRY=0, wUSD=0, wEUR=0; 
+        let tInc=0, tExp=0, tEsc=0;
 
-        window.ui.openModal('modal-transaction-detail');
+        list.forEach(t => {
+            const amt = parseFloat(t.amount);
+            
+            // KASA (Fiziksel)
+            if(t.type==='income') {
+                if(t.currency==='TRY') wTRY+=amt; if(t.currency==='USD') wUSD+=amt; if(t.currency==='EUR') wEUR+=amt;
+            } else if (t.type==='expense') {
+                if(t.currency==='TRY') wTRY-=amt; if(t.currency==='USD') wUSD-=amt; if(t.currency==='EUR') wEUR-=amt;
+            }
+
+            // İSTATİSTİK (Ciro/Gider) - Kur dönüşümü hariç
+            const isExchange = t.category && t.category.includes('exchange');
+            const valInTarget = (amt * (this.liveRates[t.currency]||1)) / this.liveRates[selectedCurr];
+
+            if (!isExchange && !t.is_escrow) {
+                if (t.type === 'income') tInc += valInTarget;
+                if (t.type === 'expense') tExp += valInTarget;
+            }
+            if (t.is_escrow) tEsc += valInTarget;
+        });
+
+        // Kasaları Yaz
+        this.updateText('wallet-try', this.fmt(wTRY, 'TRY'));
+        this.updateText('wallet-usd', this.fmt(wUSD, 'USD'));
+        this.updateText('wallet-eur', this.fmt(wEUR, 'EUR'));
+        
+        // Küçük Yazılar (TL Karşılığı)
+        const usdValInTry = wUSD * this.liveRates.USD;
+        const eurValInTry = wEUR * this.liveRates.EUR;
+        this.updateText('val-usd', `≈ ${this.fmt(usdValInTry, 'TRY')}`);
+        this.updateText('val-eur', `≈ ${this.fmt(eurValInTry, 'TRY')}`);
+        
+        // Toplam Varlık
+        const totalEquity = (wTRY + (wUSD*this.liveRates.USD) + (wEUR*this.liveRates.EUR)) / this.liveRates[selectedCurr];
+        this.updateText('total-equity', this.fmt(totalEquity, selectedCurr));
+
+        // Kartlar
+        this.updateText('money-profit', this.fmt(tInc-tExp, selectedCurr));
+        this.updateText('money-income', this.fmt(tInc, selectedCurr));
+        this.updateText('money-expense', this.fmt(tExp, selectedCurr));
+        this.updateText('money-escrow', this.fmt(tEsc, selectedCurr));
     },
 
-    // 3. GRAFİK MOTORU (DÜZELTİLDİ)
+    // 3. GRAFİK MOTORU (Düzeltildi)
     updateChartRender: function() {
         const ctx = document.getElementById('financeChart');
         if (!ctx) return;
@@ -91,6 +117,7 @@ window.accounting = {
         filteredData.forEach(t => {
             const d = new Date(t.created_at);
             let key = '';
+            
             if(timeFormat === 'hour') key = d.getHours() + ":00";
             else if(timeFormat === 'day') key = d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
             else if(timeFormat === 'month') key = d.toLocaleDateString('tr-TR', { month: 'long', year: '2-digit' });
@@ -131,14 +158,87 @@ window.accounting = {
         });
     },
 
-    // 4. FİLTRELEME
+    // 4. TABLO VE ÇEVİRİ (SORUNUN ÇÖZÜLDÜĞÜ YER)
+    translateCat: function(cat) { 
+        const dict = {
+            'visa_service': 'Vize Hizmeti',
+            'extra_service': 'Ek Hizmet',
+            'escrow_deposit': 'Emanet Girişi',
+            'exchange_in': 'Döviz Giriş',
+            'exchange_out': 'Döviz Çıkış',
+            'rent': 'Kira/Ofis',
+            'bills': 'Fatura',
+            'food': 'Yemek/Mutfak',
+            'consulate_fee': 'Konsolosluk Harcı',
+            'salary': 'Personel Maaş',
+            'marketing': 'Reklam Gideri',
+            'office_supplies': 'Ofis Malzemesi',
+            'flight_ticket': 'Uçak Bileti',
+            'hotel_booking': 'Otel Rezervasyonu',
+            'travel_insurance': 'Seyahat Sigortası'
+        }; 
+        return dict[cat] || cat; // Eğer listede yoksa olduğu gibi yaz
+    },
+
+    renderTable: function(list) {
+        const tbody = document.getElementById('transactions-body');
+        if(!tbody) return;
+        tbody.innerHTML = '';
+        
+        const displayList = list.length > 0 ? list : [];
+        if(displayList.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px; color:#999;">İşlem bulunamadı.</td></tr>'; return; }
+        
+        displayList.forEach(t => {
+            const date = new Date(t.created_at).toLocaleDateString('tr-TR', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
+            let rowClass = 'row-expense', textClass = 'text-red', symbol = '-';
+            
+            if (t.type === 'income') { rowClass = 'row-income'; textClass = 'text-green'; symbol = '+'; }
+            if (t.is_escrow) { rowClass = 'row-escrow'; textClass = 'text-orange'; symbol = ''; }
+            if (t.category && t.category.includes('exchange')) { rowClass = 'row-exchange'; textClass = 'text-navy'; symbol = t.type==='income'?'+':'-'; }
+
+            // Kategori ismini translateCat ile düzeltiyoruz
+            const categoryName = this.translateCat(t.category);
+
+            tbody.innerHTML += `<tr class="${rowClass} row-hover" onclick="accounting.openTransactionDetail('${t.id}')">
+                <td style="color:#64748b; font-size:12px; padding:15px;">${date}</td>
+                <td style="padding:15px; font-weight:600; color:#334155;">${t.description || '-'}</td>
+                <td style="padding:15px;"><span class="badge badge-gray">${categoryName}</span></td>
+                <td style="padding:15px; text-align:right; font-weight:800; font-size:15px;" class="${textClass}">${symbol} ${this.fmt(t.amount, t.currency)}</td>
+            </tr>`;
+        });
+    },
+
+    // 5. DETAY PENCERESİ
+    openTransactionDetail: function(txId) {
+        const tx = this.allTransactions.find(t => t.id === txId);
+        if(!tx) return;
+        this.selectedTxId = txId;
+
+        const amountEl = document.getElementById('td-amount');
+        amountEl.className = tx.type === 'income' ? 'receipt-amount text-green' : 'receipt-amount text-red';
+
+        document.getElementById('td-amount').innerText = this.fmt(tx.amount, tx.currency);
+        document.getElementById('td-cat').innerText = this.translateCat(tx.category);
+        document.getElementById('td-date').innerText = new Date(tx.created_at).toLocaleString('tr-TR');
+        document.getElementById('td-id').innerText = tx.id.substring(0, 12) + '...';
+        document.getElementById('td-desc').innerText = tx.description;
+        
+        // Gerçek kullanıcı
+        document.getElementById('td-user').innerText = this.currentUserEmail; 
+        document.querySelector('.user-avatar').innerText = this.currentUserEmail.charAt(0).toUpperCase();
+
+        window.ui.openModal('modal-transaction-detail');
+    },
+
+    // YARDIMCI FONKSİYONLAR
+    filterChartDate: function(period, btn) { document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); this.currentPeriod = period; this.updateChartRender(); },
+    toggleChartData: function(type, cardElement) { this.chartState[type] = !this.chartState[type]; if(this.chartState[type]) cardElement.classList.remove('inactive'); else cardElement.classList.add('inactive'); this.updateChartRender(); },
     toggleFilterMenu: function() { document.getElementById('filter-menu').classList.toggle('show'); },
     applyFilters: function() {
         const fType = document.getElementById('f-type').value;
         const fCurr = document.getElementById('f-currency').value;
         const fMin = parseFloat(document.getElementById('f-min').value) || 0;
         const fMax = parseFloat(document.getElementById('f-max').value) || 999999999;
-
         this.filteredTransactions = this.allTransactions.filter(t => {
             let pass = true;
             if (fType !== 'all') {
@@ -154,57 +254,16 @@ window.accounting = {
         this.renderTable(this.filteredTransactions);
         document.getElementById('filter-menu').classList.remove('show');
     },
-
-    // 5. TABLO (SCROLL FIX & FULL WIDTH)
-    renderTable: function(list) {
-        const tbody = document.getElementById('transactions-body');
-        if(!tbody) return;
-        tbody.innerHTML = '';
-        
-        const displayList = list.length > 0 ? list : [];
-        if(displayList.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px; color:#999;">İşlem bulunamadı.</td></tr>'; return; }
-        
-        displayList.forEach(t => {
-            const date = new Date(t.created_at).toLocaleDateString('tr-TR', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
-            let rowClass = 'row-expense', textClass = 'text-red', symbol = '-';
-            if (t.type === 'income') { rowClass = 'row-income'; textClass = 'text-green'; symbol = '+'; }
-            if (t.is_escrow) { rowClass = 'row-escrow'; textClass = 'text-orange'; symbol = ''; }
-            if (t.category && t.category.includes('exchange')) { rowClass = 'row-exchange'; textClass = 'text-navy'; symbol = t.type==='income'?'+':'-'; }
-
-            tbody.innerHTML += `<tr class="${rowClass} row-hover" onclick="accounting.openTransactionDetail('${t.id}')"><td style="color:#64748b; font-size:12px; padding:15px;">${date}</td><td style="padding:15px; font-weight:600; color:#334155;">${t.description || '-'}</td><td style="padding:15px;"><span class="badge badge-gray">${this.translateCat(t.category)}</span></td><td style="padding:15px; text-align:right; font-weight:800; font-size:15px;" class="${textClass}">${symbol} ${this.fmt(t.amount, t.currency)}</td></tr>`;
-        });
-    },
-
-    // DİĞERLERİ
-    calculateStats: function(list) {
-        const selectedCurr = document.getElementById('chart-currency') ? document.getElementById('chart-currency').value : 'TRY';
-        let wTRY=0, wUSD=0, wEUR=0, tInc=0, tExp=0, tEsc=0;
-        list.forEach(t => {
-            const amt = parseFloat(t.amount);
-            if(t.type==='income') { if(t.currency==='TRY') wTRY+=amt; if(t.currency==='USD') wUSD+=amt; if(t.currency==='EUR') wEUR+=amt; }
-            else if (t.type==='expense') { if(t.currency==='TRY') wTRY-=amt; if(t.currency==='USD') wUSD-=amt; if(t.currency==='EUR') wEUR-=amt; }
-            const isExchange = t.category && t.category.includes('exchange');
-            const valInTarget = (amt * (this.liveRates[t.currency]||1)) / this.liveRates[selectedCurr];
-            if (!isExchange && !t.is_escrow) { if (t.type === 'income') tInc += valInTarget; if (t.type === 'expense') tExp += valInTarget; }
-            if (t.is_escrow) tEsc += valInTarget;
-        });
-        this.updateText('wallet-try', this.fmt(wTRY, 'TRY')); this.updateText('wallet-usd', this.fmt(wUSD, 'USD')); this.updateText('wallet-eur', this.fmt(wEUR, 'EUR'));
-        const usdValInTry = wUSD * this.liveRates.USD; const eurValInTry = wEUR * this.liveRates.EUR;
-        this.updateText('val-usd', `≈ ${this.fmt(usdValInTry, 'TRY')}`); this.updateText('val-eur', `≈ ${this.fmt(eurValInTry, 'TRY')}`);
-        const totalEquity = (wTRY + (wUSD*this.liveRates.USD) + (wEUR*this.liveRates.EUR)) / this.liveRates[selectedCurr];
-        this.updateText('total-equity', this.fmt(totalEquity, selectedCurr));
-        this.updateText('money-profit', this.fmt(tInc-tExp, selectedCurr)); this.updateText('money-income', this.fmt(tInc, selectedCurr)); this.updateText('money-expense', this.fmt(tExp, selectedCurr)); this.updateText('money-escrow', this.fmt(tEsc, selectedCurr));
-    },
-    filterChartDate: function(period, btn) { document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); this.currentPeriod = period; this.updateChartRender(); },
-    toggleChartData: function(type, cardElement) { this.chartState[type] = !this.chartState[type]; if(this.chartState[type]) cardElement.classList.remove('inactive'); else cardElement.classList.add('inactive'); this.updateChartRender(); },
-    translateCat: function(c) { const d={'rent':'Kira','bills':'Fatura','food':'Yemek','consulate_fee':'Vize Harcı','salary':'Maaş','marketing':'Reklam','exchange_in':'Döviz Giriş','exchange_out':'Döviz Çıkış','escrow_deposit':'Emanet Girişi','visa_service':'Vize Geliri','extra_service':'Ek Hizmet'}; return d[c]||c; },
     deleteTransaction: async function() { if(!this.selectedTxId) return; if(!confirm("Silmek istediğine emin misin?")) return; await window.supabaseClient.from('transactions').delete().eq('id', this.selectedTxId); window.ui.closeModal('modal-transaction-detail'); this.refreshDashboard(); },
+    
+    // KAYIT FONKSİYONLARI
     saveExpense: async function(e) { e.preventDefault(); this.genericSave(e, 'expense', 'modal-expense'); },
-    saveEscrow: async function(e) { e.preventDefault(); const btn=e.target.querySelector('button'); btn.disabled=true; const c=document.getElementById('esc-customer').value, cat=document.getElementById('esc-category').value, a=document.getElementById('esc-amount').value, cur=document.getElementById('esc-currency').value, d=document.getElementById('esc-date').value, desc=document.getElementById('esc-desc').value; await window.supabaseClient.from('transactions').insert({type:'income', category:'escrow_deposit', description:`${c} - ${cat} (${d}) - ${desc}`, amount:a, currency:cur, is_escrow:true}); window.ui.closeModal('modal-escrow'); this.refreshDashboard(); btn.disabled=false; },
-    saveExtraIncome: async function(e) { e.preventDefault(); const btn=e.target.querySelector('button'); btn.disabled=true; const c=document.getElementById('ei-customer').value, cat=document.getElementById('ei-category').value, a=document.getElementById('ei-amount').value, cur=document.getElementById('ei-currency').value, desc=document.getElementById('ei-desc').value; await window.supabaseClient.from('transactions').insert({type:'income', category:'extra_service', description:`${cat} - ${c} (${desc})`, amount:a, currency:cur, is_escrow:false}); window.ui.closeModal('modal-extra-income'); this.refreshDashboard(); btn.disabled=false; },
+    saveEscrow: async function(e) { e.preventDefault(); const btn=e.target.querySelector('button'); btn.disabled=true; const c=document.getElementById('esc-customer').value, cat=document.getElementById('esc-category').value, a=document.getElementById('esc-amount').value, cur=document.getElementById('esc-currency').value, d=document.getElementById('esc-date').value, desc=document.getElementById('esc-desc').value; await window.supabaseClient.from('transactions').insert({type:'income', category:'escrow_deposit', description:`${c} - ${cat.toUpperCase()} (${d}) - ${desc}`, amount:a, currency:cur, is_escrow:true}); window.ui.closeModal('modal-escrow'); this.refreshDashboard(); btn.disabled=false; },
+    saveExtraIncome: async function(e) { e.preventDefault(); const btn=e.target.querySelector('button'); btn.disabled=true; const c=document.getElementById('ei-customer').value, cat=document.getElementById('ei-category').value, a=document.getElementById('ei-amount').value, cur=document.getElementById('ei-currency').value, desc=document.getElementById('ei-desc').value; await window.supabaseClient.from('transactions').insert({type:'income', category:'extra_service', description:`${cat.toUpperCase()} - ${c} (${desc})`, amount:a, currency:cur, is_escrow:false}); window.ui.closeModal('modal-extra-income'); this.refreshDashboard(); btn.disabled=false; },
     saveExchange: async function(e) { e.preventDefault(); const btn=e.target.querySelector('button'); btn.disabled=true; const oa=document.getElementById('ex-amount-out').value, oc=document.getElementById('ex-currency-out').value, ia=document.getElementById('ex-amount-in').value, ic=document.getElementById('ex-currency-in').value, d=document.getElementById('ex-desc').value; await window.supabaseClient.from('transactions').insert([{type:'expense',category:'exchange_out',description:`Döviz Bozum (${d})`,amount:oa,currency:oc},{type:'income',category:'exchange_in',description:`Döviz Giriş (${d})`,amount:ia,currency:ic}]); window.ui.closeModal('modal-exchange'); this.refreshDashboard(); btn.disabled=false; },
     genericSave: async function(e, type, modalId) { const form=e.target; const btn=form.querySelector('button'); btn.disabled=true; const cat=form.querySelector('select').value, desc=form.querySelector('input[type="text"]').value, amt=form.querySelector('input[type="number"]').value, cur=form.querySelectorAll('select')[1].value; await window.supabaseClient.from('transactions').insert([{type:'expense',category:cat,description:desc,amount:amt,currency:cur,is_escrow:false}]); window.ui.closeModal(modalId); form.reset(); this.refreshDashboard(); btn.disabled=false; },
     openEscrowDetails: async function() { window.ui.openModal('modal-escrow-details'); const {data:l}=await window.supabaseClient.from('transactions').select('*').eq('is_escrow',true).order('created_at',{ascending:false}); let h=''; if(l) l.forEach(t=>{h+=`<tr><td>${new Date(t.created_at).toLocaleDateString()}</td><td>${t.description}</td><td style="font-weight:bold; color:#f59e0b;">${this.fmt(t.amount,t.currency)}</td><td><span class="badge badge-escrow">Emanet</span></td></tr>`}); document.getElementById('escrow-list-body').innerHTML=h||'<tr><td colspan="4">Veri yok</td></tr>'; },
+
     updateText: function(id, t) { const el = document.getElementById(id); if(el) el.innerText = t; },
     fmt: function(a, c) { return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: c }).format(a); }
 };
