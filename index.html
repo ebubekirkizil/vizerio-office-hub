@@ -202,29 +202,103 @@
     </div>
 
     <div class="modal-overlay" id="modal-escrow-details">
-        <div class="modal-box" style="width: 850px; max-height: 90vh; overflow:hidden;">
-            <div class="modal-header" style="border:none; padding-bottom:0;">
-                <h3 style="font-size:20px; font-weight:800; letter-spacing:-0.5px;">Emanet Varlık Havuzu</h3>
+        <div class="modal-box" style="width: 850px;">
+            <div class="modal-header">
+                <h3>🟠 Emanet Varlık Yönetimi</h3>
                 <button class="close-btn" onclick="ui.closeModal('modal-escrow-details')">✕</button>
             </div>
             
-            <div class="escrow-tabs-header">
-                <button class="esc-tab-btn active" onclick="accounting.switchEscrowTab('EUR', this)">€ EUR KASA</button>
-                <button class="esc-tab-btn" onclick="accounting.switchEscrowTab('USD', this)">$ USD KASA</button>
-                <button class="esc-tab-btn" onclick="accounting.switchEscrowTab('TRY', this)">₺ TRY KASA</button>
-            </div>
+            <div class="modal-body" style="background: #f8fafc; padding: 25px;">
+                
+                <div class="escrow-grid-premium">
+                    <div class="escrow-card bg-eur">
+                        <div class="esc-label">EUR BAKİYE</div>
+                        <div class="esc-amount" id="esc-total-eur">€0,00</div>
+                        <span class="material-icons-round esc-icon-bg">euro</span>
+                    </div>
+                    <div class="escrow-card bg-usd">
+                        <div class="esc-label">USD BAKİYE</div>
+                        <div class="esc-amount" id="esc-total-usd">$0,00</div>
+                        <span class="material-icons-round esc-icon-bg">attach_money</span>
+                    </div>
+                    <div class="escrow-card bg-try">
+                        <div class="esc-label">TL BAKİYE</div>
+                        <div class="esc-amount" id="esc-total-try">₺0,00</div>
+                        <span class="material-icons-round esc-icon-bg">currency_lira</span>
+                    </div>
+                </div>
 
-            <div class="modal-body" style="background: #f8fafc; padding: 25px;" id="escrow-dynamic-content">
-                <div style="text-align:center; padding:40px; color:#94a3b8;">Yükleniyor...</div>
-            </div>
+                <div style="background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+                    <div style="padding: 15px 20px; border-bottom: 1px solid #f1f5f9; background: #fff;">
+                        <span style="font-weight: 700; color: #64748b; font-size: 12px;">AKTİF EMANET HAREKETLERİ (İşlem için satıra çift tıkla)</span>
+                    </div>
+                    <div class="table-container" style="max-height: 350px; overflow-y: auto;">
+                        <table class="data-table" style="margin:0;">
+                            <thead style="position: sticky; top: 0; background: white; z-index: 10;">
+                                <tr>
+                                    <th style="width: 120px;">Tarih</th>
+                                    <th>Müşteri / Açıklama</th>
+                                    <th style="text-align: right;">Tutar</th>
+                                    <th style="text-align: center; width: 100px;">Durum</th>
+                                </tr>
+                            </thead>
+                            <tbody id="escrow-list-body">
+                                <tr><td colspan="4" style="text-align:center; padding:30px;">Yükleniyor...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-            <div style="padding: 20px; background: #fff; border-top: 1px solid #f1f5f9; text-align: right;">
-                <button class="btn btn-orange" style="width: auto; padding: 12px 30px; font-size: 14px;" onclick="window.accounting.openEscrowActionSimple()">
-                    <span class="material-icons-round">payments</span> EMANET ÇIKIŞI / İADE YAP
-                </button>
+                <div style="margin-top: 15px; text-align: right; color: #94a3b8; font-size: 11px;">
+                    * Çıkış yapmak veya iade etmek istediğiniz işleme tablodan çift tıklayınız.
+                </div>
             </div>
         </div>
     </div>
+
+    <div class="modal-overlay" id="modal-escrow-action">
+        <div class="modal-box" style="width: 500px;">
+            <div class="modal-header">
+                <h3>Emanet Çıkış İşlemi</h3>
+                <button class="close-btn" onclick="ui.closeModal('modal-escrow-action')">✕</button>
+            </div>
+            <div class="modal-body">
+                
+                <div class="target-tx-info">
+                    <div class="target-label">İŞLEM YAPILACAK KAYIT</div>
+                    <div class="target-val" id="act-desc-display">...</div>
+                    <div class="target-val" id="act-amount-display" style="color: #ea580c;">...</div>
+                </div>
+
+                <form id="form-escrow-action">
+                    <input type="hidden" id="act-source-id">
+                    <input type="hidden" id="act-currency">
+                    
+                    <div class="form-group">
+                        <label>Yapılacak İşlem</label>
+                        <select class="form-control" id="act-type" required>
+                            <option value="refund">Müşteriye İade Et (Para Çıkar)</option>
+                            <option value="payment">Konsolosluk / Hizmet Ödemesi Yap (Gider)</option>
+                            <option value="profit">Şirket Kasasına Al (Gelir Kaydet)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Çıkış Tutarı</label>
+                        <input type="number" class="form-control" id="act-amount" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Açıklama / Not</label>
+                        <input type="text" class="form-control" id="act-note" placeholder="Örn: İade yapıldı..." required>
+                    </div>
+
+                    <button type="submit" class="btn btn-orange" style="width: 100%;">İŞLEMİ ONAYLA</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
 
     <div class="modal-overlay" id="modal-extra-income">
         <div class="modal-box" style="width: 650px;">
