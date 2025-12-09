@@ -206,3 +206,69 @@ select.form-control option { padding: 10px; } select.form-control optgroup { fon
 .big-esc-label { font-size: 14px; font-weight: 600; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px; }
 .big-esc-amount { font-size: 42px; font-weight: 900; letter-spacing: -1px; margin-top: 5px; }
 .big-esc-icon { font-size: 48px; opacity: 0.2; }
+
+/* --- V9.0 EMANET PREMIUM TASARIM --- */
+
+/* Yatay Kartlar Izgarası */
+.escrow-grid-premium {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr; /* 3 Eşit Parça */
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+/* Kartın Kendisi */
+.escrow-card {
+    padding: 20px;
+    border-radius: 16px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 20px -5px rgba(0,0,0,0.15); /* Derin Gölge */
+    transition: transform 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.escrow-card:hover { transform: translateY(-3px); }
+
+/* Renk Temaları (Gradient) */
+.bg-eur { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); } /* Mavi Okyanus */
+.bg-usd { background: linear-gradient(135deg, #10b981 0%, #059669 100%); } /* Yeşil Zümrüt */
+.bg-try { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); } /* Mor Asalet */
+
+/* Kart İçi Metinler */
+.esc-label {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.9;
+    margin-bottom: 5px;
+}
+.esc-amount {
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+}
+
+/* Arka Plan İkonu (Dekoratif) */
+.esc-icon-bg {
+    position: absolute;
+    right: -10px;
+    bottom: -10px;
+    font-size: 80px;
+    opacity: 0.15;
+    transform: rotate(-15deg);
+}
+
+/* İşlem Seçim Modalı için Bilgi Kutusu */
+.target-tx-info {
+    background: #fff7ed;
+    border: 1px solid #ffedd5;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+.target-label { font-size: 11px; color: #ea580c; font-weight: 700; text-transform: uppercase; }
+.target-val { font-size: 15px; color: #1e293b; font-weight: 600; margin-top: 3px; }
