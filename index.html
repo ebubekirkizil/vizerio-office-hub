@@ -372,6 +372,56 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="modal-escrow-action">
+        <div class="modal-box" style="width: 550px;">
+            <div class="modal-header">
+                <h3>Emanet İşlemi</h3>
+                <button class="close-btn" onclick="ui.closeModal('modal-escrow-action')">✕</button>
+            </div>
+            <div class="modal-body" style="padding: 25px;">
+                
+                <div style="background: #fff7ed; border: 1px solid #ffedd5; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                    <div style="font-size: 11px; font-weight: 700; color: #ea580c; text-transform: uppercase;">İŞLEM YAPILACAK KAYIT</div>
+                    <div id="act-desc-display" style="font-size: 14px; font-weight: 600; color: #1e293b; margin-top: 5px;">...</div>
+                    <div id="act-amount-display" style="font-size: 18px; font-weight: 800; color: #ea580c; margin-top: 2px;">...</div>
+                </div>
+
+                <form id="form-escrow-action">
+                    <input type="hidden" id="act-source-id">
+                    <input type="hidden" id="act-currency">
+                    
+                    <div class="form-group">
+                        <label>Ne Yapmak İstiyorsunuz?</label>
+                        <select class="form-control" id="act-type" required>
+                            <option value="refund">Müşteriye İade Et (Para Çıkışı)</option>
+                            <option value="payment">Konsolosluk / Hizmet Ödemesi Yap (Gider)</option>
+                            <option value="profit">Şirket Kasasına Al (Gelir Kaydet)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tutar</label>
+                        <input type="number" class="form-control" id="act-amount" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Açıklama / Not</label>
+                        <input type="text" class="form-control" id="act-note" placeholder="Örn: İade yapıldı..." required>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button type="button" class="btn btn-red" style="width: 40%;" onclick="accounting.deleteEscrowTransaction()">
+                            <span class="material-icons-round">delete</span> SİL (HATALI GİRİŞ)
+                        </button>
+                        <button type="submit" class="btn btn-orange" style="width: 60%;">
+                            <span class="material-icons-round">check_circle</span> İŞLEMİ ONAYLA
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
     <script src="js/supabase.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/auth.js"></script>
