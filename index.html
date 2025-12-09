@@ -202,25 +202,26 @@
     </div>
 
     <div class="modal-overlay" id="modal-escrow-details">
-        <div class="modal-box" style="width: 800px;">
-            <div class="modal-header"><h3>Emanet Havuzu</h3><button class="close-btn" onclick="ui.closeModal('modal-escrow-details')">✕</button></div>
-            <div class="modal-body" style="background: #f8fafc;">
-                <div class="escrow-grid-premium">
-                    <div class="escrow-card bg-eur"><div class="esc-amount" id="esc-total-eur">€0</div><div style="font-size:11px;">EUR BAKİYE</div></div>
-                    <div class="escrow-card bg-usd"><div class="esc-amount" id="esc-total-usd">$0</div><div style="font-size:11px;">USD BAKİYE</div></div>
-                    <div class="escrow-card bg-try"><div class="esc-amount" id="esc-total-try">₺0</div><div style="font-size:11px;">TL BAKİYE</div></div>
-                </div>
-                <div style="background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden;">
-                    <div class="table-container" style="max-height: 300px; overflow-y: auto;">
-                        <table class="data-table" style="margin:0;">
-                            <thead><tr><th>Tarih</th><th>İşlem</th><th>Tutar</th></tr></thead>
-                            <tbody id="escrow-list-body"></tbody>
-                        </table>
-                    </div>
-                </div>
-                <div style="margin-top:20px; text-align:right;">
-                    <button class="btn btn-orange" onclick="window.accounting.openEscrowActionSimple()">EMANET ÇIKIŞI / İADE</button>
-                </div>
+        <div class="modal-box" style="width: 850px; max-height: 90vh; overflow:hidden;">
+            <div class="modal-header" style="border:none; padding-bottom:0;">
+                <h3 style="font-size:20px; font-weight:800; letter-spacing:-0.5px;">Emanet Varlık Havuzu</h3>
+                <button class="close-btn" onclick="ui.closeModal('modal-escrow-details')">✕</button>
+            </div>
+            
+            <div class="escrow-tabs-header">
+                <button class="esc-tab-btn active" onclick="accounting.switchEscrowTab('EUR', this)">€ EUR KASA</button>
+                <button class="esc-tab-btn" onclick="accounting.switchEscrowTab('USD', this)">$ USD KASA</button>
+                <button class="esc-tab-btn" onclick="accounting.switchEscrowTab('TRY', this)">₺ TRY KASA</button>
+            </div>
+
+            <div class="modal-body" style="background: #f8fafc; padding: 25px;" id="escrow-dynamic-content">
+                <div style="text-align:center; padding:40px; color:#94a3b8;">Yükleniyor...</div>
+            </div>
+
+            <div style="padding: 20px; background: #fff; border-top: 1px solid #f1f5f9; text-align: right;">
+                <button class="btn btn-orange" style="width: auto; padding: 12px 30px; font-size: 14px;" onclick="window.accounting.openEscrowActionSimple()">
+                    <span class="material-icons-round">payments</span> EMANET ÇIKIŞI / İADE YAP
+                </button>
             </div>
         </div>
     </div>
