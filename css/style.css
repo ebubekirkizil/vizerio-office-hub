@@ -141,3 +141,68 @@ select.form-control option { padding: 10px; } select.form-control optgroup { fon
 @media (max-width: 1024px) { .wallet-grid { grid-template-columns: 1fr 1fr; } .wallet-item { border-bottom: 1px solid #e2e8f0; } .wallet-item:nth-child(2) { border-right: none; } }
 @media (max-width: 768px) { .sidebar { position: fixed; height: 100%; left: -260px; } .top-header { position: relative; top: auto; } .wallet-grid { grid-template-columns: 1fr; } .income-selection-grid { grid-template-columns: 1fr; } }
 .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1900; display: none; opacity: 0; transition: opacity 0.3s; } .sidebar-overlay.active { display: block; opacity: 1; }
+
+/* --- EMANET PREMIUM TABS & CARDS (V9.1) --- */
+
+/* Sekme Başlıkları Alanı */
+.escrow-tabs-header {
+    display: flex;
+    gap: 10px;
+    padding: 0 30px 20px 30px; /* Header ile birleşik gibi dursun */
+    background: #fff;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+/* Sekme Butonları */
+.esc-tab-btn {
+    padding: 10px 20px;
+    border: none;
+    background: #f1f5f9;
+    color: #64748b;
+    font-weight: 700;
+    font-size: 13px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.esc-tab-btn:hover {
+    background: #e2e8f0;
+    color: #334155;
+}
+/* Aktif Sekme Rengi */
+.esc-tab-btn.active {
+    background: #f59e0b; /* Turuncu (Emanet rengi) */
+    color: white;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Büyük Bakiye Kartı (Tekil) */
+.big-escrow-card {
+    padding: 30px;
+    border-radius: 20px;
+    color: white;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+/* Arka Plan Desen Efekti */
+.big-escrow-card::after {
+    content: ''; position: absolute; top: -50%; right: -20%; width: 300px; height: 300px;
+    background: rgba(255,255,255,0.1); border-radius: 50%; pointer-events: none;
+}
+
+.big-bg-eur { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
+.big-bg-usd { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+.big-bg-try { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); }
+
+.big-esc-label { font-size: 14px; font-weight: 600; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px; }
+.big-esc-amount { font-size: 42px; font-weight: 900; letter-spacing: -1px; margin-top: 5px; }
+.big-esc-icon { font-size: 48px; opacity: 0.2; }
