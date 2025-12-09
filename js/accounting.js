@@ -224,11 +224,109 @@ window.accounting = {
         this.refreshDashboard(); 
     },
     
-    // Diğerleri
-    openEscrowDetails: function(){ window.ui.openModal('modal-escrow-details'); this.renderEscrowTable(); },
-    renderEscrowTable: function(){ /* Emanet Tablosu Kodu */ },
-    openEscrowActionSimple: async function(){ /* ... */ }
-};
+   // js/accounting.js içine eklenecek YENİ EMANET FONKSİYONLARI
+
+    // EMANET BAKİYELERİNİ TUTACAK DEĞİŞKENLER
+    escrowTotals: { EUR: 0, USD: 0, TRY: 0 },
+    activeEscrowTab: 'EUR', // Varsayılan sekme
+
+    // 1. MODALI AÇ VE VERİLERİ HAZIRLA
+    openEscrowDetails: function() {
+        window.ui.openModal('modal-escrow-details');
+        
+        // Önce tüm emanet bakiyelerini hesapla
+        this.escrowTotals = { EUR: 0, USD: 0, TRY: 0 };
+        this.allTransactions.filter(t => t.is_escrow).forEach(t => {
+            const amt = parseFloat(t.amount);
+            if(t.type === 'income') this.escrowTotals[t.currency] += amt;
+            else this.escrowTotals[t.currency] -= amt;
+        });
+
+        // Varsayılan sekmeyi aç (İlk açılışta EUR)
+        this.switchEscrowTab(this.activeEscrowTab);
+    },
+
+    // 2. SEKME DEĞİŞTİRME VE İÇERİK ÇİZME
+    switchEscrowTab: function(currency, btnElement) {
+        this.activeEscrowTab = currency;
+
+        // Butonların aktiflik durumunu güncelle
+        if(btnElement) {
+            document.querySelectorAll('.esc-tab-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+        }
+
+        const container = document.getElementById('escrow-dynamic-content');
+        if(!container) return;
+
+        // A. BÜYÜK KART HTML'İ
+        const bgClass = `big-bg-${currency.toLowerCase()}`;
+        const icon = currency === 'EUR' ? 'euro' : (currency === 'USD' ? 'attach_money' : 'currency_lira');
+        
+        let html = `
+            <div class="big-escrow-card ${bgClass}">
+                <div>
+                    <div class="big-esc-label">GÜNCEL ${currency} BAKİYESİ</div>
+                    <div class="big-esc-amount">${this.fmt(this.escrowTotals[currency], currency)}</div>
+                </div>
+                <span class="material-icons-round big-esc-icon">${icon}</span>
+            </div>
+        `;
+
+        // B. TABLO HTML'İ (Sadece seçili para birimi)
+        const filteredList = this.allTransactions.filter(t => t.is_escrow && t.currency === currency);
+        
+        html += `
+            <div style="background: white; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: var(--shadow);">
+                <div style="padding:15px 20px; border-bottom:1px solid #f1f5f9; font-weight:700; color:#1e293b; font-size:14px;">
+                    ${currency} Hesap Hareketleri
+                </div>
+                <div class="table-container" style="max-height: 350px; overflow-y: auto;">
+                    <table class="data-table" style="margin:0;">
+                        <thead style="position:sticky; top:0; background:#fff; z-index:1;">
+                            <tr>
+                                <th style="padding:15px 20px;">Tarih</th>
+                                <th style="padding:15px 20px;">Açıklama</th>
+                                <th style="padding:15px 20px; text-align:right;">Tutar</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+
+        if(filteredList.length === 0) {
+             html += `<tr><td colspan="3" style="text-align:center; padding:40px; color:#94a3b8; font-weight:500;">Bu para biriminde henüz işlem yok.</td></tr>`;
+        } else {
+            filteredList.forEach(t => {
+                const date = new Date(t.created_at).toLocaleDateString('tr-TR', {day:'numeric', month:'short', year:'2-digit', hour:'2-digit', minute:'2-digit'});
+                const txt = t.type === 'income' ? 'text-green' : 'text-red';
+                const sym = t.type === 'income' ? '+' : '-';
+                html += `
+                    <tr style="border-bottom:1px solid #f1f5f9;">
+                        <td style="padding:15px 20px; color:#64748b; font-size:13px;">${date}</td>
+                        <td style="padding:15px 20px; font-weight:600; color:#334155;">${t.description}</td>
+                        <td style="padding:15px 20px; text-align:right; font-weight:800; font-size:15px;" class="${txt}">
+                            ${sym} ${this.fmt(t.amount, t.currency)}
+                        </td>
+                    </tr>`;
+            });
+        }
+        html += `</tbody></table></div></div>`;
+
+        // İçeriği bas
+        container.innerHTML = html;
+    },
+
+    // Basit Çıkış (Eski fonksiyonu koruyoruz, butona bağlı)
+    openEscrowActionSimple: async function() {
+        const amt = prompt(`Emanet Çıkış/İade Tutarı (${this.activeEscrowTab}):`);
+        if(amt) {
+            await window.supabaseClient.from('transactions').insert({
+                type: 'expense', category: 'escrow_refund', description: 'Hızlı Emanet Çıkışı/İade', 
+                amount: amt, currency: this.activeEscrowTab, is_escrow: true 
+            });
+            this.refreshDashboard();
+            setTimeout(() => this.openEscrowDetails(), 500);
+        }
+    },
 
 window.addEventListener('load', () => { 
     window.accounting.refreshDashboard(); 
