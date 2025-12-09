@@ -1,15 +1,15 @@
-// Vizerio Office - Supabase Bağlantı Modülü
-// Bu dosya veritabanı ile konuşmamızı sağlar.
+// js/supabase.js - BAĞLANTI MODÜLÜ (FİNAL)
 
-// Supabase kütüphanesini HTML'den (CDN) alacağız, o yüzden burada tanımlıyoruz.
+// 1. Proje Adresin (Bu doğru, dokunma)
 const supabaseUrl = 'https://dgvxzlfeagwzmyjqhupu.supabase.co';
-const supabaseKey = 'sb_publishable_V8gPM0PPL0RBLl9nVUmBGQ_uCEKKcOC';
+
+// 2. BURAYA 'Legacy anon' SEKMEKİNDEN ALDIĞIN 'eyJ...' İLE BAŞLAYAN KODU YAPIŞTIR
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRndnh6bGZlYWd3em15anFodXB1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDEyNDEsImV4cCI6MjA3OTU3NzI0MX0.rwVR89JBTeue0cAtbujkoIBbqg3VjAEsLesXPlcr078';
 
 // Bağlantıyı başlat
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// Bağlantıyı dışarı aç (diğer dosyalar kullanabilsin diye)
-// Not: Modüler yapı kullandığımız için window objesine atıyoruz.
+// Global erişim
 window.supabaseClient = supabase;
 
-console.log("🟢 Supabase Bağlantısı Hazır.");
+console.log("🟢 Supabase Bağlantısı: Legacy Anahtar ile Kuruldu.");
