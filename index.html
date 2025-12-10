@@ -30,8 +30,7 @@
             </nav>
         </aside>
 
-                        <section id="section-settings" class="content-section">
-                
+                                    <section id="section-settings" class="content-section">
                 <h2 style="margin-bottom: 25px; font-size: 24px;">Hesap ve Sistem Ayarları</h2>
 
                 <div class="settings-tabs">
@@ -45,16 +44,14 @@
 
                 <div id="set-personal" class="settings-content active">
                     <div class="settings-grid">
-                        
                         <div class="card" style="text-align: center;">
                             <div class="profile-upload-wrapper">
-                                <img src="https://ui-avatars.com/api/?name=Admin&background=random" id="profile-img-preview" class="profile-img-big">
-                                <div class="upload-icon" onclick="document.getElementById('profile-upload-input').click()">
-                                    <span class="material-icons-round">photo_camera</span>
-                                </div>
+                                <img src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff" id="profile-img-preview" class="profile-img-big">
+                                <div class="upload-icon" onclick="document.getElementById('profile-upload-input').click()"><span class="material-icons-round">photo_camera</span></div>
                                 <input type="file" id="profile-upload-input" hidden accept="image/*" onchange="ui.handleProfileUpload(this)">
                             </div>
                             <h3 id="profile-name-display" style="margin: 10px 0 5px 0;">Yetkili Kullanıcı</h3>
+                            <div style="font-size:12px; color:#64748b; margin-bottom:10px;">IP: <span id="current-user-ip">Yükleniyor...</span></div>
                             <span class="badge badge-gray">Yönetici</span>
                         </div>
 
@@ -64,11 +61,15 @@
                                 <div class="form-group half"><label>Adınız</label><input type="text" class="form-control" id="p-name" value="Yetkili"></div>
                                 <div class="form-group half"><label>Soyadınız</label><input type="text" class="form-control" id="p-surname" value="Kullanıcı"></div>
                             </div>
-                            <div class="form-group"><label>E-Posta Adresi</label><input type="email" class="form-control" id="p-email" disabled value="..."></div>
+                            <div class="form-group"><label>E-Posta (Sabit Kimlik)</label><input type="email" class="form-control" id="p-email" disabled style="background:#f1f5f9; color:#64748b;"></div>
                             <div style="text-align:right;"><button class="btn btn-blue" style="width:auto;" onclick="ui.saveProfile()">Bilgileri Güncelle</button></div>
                             
-                            <h4 style="margin-top:30px; border-bottom:1px solid #f1f5f9; padding-bottom:15px; color:#ef4444;">Güvenlik</h4>
-                            <div class="form-group"><label>Yeni Şifre</label><input type="password" class="form-control" id="p-new-pass" placeholder="******"></div>
+                            <h4 style="margin-top:30px; border-bottom:1px solid #f1f5f9; padding-bottom:15px; color:#ef4444;">Güvenlik (Şifre Değiştir)</h4>
+                            <div class="form-group"><label>Eski Şifreniz</label><input type="password" class="form-control" id="p-old-pass"></div>
+                            <div class="form-row">
+                                <div class="form-group half"><label>Yeni Şifre</label><input type="password" class="form-control" id="p-new-pass"></div>
+                                <div class="form-group half"><label>Yeni Şifre (Tekrar)</label><input type="password" class="form-control" id="p-confirm-pass"></div>
+                            </div>
                             <div style="text-align:right;"><button class="btn btn-red" style="width:auto;" onclick="ui.changePassword()">Şifreyi Değiştir</button></div>
                         </div>
                     </div>
@@ -76,24 +77,22 @@
 
                 <div id="set-system" class="settings-content">
                     <div class="settings-grid">
-                        
                         <div class="card">
                             <div style="display:flex; gap:15px; align-items:center; margin-bottom:20px;">
                                 <div style="width:50px; height:50px; background:#eff6ff; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#2563eb;">
                                     <span class="material-icons-round" style="font-size:28px;">cloud_download</span>
                                 </div>
                                 <div>
-                                    <h4 style="margin:0;">Veri Yedekleme</h4>
-                                    <div style="font-size:13px; color:#64748b;">Tüm finansal verileri ve müşteri kayıtlarını Excel (CSV) formatında bilgisayarınıza indirin.</div>
+                                    <h4 style="margin:0;">Güvenli Veri Yedekleme</h4>
+                                    <div style="font-size:13px; color:#64748b;">Tüm finansal verileri Excel formatında indirir.</div>
                                 </div>
                             </div>
                             <button class="btn btn-blue" onclick="accounting.downloadBackup()">YEDEĞİ İNDİR (EXCEL)</button>
                         </div>
-
-                        </div>
+                    </div>
                 </div>
-
             </section>
+
 
         <main class="main-content">
             
