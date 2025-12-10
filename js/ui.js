@@ -34,6 +34,53 @@ window.ui = {
     updateCurrency: function() { console.log("Para birimi güncellendi"); }
 };
 
+    // --- AYARLAR SAYFASI FONKSİYONLARI ---
+    switchSettingsTab: function(tabName, btn) {
+        // İçerikleri Gizle/Göster
+        document.querySelectorAll('.settings-content').forEach(el => el.classList.remove('active'));
+        document.getElementById('set-' + tabName).classList.add('active');
+        
+        // Butonları Güncelle
+        document.querySelectorAll('.settings-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    },
+
+    handleProfileUpload: function(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Görseli önizle
+                document.getElementById('profile-img-preview').src = e.target.result;
+                // (Burada istersen Supabase Storage'a yükleme kodu yazılabilir, şimdilik yerel önizleme)
+                localStorage.setItem('user_profile_pic', e.target.result); // Basit Kayıt
+                alert("Profil fotoğrafı güncellendi!");
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    },
+
+    saveProfile: function() {
+        const name = document.getElementById('p-name').value;
+        const surname = document.getElementById('p-surname').value;
+        // Basitçe localStorage'a kaydet (Supabase Auth meta verisine de yazılabilir)
+        localStorage.setItem('user_name', name + ' ' + surname);
+        document.getElementById('profile-name-display').innerText = name + ' ' + surname;
+        alert("✅ Profil bilgileri kaydedildi.");
+    },
+
+    changePassword: async function() {
+        const newPass = document.getElementById('p-new-pass').value;
+        if(!newPass) return alert("Lütfen yeni şifreyi giriniz.");
+        
+        const { error } = await window.supabaseClient.auth.updateUser({ password: newPass });
+        
+        if(error) alert("Hata: " + error.message);
+        else {
+            alert("✅ Şifreniz başarıyla değiştirildi.");
+            document.getElementById('p-new-pass').value = '';
+        }
+    }
+
 // --- DOKUNMATİK (SWIPE) ALGILAYICI ---
 document.addEventListener('DOMContentLoaded', () => {
     
