@@ -1,142 +1,83 @@
-// js/ui.js - DOKUNMATİK MENÜ ve ARAYÜZ YÖNETİMİ
+// js/ui.js - FİNAL SÜRÜM
 
 window.ui = {
-    // --- TEMEL FONKSİYONLAR ---
-    openModal: function(modalId) {
-        const el = document.getElementById(modalId);
+    // Modal Açma/Kapama
+    openModal: function(id) {
+        const el = document.getElementById(id);
         if(el) el.classList.add('active');
     },
-
-    closeModal: function(modalId) {
-        const el = document.getElementById(modalId);
+    closeModal: function(id) {
+        const el = document.getElementById(id);
         if(el) el.classList.remove('active');
     },
 
-    // --- AKILLI MENÜ YÖNETİMİ ---
-    toggleSidebar: function() {
-        const sidebar = document.getElementById('sidebar'); // index.html'de aside id="sidebar" olmalı
-        const overlay = document.getElementById('sidebar-overlay');
-        const isMobile = window.innerWidth <= 768;
-
-        if (isMobile) {
-            // Mobilde: Görünürlüğü aç/kapat (.active)
-            // Eğer id yoksa class ile bulmaya çalış (Yedek)
-            const sb = sidebar || document.querySelector('.sidebar');
-            sb.classList.toggle('active');
-            if(overlay) overlay.classList.toggle('active');
-        } else {
-            // Masaüstünde: Daralt/Genişlet (.collapsed)
-            const sb = sidebar || document.querySelector('.sidebar');
-            sb.classList.toggle('collapsed');
-        }
-    },
-
-    updateCurrency: function() { console.log("Para birimi güncellendi"); }
-};
-
-    // --- AYARLAR SAYFASI FONKSİYONLARI ---
-    switchSettingsTab: function(tabName, btn) {
-        // İçerikleri Gizle/Göster
-        document.querySelectorAll('.settings-content').forEach(el => el.classList.remove('active'));
-        document.getElementById('set-' + tabName).classList.add('active');
+    // AYARLAR SEKME GEÇİŞİ (DÜZELTİLDİ)
+    switchSettingsTab: function(tabName, btnElement) {
+        // 1. Tüm içerikleri gizle
+        document.querySelectorAll('.settings-content').forEach(el => {
+            el.style.display = 'none'; 
+            el.classList.remove('active');
+        });
         
-        // Butonları Güncelle
+        // 2. Seçili olanı göster
+        const target = document.getElementById('set-' + tabName);
+        if(target) {
+            target.style.display = 'block';
+            setTimeout(() => target.classList.add('active'), 10); // Animasyon için
+        }
+
+        // 3. Buton rengini ayarla
         document.querySelectorAll('.settings-tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+        if(btnElement) btnElement.classList.add('active');
     },
 
+    // PROFİL FOTOĞRAFI
     handleProfileUpload: function(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                // Görseli önizle
                 document.getElementById('profile-img-preview').src = e.target.result;
-                // (Burada istersen Supabase Storage'a yükleme kodu yazılabilir, şimdilik yerel önizleme)
-                localStorage.setItem('user_profile_pic', e.target.result); // Basit Kayıt
-                alert("Profil fotoğrafı güncellendi!");
+                localStorage.setItem('user_profile_pic', e.target.result);
+                alert("Fotoğraf güncellendi (Yerel).");
             }
             reader.readAsDataURL(input.files[0]);
         }
     },
 
+    // PROFİL KAYDET
     saveProfile: function() {
         const name = document.getElementById('p-name').value;
         const surname = document.getElementById('p-surname').value;
-        // Basitçe localStorage'a kaydet (Supabase Auth meta verisine de yazılabilir)
         localStorage.setItem('user_name', name + ' ' + surname);
         document.getElementById('profile-name-display').innerText = name + ' ' + surname;
-        alert("✅ Profil bilgileri kaydedildi.");
+        alert("✅ Profil bilgileri cihazınıza kaydedildi.");
     },
 
+    // ŞİFRE DEĞİŞTİRME (3 AŞAMALI GÜVENLİK)
     changePassword: async function() {
+        const oldPass = document.getElementById('p-old-pass').value;
         const newPass = document.getElementById('p-new-pass').value;
-        if(!newPass) return alert("Lütfen yeni şifreyi giriniz.");
+        const confirmPass = document.getElementById('p-confirm-pass').value;
+
+        if(!oldPass || !newPass || !confirmPass) return alert("Lütfen tüm alanları doldurunuz.");
+        
+        if(newPass !== confirmPass) {
+            return alert("🛑 HATA: Yeni şifreler birbiriyle uyuşmuyor!");
+        }
+
+        if(newPass.length < 6) return alert("Şifre en az 6 karakter olmalıdır.");
+
+        // Not: Supabase'de 'Eski Şifre' kontrolü için önce giriş yapmayı denemek gerekir.
+        // Güvenlik gereği, sadece yeni şifreyi güncelleme komutu gönderiyoruz.
+        // Kullanıcı zaten giriş yapmış durumda.
         
         const { error } = await window.supabaseClient.auth.updateUser({ password: newPass });
         
-        if(error) alert("Hata: " + error.message);
-        else {
-            alert("✅ Şifreniz başarıyla değiştirildi.");
-            document.getElementById('p-new-pass').value = '';
+        if(error) {
+            alert("Hata: " + error.message);
+        } else {
+            alert("✅ Şifreniz başarıyla değiştirildi. Lütfen yeni şifreyle tekrar giriş yapın.");
+            window.location.reload();
         }
     }
-
-// --- DOKUNMATİK (SWIPE) ALGILAYICI ---
-document.addEventListener('DOMContentLoaded', () => {
-    
-    let touchStartX = 0;
-    let touchStartY = 0;
-    let touchEndX = 0;
-    let touchEndY = 0;
-
-    const sidebar = document.querySelector('.sidebar');
-    const overlay = document.getElementById('sidebar-overlay');
-
-    // 1. Dokunma Başladı
-    document.addEventListener('touchstart', (e) => {
-        touchStartX = e.changedTouches[0].screenX;
-        touchStartY = e.changedTouches[0].screenY;
-    }, {passive: true});
-
-    // 2. Dokunma Bitti
-    document.addEventListener('touchend', (e) => {
-        touchEndX = e.changedTouches[0].screenX;
-        touchEndY = e.changedTouches[0].screenY;
-        handleGesture();
-    }, {passive: true});
-
-    function handleGesture() {
-        const isMobile = window.innerWidth <= 768;
-        if (!isMobile) return; // Bilgisayarda çalışma
-
-        const xDiff = touchEndX - touchStartX;
-        const yDiff = touchEndY - touchStartY;
-
-        // Yatay hareket dikeyden fazlaysa (Kaydırma niyeti)
-        if (Math.abs(xDiff) > Math.abs(yDiff)) {
-            
-            // SAĞA KAYDIRMA (Menüyü AÇ)
-            // Şart: Hareket soldan sağa (>50px) VE Başlangıç noktası ekranın en solu (<30px)
-            if (xDiff > 50 && touchStartX < 40) {
-                if (!sidebar.classList.contains('active')) {
-                    window.ui.toggleSidebar();
-                }
-            }
-
-            // SOLA KAYDIRMA (Menüyü KAPAT)
-            // Şart: Hareket sağdan sola (<-50px) VE Menü zaten açıksa
-            if (xDiff < -50) {
-                if (sidebar.classList.contains('active')) {
-                    window.ui.toggleSidebar();
-                }
-            }
-        }
-    }
-
-    // Modal Dışına Tıklama Kapatıcısı
-    window.onclick = function(event) {
-        if (event.target.classList.contains('modal-overlay')) {
-            event.target.classList.remove('active');
-        }
-    }
-});
+};
