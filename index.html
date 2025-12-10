@@ -21,12 +21,94 @@
                 <div class="menu-item" onclick="app.switchTab('crm')">
                     <span class="material-icons-round">people</span> Operasyon
                 </div>
+                                <div class="menu-item" onclick="app.switchTab('settings')">
+                    <span class="material-icons-round">settings</span> Ayarlar
+                </div>
                 <div class="menu-item" style="margin-top:auto; color:#ef4444;" onclick="window.auth.logout()">
                     <span class="material-icons-round">logout</span> Çıkış
                 </div>
             </nav>
         </aside>
 
+            <section id="section-settings" class="content-section">
+                
+                <h2 style="margin-bottom: 25px; font-size: 24px;">Hesap ve Sistem Ayarları</h2>
+
+                <div class="settings-tabs">
+                    <button class="settings-tab-btn active" onclick="ui.switchSettingsTab('personal', this)">
+                        <span class="material-icons-round">person</span> Kişisel Profil
+                    </button>
+                    <button class="settings-tab-btn" onclick="ui.switchSettingsTab('system', this)">
+                        <span class="material-icons-round">dvr</span> Sistem & Veri
+                    </button>
+                </div>
+
+                <div id="set-personal" class="settings-content active">
+                    <div class="settings-grid">
+                        
+                        <div class="card" style="text-align: center;">
+                            <div class="profile-upload-wrapper">
+                                <img src="https://ui-avatars.com/api/?name=Admin&background=random" id="profile-img-preview" class="profile-img-big">
+                                <div class="upload-icon" onclick="document.getElementById('profile-upload-input').click()">
+                                    <span class="material-icons-round">photo_camera</span>
+                                </div>
+                                <input type="file" id="profile-upload-input" hidden accept="image/*" onchange="ui.handleProfileUpload(this)">
+                            </div>
+                            <h3 id="profile-name-display" style="margin: 10px 0 5px 0;">Yetkili Kullanıcı</h3>
+                            <span class="badge badge-gray">Yönetici</span>
+                        </div>
+
+                        <div class="card">
+                            <h4 style="margin-top:0; border-bottom:1px solid #f1f5f9; padding-bottom:15px;">Kimlik Bilgileri</h4>
+                            <div class="form-row">
+                                <div class="form-group half"><label>Adınız</label><input type="text" class="form-control" id="p-name" value="Yetkili"></div>
+                                <div class="form-group half"><label>Soyadınız</label><input type="text" class="form-control" id="p-surname" value="Kullanıcı"></div>
+                            </div>
+                            <div class="form-group"><label>E-Posta Adresi</label><input type="email" class="form-control" id="p-email" disabled value="..."></div>
+                            <div style="text-align:right;"><button class="btn btn-blue" style="width:auto;" onclick="ui.saveProfile()">Bilgileri Güncelle</button></div>
+                            
+                            <h4 style="margin-top:30px; border-bottom:1px solid #f1f5f9; padding-bottom:15px; color:#ef4444;">Güvenlik</h4>
+                            <div class="form-group"><label>Yeni Şifre</label><input type="password" class="form-control" id="p-new-pass" placeholder="******"></div>
+                            <div style="text-align:right;"><button class="btn btn-red" style="width:auto;" onclick="ui.changePassword()">Şifreyi Değiştir</button></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="set-system" class="settings-content">
+                    <div class="settings-grid">
+                        
+                        <div class="card">
+                            <div style="display:flex; gap:15px; align-items:center; margin-bottom:20px;">
+                                <div style="width:50px; height:50px; background:#eff6ff; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#2563eb;">
+                                    <span class="material-icons-round" style="font-size:28px;">cloud_download</span>
+                                </div>
+                                <div>
+                                    <h4 style="margin:0;">Veri Yedekleme</h4>
+                                    <div style="font-size:13px; color:#64748b;">Tüm finansal verileri ve müşteri kayıtlarını Excel (CSV) formatında indir.</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-blue" onclick="accounting.downloadBackup()">YEDEĞİ İNDİR (EXCEL)</button>
+                        </div>
+
+                        <div class="card" style="border:1px solid #fecaca;">
+                            <div style="display:flex; gap:15px; align-items:center; margin-bottom:20px;">
+                                <div style="width:50px; height:50px; background:#fef2f2; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#dc2626;">
+                                    <span class="material-icons-round" style="font-size:28px;">delete_forever</span>
+                                </div>
+                                <div>
+                                    <h4 style="margin:0; color:#dc2626;">Sistemi Sıfırla</h4>
+                                    <div style="font-size:13px; color:#64748b;">Tüm işlemleri ve kayıtları kalıcı olarak siler. Bu işlem geri alınamaz.</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-red" onclick="accounting.resetSystem()">TÜM VERİLERİ SİL</button>
+                        </div>
+
+                    </div>
+                </div>
+
+            </section>
+
+        
         <main class="main-content">
             
             <header class="top-header">
