@@ -1,4 +1,4 @@
-// js/accounting.js - VIZERIO PRO (VERİ AKIŞI TAMİR EDİLDİ)
+// js/accounting.js - VIZERIO PRO (HARF DUYARLILIĞI DÜZELTİLDİ)
 
 window.accounting = {
     
@@ -10,66 +10,50 @@ window.accounting = {
     escrowTotals: { EUR: 0, USD: 0, TRY: 0 },
     activeEscrowTab: 'EUR',
     
-    // 1. SİSTEMİ BAŞLAT (HATA YAKALAYICI MOD)
+    // 1. SİSTEMİ BAŞLAT
     refreshDashboard: async function() {
-        console.log("🚀 Veri Çekme Başlatıldı...");
-        
-        // A. Bağlantı Motoru Kontrolü
-        if (!window.supabaseClient) {
-            alert("KRİTİK HATA: Veritabanı bağlantı dosyası (supabase.js) yüklenemedi veya hatalı!");
-            return;
-        }
+        console.log("🚀 Veriler Güncelleniyor...");
+        if (!window.supabaseClient) return alert("HATA: Veritabanı bağlantısı yok!");
 
-        // B. Kur Çekimi (Hata olsa da devam et)
         try {
             const res = await fetch('https://api.exchangerate-api.com/v4/latest/TRY');
             const d = await res.json();
             this.liveRates = { TRY: 1, USD: (1/d.rates.USD), EUR: (1/d.rates.EUR) };
             if(document.getElementById('live-rates-display')) 
                 document.getElementById('live-rates-display').innerText = `USD: ${this.liveRates.USD.toFixed(2)} | EUR: ${this.liveRates.EUR.toFixed(2)}`;
-        } catch (e) { console.log("Kur servisi yanıt vermedi, varsayılan kurlar kullanılıyor."); }
+        } catch (e) {}
 
-        // C. VERİLERİ ÇEK (Supabase)
         const { data: list, error } = await window.supabaseClient
             .from('transactions')
             .select('*')
             .order('created_at', { ascending: false });
 
-        // D. HATA KONTROLÜ (ÇOK ÖNEMLİ)
         if (error) {
-            console.error("VERİTABANI HATASI:", error);
-            // Hatayı tabloya yazdır ki görelim
-            const tbody = document.getElementById('transactions-body');
-            if(tbody) tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:30px; color:red; font-weight:bold;">VERİ ALINAMADI: ${error.message} (Kod: ${error.code})</td></tr>`;
-            // Ayrıca uyarı ver
-            alert("Veritabanı Hatası: " + error.message + "\n\nLütfen API Anahtarını ve İnternet bağlantını kontrol et.");
-            return;
-        }
-
-        // E. VERİ YOKSA
-        if (!list || list.length === 0) {
-            this.allTransactions = [];
-            document.getElementById('transactions-body').innerHTML = `<tr><td colspan="4" style="text-align:center; padding:30px; color:#64748b;">Henüz hiç kayıt yok.</td></tr>`;
-            // Boş da olsa hesaplamaları sıfırla
-            this.calculateStats([]);
-            this.updateChartRender();
+            console.error("Veri Hatası:", error);
             return;
         }
         
-        // F. HER ŞEY YOLUNDAYSA
-        this.allTransactions = list;
+        this.allTransactions = list || [];
         this.calculateStats(this.allTransactions);
         this.renderTable(this.allTransactions);
-        
-        // Kart Durumlarını Güncelle
         this.updateCardStatus('profit'); 
         this.updateCardStatus('income'); 
         this.updateCardStatus('expense');
-        
         setTimeout(() => this.updateChartRender(), 200);
     },
 
-    // 2. HESAPLAMA MOTORU
+    // 2. YARDIMCI: EMANET Mİ KONTROLÜ (ESNEK)
+    isEscrowItem: function(t) {
+        // 1. is_escrow true ise KESİN emanettir
+        if (t.is_escrow === true) return true;
+        
+        // 2. Kategori isminde 'escrow' geçiyorsa (Büyük/Küçük harf farketmez) emanettir
+        if (t.category && t.category.toLowerCase().includes('escrow')) return true;
+        
+        return false;
+    },
+
+    // 3. HESAPLAMA MOTORU
     calculateStats: function(list) {
         const selectedCurr = document.getElementById('chart-currency') ? document.getElementById('chart-currency').value : 'TRY';
         let wTRY=0, wUSD=0, wEUR=0; 
@@ -78,20 +62,26 @@ window.accounting = {
 
         list.forEach(t => {
             const amt = parseFloat(t.amount);
-            // KASA
-            if (t.type === 'income') { if(t.currency==='TRY') wTRY+=amt; if(t.currency==='USD') wUSD+=amt; if(t.currency==='EUR') wEUR+=amt; }
-            else { if(t.currency==='TRY') wTRY-=amt; if(t.currency==='USD') wUSD-=amt; if(t.currency==='EUR') wEUR-=amt; }
-            
-            // EMANET
-            if (t.is_escrow) {
+            const isEsc = this.isEscrowItem(t); // Esnek Kontrol
+
+            // KASA (Cüzdan)
+            if (t.type === 'income') {
+                if(t.currency==='TRY') wTRY+=amt; if(t.currency==='USD') wUSD+=amt; if(t.currency==='EUR') wEUR+=amt;
+            } else {
+                if(t.currency==='TRY') wTRY-=amt; if(t.currency==='USD') wUSD-=amt; if(t.currency==='EUR') wEUR-=amt;
+            }
+
+            // EMANET BAKİYESİ
+            if (isEsc) {
                 if(t.type === 'income') this.escrowTotals[t.currency] += amt;
                 else this.escrowTotals[t.currency] -= amt;
                 
                 const val = (amt * (this.liveRates[t.currency]||1)) / this.liveRates[selectedCurr];
                 if(t.type === 'income') escTotalVal += val; else escTotalVal -= val;
             } 
-            // CİRO
-            else if (!t.category.includes('exchange')) {
+            
+            // KAR/ZARAR (Emanet ve Exchange HARİÇ)
+            else if (!t.category.toLowerCase().includes('exchange')) {
                 const val = (amt * (this.liveRates[t.currency]||1)) / this.liveRates[selectedCurr];
                 if (t.type === 'income') tInc += val; else tExp += val;
             }
@@ -115,47 +105,27 @@ window.accounting = {
         this.updateText('money-escrow', this.fmt(escTotalVal, selectedCurr));
     },
 
-    // 3. TABLO (SON İŞLEMLER)
-    renderTable: function(list) {
-        const tbody = document.getElementById('transactions-body');
-        if(!tbody) return;
-        tbody.innerHTML = '';
-        
-        if (list.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px;">Kayıt yok.</td></tr>'; return; }
-
-        list.forEach(t => {
-            const date = new Date(t.created_at).toLocaleDateString('tr-TR');
-            let cl = 'row-expense', txt = 'text-red', sym = '-';
-            
-            if (t.type === 'income') { cl = 'row-income'; txt = 'text-green'; sym = '+'; }
-            if (t.is_escrow) { cl = 'row-escrow'; txt = 'text-orange'; } 
-            if (t.category.includes('exchange')) { cl = 'row-transfer'; txt = 'text-primary'; sym='💱'; }
-
-            // Arşivlenenleri gizleme, sadece ismini değiştir (Geçmişte kalsınlar)
-            let catName = this.translateCat(t.category);
-            if(t.category === 'archived_escrow') { catName = 'EMANET (KAPANDI)'; cl = 'row-escrow'; }
-
-            tbody.innerHTML += `<tr class="${cl}" onclick="accounting.openTransactionDetail('${t.id}')">
-                <td>${date}</td>
-                <td>${t.description}</td>
-                <td style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase;">${catName}</td>
-                <td class="${txt}" style="text-align:right; font-weight:800;">${sym} ${this.fmt(t.amount, t.currency)}</td>
-            </tr>`;
-        });
-    },
-
-    // 4. EMANET PENCERESİ (PREMIUM & SEKMELİ)
+    // 4. EMANET DETAYLARI (AKILLI SEKME)
     openEscrowDetails: function() {
         window.ui.openModal('modal-escrow-details');
         this.calculateStats(this.allTransactions);
-        this.switchEscrowTab(this.activeEscrowTab);
+
+        // Son aktif emanet işlemini bulup o sekmeyi aç
+        const lastActive = this.allTransactions.find(t => this.isEscrowItem(t) && t.type === 'income' && t.category !== 'archived_escrow');
+        
+        if (lastActive) {
+            this.switchEscrowTab(lastActive.currency);
+        } else {
+            this.switchEscrowTab('EUR');
+        }
     },
 
     switchEscrowTab: function(currency, btnElement) {
         this.activeEscrowTab = currency;
-        if(btnElement) { 
-            document.querySelectorAll('.esc-tab-btn').forEach(b => b.classList.remove('active')); 
-            btnElement.classList.add('active'); 
+        
+        if(btnElement) {
+            document.querySelectorAll('.esc-tab-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
         }
 
         const container = document.getElementById('escrow-dynamic-content');
@@ -174,15 +144,22 @@ window.accounting = {
             </div>
         `;
 
-        // SADECE AKTİF OLANLARI GÖSTER (Arşivlenenleri Gizle)
+        // TABLO FİLTRESİ (ESNEK KONTROL)
+        // Kategori ismi büyük harf olsa bile yakalar.
         const list = this.allTransactions
-            .filter(t => t.is_escrow && t.currency === currency && t.type === 'income' && t.category !== 'archived_escrow')
+            .filter(t => 
+                this.isEscrowItem(t) &&           // Emanet mi?
+                t.currency === currency &&        // Seçili kur mu?
+                t.type === 'income' &&            // Giriş mi?
+                t.category !== 'archived_escrow'  // Arşivlenmemiş mi?
+            )
             .sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
 
         html += `
             <div style="background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
-                <div style="padding:15px 20px; border-bottom:1px solid #f1f5f9; background: #fff;">
-                    <span style="font-weight: 700; color: #64748b; font-size: 12px;">BEKLEYEN EMANETLER (Çıkış için çift tıkla)</span>
+                <div style="padding:15px 20px; border-bottom:1px solid #f1f5f9; background: #fff; display:flex; justify-content:space-between;">
+                    <span style="font-weight: 700; color: #64748b; font-size: 12px;">BEKLEYEN ${currency} İŞLEMLERİ</span>
+                    <span style="font-size:11px; color:#94a3b8;">${list.length} Kayıt</span>
                 </div>
                 <div class="table-container" style="max-height: 350px; overflow-y: auto;">
                     <table class="data-table" style="margin:0;">
@@ -197,7 +174,9 @@ window.accounting = {
                         <tbody>`;
 
         if(list.length === 0) {
-            html += `<tr><td colspan="4" style="text-align:center; padding:30px; color:#94a3b8;">Şu an bekleyen emanet yok.</td></tr>`;
+            html += `<tr><td colspan="4" style="text-align:center; padding:40px; color:#94a3b8;">
+                Bu para biriminde aktif emanet yok.<br><small>Diğer sekmeleri kontrol edin.</small>
+            </td></tr>`;
         } else {
             list.forEach(t => {
                 const date = new Date(t.created_at).toLocaleDateString('tr-TR');
@@ -218,7 +197,7 @@ window.accounting = {
         container.innerHTML = html;
     },
 
-    // 5. İŞLEM PENCERESİ VE KAYIT
+    // 5. İŞLEM PENCERESİ AÇ
     openEscrowAction: function(txId) {
         const tx = this.allTransactions.find(t => t.id === txId);
         if(!tx) return;
@@ -231,6 +210,7 @@ window.accounting = {
         window.ui.openModal('modal-escrow-action');
     },
 
+    // 6. İŞLEMİ KAYDET VE ARŞİVLE
     saveEscrowAction: async function(e) {
         e.preventDefault();
         const btn = document.querySelector('#form-escrow-action button[type="submit"]'); 
@@ -250,14 +230,13 @@ window.accounting = {
             if (type === 'payment') { category = 'escrow_payment'; descPrefix = 'ÖDEME: '; } 
             else if (type === 'profit') { category = 'visa_service'; descPrefix = 'GELİR: '; }
 
-            // 1. İşlemi Kaydet
             const { error: insertError } = await window.supabaseClient.from('transactions').insert({
                 type: 'expense', category: category, description: `${descPrefix}${refName} - ${note}`,
                 amount: amount, currency: currency, is_escrow: true, created_at: new Date()
             });
             if(insertError) throw insertError;
 
-            // 2. Eski Kaydı Arşivle
+            // Arşivle
             await window.supabaseClient.from('transactions').update({ category: 'archived_escrow' }).eq('id', sourceId);
 
             window.ui.closeModal('modal-escrow-action');
@@ -268,28 +247,30 @@ window.accounting = {
         finally { btn.disabled = false; btn.innerText = "İŞLEMİ ONAYLA"; }
     },
 
-    // 6. GENEL KAYIT (HATA YÖNETİMLİ)
-    genericSave: async function(type, modalId, isEscrow=false) {
-        const form = document.querySelector(`#${modalId} form`);
-        const btn = form.querySelector('button');
-        const oldText = btn.innerText;
-        btn.disabled = true; btn.innerText = "⏳...";
+    // --- DİĞERLERİ ---
+    deleteEscrowTransaction: async function(){ const id=document.getElementById('act-source-id').value; if(confirm("Silinecek mi?")){ await window.supabaseClient.from('transactions').delete().eq('id',id); window.ui.closeModal('modal-escrow-action'); this.refreshDashboard(); setTimeout(()=>this.openEscrowDetails(),500); } },
+    openEscrowActionSimple: async function(){ const curr = this.activeEscrowTab; const amt = prompt(`Hızlı Çıkış (${curr}):`); if(amt) { await window.supabaseClient.from('transactions').insert({ type: 'expense', category: 'escrow_refund', description: `Hızlı Çıkış`, amount: amt, currency: curr, is_escrow: true }); this.refreshDashboard(); setTimeout(() => this.openEscrowDetails(), 500); } },
+    
+    renderTable: function(list) {
+        const tbody = document.getElementById('transactions-body'); if(!tbody) return; tbody.innerHTML = '';
+        if (list.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px;">Kayıt yok.</td></tr>'; return; }
+        list.forEach(t => {
+            const date = new Date(t.created_at).toLocaleDateString('tr-TR');
+            let cl='row-expense', txt='text-red', sym='-';
+            // Esnek Emanet Kontrolü
+            const isEsc = this.isEscrowItem(t);
 
-        try {
-            let cat='general', desc='', amt=0, curr='TRY';
-            if(modalId==='modal-expense'){ cat=document.getElementById('exp-category').value; desc=document.getElementById('exp-title').value; amt=document.getElementById('exp-amount').value; curr=document.getElementById('exp-currency').value; }
-            else if(modalId==='modal-extra-income'){ cat='extra_service'; desc=document.getElementById('ei-customer').value; amt=document.getElementById('ei-amount').value; curr=document.getElementById('ei-currency').value; }
-            else if(modalId==='modal-escrow'){ cat='escrow_deposit'; desc=document.getElementById('esc-customer').value; amt=document.getElementById('esc-amount').value; curr=document.getElementById('esc-currency').value; }
+            if(t.type==='income'){ cl='row-income'; txt='text-green'; sym='+'; }
+            if(isEsc){ cl='row-escrow'; txt='text-orange'; } 
+            if(t.category && t.category.toLowerCase().includes('exchange')){ cl='row-transfer'; txt='text-primary'; sym='💱'; }
+            
+            let catName = this.translateCat(t.category); 
+            if(t.category === 'archived_escrow') { catName = 'EMANET (KAPANDI)'; cl = 'row-escrow'; }
 
-            const { error } = await window.supabaseClient.from('transactions').insert({ type, category: cat, description: desc, amount: amt, currency: curr, is_escrow: isEscrow });
-            if (error) throw error;
-
-            window.ui.closeModal(modalId); form.reset(); this.refreshDashboard();
-        } catch (err) { alert("🛑 KAYIT HATASI: " + err.message); } 
-        finally { btn.disabled = false; btn.innerText = oldText; }
+            tbody.innerHTML += `<tr class="${cl}" onclick="accounting.openTransactionDetail('${t.id}')"><td>${date}</td><td>${t.description}</td><td style="font-size:11px; font-weight:700; color:#64748b;">${catName.toUpperCase()}</td><td class="${txt}" style="text-align:right; font-weight:800;">${sym} ${this.fmt(t.amount, t.currency)}</td></tr>`;
+        });
     },
 
-    // --- GRAFİK VE YARDIMCILAR ---
     updateChartRender: function() {
         const ctx = document.getElementById('financeChart'); if(!ctx) return;
         const targetCurrency = document.getElementById('chart-currency').value;
@@ -299,22 +280,15 @@ window.accounting = {
         else if(this.currentPeriod==='1m') startTime.setDate(now.getDate()-30);
         else if(this.currentPeriod==='1y') startTime.setFullYear(now.getFullYear()-1);
 
-        const filtered = this.allTransactions
-            .filter(t => new Date(t.created_at) >= startTime && !t.is_escrow && !t.category.includes('exchange'))
-            .sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
-
+        const filtered = this.allTransactions.filter(t => new Date(t.created_at) >= startTime && !this.isEscrowItem(t) && !t.category.toLowerCase().includes('exchange')).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
         let labels=[], inc=[], exp=[], prof=[];
         filtered.forEach(t => {
             labels.push(new Date(t.created_at).toLocaleDateString('tr-TR'));
             const v = parseFloat(t.amount) * (this.liveRates[t.currency] || 1) / this.liveRates[targetCurrency];
             if(t.type==='income') { inc.push(v); exp.push(0); prof.push(v); } else { inc.push(0); exp.push(v); prof.push(-v); }
         });
-
         if(this.chartInstance) this.chartInstance.destroy();
-        this.chartInstance = new Chart(ctx, {
-            type: 'line', data: { labels: labels.length?labels:['Wait'], datasets: [{ label: 'Net Kâr', data: prof, borderColor: '#10b981', hidden:!this.chartState.profit }, { label: 'Ciro', data: inc, borderColor: '#3b82f6', hidden:!this.chartState.income }, { label: 'Gider', data: exp, borderColor: '#ef4444', hidden:!this.chartState.expense }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
-        });
+        this.chartInstance = new Chart(ctx, { type: 'line', data: { labels: labels.length?labels:['Wait'], datasets: [{ label: 'Net Kâr', data: prof, borderColor: '#10b981', hidden:!this.chartState.profit }, { label: 'Ciro', data: inc, borderColor: '#3b82f6', hidden:!this.chartState.income }, { label: 'Gider', data: exp, borderColor: '#ef4444', hidden:!this.chartState.expense }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
     },
 
     translateCat: function(cat) { const d={'rent':'Kira','bills':'Fatura','visa_service':'Vize Hizmeti','extra_service':'Ek Hizmet','escrow_deposit':'Emanet Girişi','escrow_refund':'Emanet İadesi','escrow_service_deduction':'Hizmet Kesintisi','exchange_in':'Döviz Giriş','exchange_out':'Döviz Çıkış','archived_escrow':'Emanet (Kapandı)'}; return d[cat]||cat; },
@@ -323,13 +297,25 @@ window.accounting = {
     toggleChartData: function(t,e){ this.chartState[t]=!this.chartState[t]; e.classList.toggle('inactive'); this.updateCardStatus(t); this.updateChartRender(); },
     updateCardStatus: function(t){ const el=document.getElementById(t==='profit'?'lbl-profit':(t==='income'?'lbl-income':'lbl-expense')); if(el) el.innerText=`${t==='profit'?'NET KÂR':(t==='income'?'TOPLAM CİRO':'TOPLAM GİDER')} ${this.chartState[t]?'(AÇIK)':'(KAPALI)'}`; },
     filterChartDate: function(p,b){ document.querySelectorAll('.time-btn').forEach(e=>e.classList.remove('active')); b.classList.add('active'); this.currentPeriod=p; this.updateChartRender(); },
-    deleteEscrowTransaction: async function(){ const id=document.getElementById('act-source-id').value; if(confirm("Silinecek mi?")){ await window.supabaseClient.from('transactions').delete().eq('id',id); window.ui.closeModal('modal-escrow-action'); this.refreshDashboard(); setTimeout(()=>this.openEscrowDetails(),500); } },
-    openEscrowActionSimple: async function(){ /* ... */ }, openTransactionDetail: function(id){ /* ... */ }
+    
+    // Kayıtlar
+    saveExpense: async function(e){ e.preventDefault(); this.genericSave('expense','modal-expense'); },
+    saveExtraIncome: async function(e){ e.preventDefault(); this.genericSave('income','modal-extra-income'); },
+    saveEscrow: async function(e){ e.preventDefault(); this.genericSave('income','modal-escrow',true); },
+    saveExchange: async function(e){ e.preventDefault(); const oa=document.getElementById('ex-out-amt').value, oc=document.getElementById('ex-out-curr').value, ia=document.getElementById('ex-in-amt').value, ic=document.getElementById('ex-in-curr').value; await window.supabaseClient.from('transactions').insert([{type:'expense',category:'exchange_out',description:'Döviz Bozum',amount:oa,currency:oc},{type:'income',category:'exchange_in',description:'Döviz Giriş',amount:ia,currency:ic}]); window.ui.closeModal('modal-exchange'); this.refreshDashboard(); },
+    genericSave: async function(type, modalId, isEscrow=false) {
+        let cat='general', desc='', amt=0, curr='TRY';
+        if(modalId==='modal-expense'){ cat=document.getElementById('exp-category').value; desc=document.getElementById('exp-title').value; amt=document.getElementById('exp-amount').value; curr=document.getElementById('exp-currency').value; }
+        else if(modalId==='modal-extra-income'){ cat='extra_service'; desc=document.getElementById('ei-customer').value; amt=document.getElementById('ei-amount').value; curr=document.getElementById('ei-currency').value; }
+        else if(modalId==='modal-escrow'){ cat='escrow_deposit'; desc=document.getElementById('esc-customer').value; amt=document.getElementById('esc-amount').value; curr=document.getElementById('esc-currency').value; }
+        await window.supabaseClient.from('transactions').insert({ type, category: cat, description: desc, amount: amt, currency: curr, is_escrow: isEscrow });
+        window.ui.closeModal(modalId); this.refreshDashboard();
+    },
+    openTransactionDetail: function(id){}
 };
 
 window.addEventListener('load', () => { 
     window.accounting.refreshDashboard(); 
-    // BUTONLARI GARANTİLİ BAĞLA
     if(document.getElementById('form-expense')) document.getElementById('form-expense').onsubmit = (e) => { e.preventDefault(); window.accounting.genericSave('expense', 'modal-expense'); };
     if(document.getElementById('form-extra-income')) document.getElementById('form-extra-income').onsubmit = (e) => { e.preventDefault(); window.accounting.genericSave('income', 'modal-extra-income'); };
     if(document.getElementById('form-escrow')) document.getElementById('form-escrow').onsubmit = (e) => { e.preventDefault(); window.accounting.genericSave('income', 'modal-escrow', true); };
