@@ -264,7 +264,7 @@ window.accounting = {
         const tbody = document.getElementById('transactions-body'); if(!tbody) return; tbody.innerHTML = '';
         if (list.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px;">Kayıt yok.</td></tr>'; return; }
         list.forEach(t => {
-            const date = new Date(t.created_at).toLocaleDateString('tr-TR');
+            const date = new Date(t.created_at).toLocaleDateString('t
             let cl='row-expense', txt='text-red', sym='-';
             // Esnek Emanet Kontrolü
             const isEsc = this.isEscrowItem(t);
@@ -306,7 +306,6 @@ window.accounting = {
     
     // Kayıtlar
     saveExpense: async function(e){ e.preventDefault(); this.genericSave('expense','modal-expense'); },
-    saveExtraIncome: async function(e){ e.preventDefault(); this.genericSave('income','modal-extra-income'); },
     saveEscrow: async function(e){ e.preventDefault(); this.genericSave('income','modal-escrow',true); },
     saveExchange: async function(e){ e.preventDefault(); const oa=document.getElementById('ex-out-amt').value, oc=document.getElementById('ex-out-curr').value, ia=document.getElementById('ex-in-amt').value, ic=document.getElementById('ex-in-curr').value; await window.supabaseClient.from('transactions').insert([{type:'expense',category:'exchange_out',description:'Döviz Bozum',amount:oa,currency:oc},{type:'income',category:'exchange_in',description:'Döviz Giriş',amount:ia,currency:ic}]); window.ui.closeModal('modal-exchange'); this.refreshDashboard(); },
     genericSave: async function(type, modalId, isEscrow=false) {
@@ -319,6 +318,81 @@ window.accounting = {
     },
     openTransactionDetail: function(id){}
 };
+
+    // YENİ EK HİZMET KAYDI (GELİR + GİDER + DOSYA)
+    saveExtraIncomeNew: async function(e) {
+        e.preventDefault();
+        const btn = e.target.querySelector('button');
+        const oldText = btn.innerText;
+        btn.disabled = true; btn.innerText = "İşleniyor...";
+
+        try {
+            const customer = document.getElementById('ei-customer').value;
+            const category = document.getElementById('ei-category').value;
+            const desc = document.getElementById('ei-desc').value;
+            const incomeAmt = document.getElementById('ei-amount').value;
+            const currency = document.getElementById('ei-currency').value;
+            
+            // Dosya Kontrolü
+            const fileInput = document.getElementById('ei-file');
+            let fileNote = "";
+            if(fileInput.files.length > 0) {
+                fileNote = ` [Dosya: ${fileInput.files[0].name}]`;
+            }
+
+            const fullDesc = `${customer} - ${desc}${fileNote}`;
+
+            // 1. GELİRİ KAYDET
+            const transactions = [
+                {
+                    type: 'income',
+                    category: 'extra_service', // veya category değişkeni
+                    description: fullDesc,
+                    amount: incomeAmt,
+                    currency: currency,
+                    is_escrow: false,
+                    created_by: this.currentUserEmail,
+                    user_ip: this.userIP
+                }
+            ];
+
+            // 2. MALİYET VARSA ONU DA GİDER OLARAK EKLE
+            const hasCost = document.getElementById('ei-has-cost').checked;
+            if (hasCost) {
+                const costAmt = document.getElementById('ei-cost-amount').value;
+                if (costAmt > 0) {
+                    transactions.push({
+                        type: 'expense',
+                        category: 'service_cost', // Hizmet Maliyeti
+                        description: `Maliyet: ${fullDesc}`,
+                        amount: costAmt,
+                        currency: currency, // Genelde aynı para birimidir
+                        is_escrow: false,
+                        created_by: this.currentUserEmail,
+                        user_ip: this.userIP
+                    });
+                }
+            }
+
+            // HEPSİNİ TEK SEFERDE GÖNDER
+            const { error } = await window.supabaseClient.from('transactions').insert(transactions);
+
+            if (error) throw error;
+
+            alert("✅ İşlem başarıyla kaydedildi.");
+            window.ui.closeModal('modal-extra-income');
+            e.target.reset();
+            document.getElementById('ei-file-text').innerText = "Dosya seçmek için tıklayın (PDF, JPG, PNG)";
+            document.getElementById('cost-box').style.display = 'none'; // Maliyet kutusunu gizle
+            this.refreshDashboard();
+
+        } catch (err) {
+            alert("Hata: " + err.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = oldText;
+        }
+    },
 
 window.addEventListener('load', () => { 
     window.accounting.refreshDashboard(); 
