@@ -471,15 +471,237 @@
                 </div>
             </div>
             <div class="modal-body" style="background:#f8fafc; padding:30px;">
-                <form id="form-visa-wizard">
-                    <div class="wizard-page" id="step-1"><div style="background:white; padding:25px; border-radius:16px; border:1px solid #e2e8f0;"><div class="form-row"><div class="form-group half"><label>Adı</label><input type="text" class="form-control" id="v-name" required></div><div class="form-group half"><label>Soyadı</label><input type="text" class="form-control" id="v-surname" required></div></div><div class="form-row"><div class="form-group half"><label>Pasaport</label><input type="text" class="form-control" id="v-passport" required></div><div class="form-group half"><label>Telefon</label><input type="tel" class="form-control" id="v-phone" required></div></div></div><div style="text-align:right; margin-top:20px;"><button type="button" class="btn btn-blue" onclick="window.crm.goToStep(2)">İLERİ &rarr;</button></div></div>
-                    <div class="wizard-page" id="step-2" style="display:none;"><div style="background:white; padding:25px; border-radius:16px; border:1px solid #e2e8f0;"><div class="form-row"><div class="form-group half"><label>Ülke</label><select class="form-control" id="v-country"><option>Almanya</option><option>Fransa</option><option>ABD</option></select></div><div class="form-group half"><label>Vize Tipi</label><select class="form-control" id="v-type" onchange="crm.updateDocList()"><option value="tourist">Turistik</option><option value="commercial">Ticari</option></select></div></div></div><div style="display:flex; justify-content:space-between; margin-top:20px;"><button type="button" class="btn" onclick="window.crm.goToStep(1)">&larr; GERİ</button><button type="button" class="btn btn-blue" onclick="window.crm.goToStep(3)">İLERİ &rarr;</button></div></div>
-                    <div class="wizard-page" id="step-3" style="display:none;"><div style="display:flex; justify-content:space-between; margin-bottom:15px;"><h4 style="margin:0;">Evraklar</h4><button type="button" class="btn-dashed" onclick="crm.addManualDoc()">+ Ekle</button></div><div id="doc-list-container"></div><div style="display:flex; justify-content:space-between; margin-top:20px;"><button type="button" class="btn" onclick="window.crm.goToStep(2)">&larr; GERİ</button><button type="button" class="btn btn-blue" onclick="window.crm.goToStep(4)">İLERİ &rarr;</button></div></div>
-                    <div class="wizard-page" id="step-4" style="display:none;"><div style="background:white; padding:25px; border-radius:16px; border:1px solid #e2e8f0; margin-bottom:20px;"><div class="form-row"><div class="form-group half"><label>Toplam</label><input type="number" class="form-control" id="v-total-price" oninput="crm.calcFinance()"></div><div class="form-group half"><label>Peşinat</label><input type="number" class="form-control" id="v-paid-now" oninput="crm.calcFinance()"></div><div class="form-group" style="width:100px;"><label>Birim</label><select class="form-control" id="v-currency"><option>EUR</option><option>USD</option></select></div></div></div><div class="form-group" style="background:#fff7ed; padding:15px; border-radius:10px;"><label>Emanet Gideri (Harç)</label><input type="number" class="form-control" id="v-fee-amount" placeholder="Tutar"></div><div style="display:flex; justify-content:space-between; margin-top:20px;"><button type="button" class="btn" onclick="window.crm.goToStep(3)">&larr; GERİ</button><button type="submit" class="btn btn-green">KAYDET</button></div></div>
+                                <form id="form-visa-wizard">
+                    
+                    <div class="wizard-page" id="step-1">
+                        <div class="section-title">Kişisel Bilgiler</div>
+                        <div class="form-row">
+                            <div class="form-group half"><label>Adı (Pasaporttaki)</label><input type="text" class="form-control" id="v-name" required placeholder="Örn: AHMET"></div>
+                            <div class="form-group half"><label>Soyadı</label><input type="text" class="form-control" id="v-surname" required placeholder="Örn: YILMAZ"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group half"><label>TC Kimlik No</label><input type="text" class="form-control" id="v-tc" maxlength="11"></div>
+                            <div class="form-group half"><label>Doğum Tarihi</label><input type="date" class="form-control" id="v-dob"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group half"><label>Doğum Yeri (Şehir)</label><input type="text" class="form-control" id="v-pob"></div>
+                            <div class="form-group half"><label>Medeni Durum</label>
+                                <select class="form-control" id="v-marital">
+                                    <option value="single">Bekar</option>
+                                    <option value="married">Evli</option>
+                                    <option value="divorced">Boşanmış</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group half"><label>Meslek</label><input type="text" class="form-control" id="v-job" placeholder="Örn: Mühendis"></div>
+                            <div class="form-group half"><label>Telefon</label><input type="tel" class="form-control" id="v-phone" required></div>
+                        </div>
+
+                        <div class="section-title">Pasaport Detayları</div>
+                        <div class="form-row">
+                            <div class="form-group half"><label>Pasaport No</label><input type="text" class="form-control" id="v-passport" required></div>
+                            <div class="form-group half"><label>Pasaport Türü</label>
+                                <select class="form-control" id="v-pass-type">
+                                    <option value="bordo">Bordo (Umuma Mahsus)</option>
+                                    <option value="yesil">Yeşil (Hususi)</option>
+                                    <option value="gri">Gri (Hizmet)</option>
+                                    <option value="diplomatik">Siyah (Diplomatik)</option>
+                                    <option value="foreign">Yabancı Pasaport</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group half"><label>Veriliş Tarihi</label><input type="date" class="form-control" id="v-pass-issue"></div>
+                            <div class="form-group half"><label>Bitiş Tarihi</label><input type="date" class="form-control" id="v-pass-expire"></div>
+                        </div>
+
+                        <div style="text-align:right; margin-top:20px;">
+                            <button type="button" class="btn btn-blue" onclick="window.crm.goToStep(2)">SEYAHAT BİLGİLERİ &rarr;</button>
+                        </div>
+                    </div>
+
+                    <div class="wizard-page" id="step-2" style="display:none;">
+                        <div class="section-title">Rotasyon ve Vize Türü</div>
+                        
+                        <div class="form-group">
+                            <label>Gidilecek Ülke</label>
+                            <select class="form-control" id="v-country" onchange="crm.updateDocList()">
+                                <option value="">Seçiniz...</option>
+                                <optgroup label="POPÜLER">
+                                    <option value="germany">Almanya</option>
+                                    <option value="france">Fransa</option>
+                                    <option value="usa">Amerika Birleşik Devletleri (ABD)</option>
+                                    <option value="uk">İngiltere (Birleşik Krallık)</option>
+                                    <option value="italy">İtalya</option>
+                                    <option value="spain">İspanya</option>
+                                    <option value="netherlands">Hollanda</option>
+                                </optgroup>
+                                <optgroup label="SCHENGEN / AVRUPA">
+                                    <option value="austria">Avusturya</option>
+                                    <option value="belgium">Belçika</option>
+                                    <option value="bulgaria">Bulgaristan</option>
+                                    <option value="czech">Çekya</option>
+                                    <option value="greece">Yunanistan</option>
+                                    <option value="hungary">Macaristan</option>
+                                    <option value="poland">Polonya</option>
+                                    <option value="portugal">Portekiz</option>
+                                    <option value="switzerland">İsviçre</option>
+                                    </optgroup>
+                                <optgroup label="ASYA & ORTA DOĞU">
+                                    <option value="china">Çin</option>
+                                    <option value="japan">Japonya</option>
+                                    <option value="south_korea">Güney Kore</option>
+                                    <option value="dubai">Dubai (BAE)</option>
+                                    <option value="saudi">Suudi Arabistan</option>
+                                </optgroup>
+                                <optgroup label="AMERİKA (Kuzey & Güney)">
+                                    <option value="canada">Kanada</option>
+                                    <option value="mexico">Meksika</option>
+                                    <option value="brazil">Brezilya</option>
+                                    <option value="argentina">Arjantin</option>
+                                </optgroup>
+                                </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Vize Tipi</label>
+                            <select class="form-control" id="v-type" onchange="crm.updateDocList()">
+                                <optgroup label="ÖZEL">
+                                    <option value="seaman">GEMİ ADAMI (Seaman Visa)</option>
+                                    <option value="vip">VIP / Ekspres Başvuru</option>
+                                </optgroup>
+                                <optgroup label="GENEL">
+                                    <option value="tourist" selected>Turistik Vize</option>
+                                    <option value="commercial">Ticari Vize</option>
+                                    <option value="family">Aile / Arkadaş Ziyareti</option>
+                                    <option value="student">Öğrenci / Eğitim Vizesi</option>
+                                    <option value="transit">Transit Vize</option>
+                                    <option value="medical">Sağlık / Tedavi Vizesi</option>
+                                    <option value="cultural">Kültürel / Sportif Etkinlik</option>
+                                </optgroup>
+                                <optgroup label="UZUN DÖNEM">
+                                    <option value="work">Çalışma İzni (Work Permit)</option>
+                                    <option value="family_reunion">Aile Birleşimi</option>
+                                    <option value="erasmus">Erasmus / Staj</option>
+                                    <option value="digital_nomad">Digital Nomad</option>
+                                </optgroup>
+                            </select>
+                        </div>
+
+                        <div class="section-title">Seyahat Detayları</div>
+                        <div class="form-row">
+                            <div class="form-group half"><label>Giriş Tarihi</label><input type="date" class="form-control" id="v-travel-start"></div>
+                            <div class="form-group half"><label>Dönüş Tarihi</label><input type="date" class="form-control" id="v-travel-end"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group half">
+                                <label>Giriş Sayısı</label>
+                                <select class="form-control" id="v-entry-type">
+                                    <option value="single">Tek Giriş (Single)</option>
+                                    <option value="double">İki Giriş (Double)</option>
+                                    <option value="multi">Çok Giriş (Multi)</option>
+                                </select>
+                            </div>
+                            <div class="form-group half"><label>Talep Edilen Süre</label><input type="text" class="form-control" id="v-duration" placeholder="Örn: 1 Yıl"></div>
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; margin-top:20px;">
+                            <button type="button" class="btn" onclick="window.crm.goToStep(1)">&larr; GERİ</button>
+                            <button type="button" class="btn btn-blue" onclick="window.crm.goToStep(3)">EVRAK LİSTESİ &rarr;</button>
+                        </div>
+                    </div>
+
+                    <div class="wizard-page" id="step-3" style="display:none;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                            <h4 style="margin:0;">Gerekli Evraklar</h4>
+                            <button type="button" class="btn-dashed" onclick="crm.addManualDoc()">+ Özel Evrak Ekle</button>
+                        </div>
+                        
+                        <div id="doc-list-container" class="doc-grid"></div>
+
+                        <div style="display:flex; justify-content:space-between; margin-top:30px;">
+                            <button type="button" class="btn" onclick="window.crm.goToStep(2)">&larr; GERİ</button>
+                            <button type="button" class="btn btn-blue" onclick="window.crm.goToStep(4)">FİNANSAL DETAYLAR &rarr;</button>
+                        </div>
+                    </div>
+
+                    <div class="wizard-page" id="step-4" style="display:none;">
+                        <div class="section-title">Ücretlendirme ve Maliyet</div>
+                        
+                        <div class="card" style="margin-bottom:20px; padding:20px;">
+                            <div class="form-row">
+                                <div class="form-group half">
+                                    <label>Satış Fiyatı (Müşteriden Alınan)</label>
+                                    <input type="number" class="form-control" id="v-total-price" placeholder="0.00" oninput="crm.calcFinance()">
+                                </div>
+                                <div class="form-group half">
+                                    <label>Maliyet (Acenta/Harç/Sigorta)</label>
+                                    <input type="number" class="form-control" id="v-cost-price" placeholder="0.00" style="background:#fff1f2; color:#be123c;">
+                                    <small style="color:#be123c; font-size:10px;">* Şirketin cebinden çıkan tutar (Gider)</small>
+                                </div>
+                                <div class="form-group" style="width:100px;">
+                                    <label>Birim</label>
+                                    <select class="form-control" id="v-currency" onchange="crm.calcFinance()">
+                                        <option value="EUR">EUR</option>
+                                        <option value="USD">USD</option>
+                                        <option value="TRY">TRY</option>
+                                        <option value="GBP">GBP</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">Ödeme Durumu</div>
+                        
+                        <div class="card" style="padding:20px;">
+                            <div class="form-row">
+                                <div class="form-group half">
+                                    <label>Ödenen Tutar (Peşinat)</label>
+                                    <input type="number" class="form-control" id="v-paid-now" placeholder="0.00" oninput="crm.calcFinance()">
+                                </div>
+                                <div class="form-group half">
+                                    <label>Ödeme Yöntemi</label>
+                                    <select class="form-control" id="v-payment-method">
+                                        <option value="cash">Nakit (Elden)</option>
+                                        <option value="bank">Havale / EFT</option>
+                                        <option value="card">Kredi Kartı</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Finansal Açıklama (Not)</label>
+                                <input type="text" class="form-control" id="v-finance-note" placeholder="Örn: Kalan ödeme pasaport tesliminde alınacak.">
+                            </div>
+
+                            <label class="switch-wrapper">
+                                <input type="checkbox" class="switch-input" onchange="document.getElementById('receipt-upload-area').classList.toggle('active')">
+                                <span>Ödeme Dekontu / Dosya Yükle</span>
+                            </label>
+
+                            <div id="receipt-upload-area" class="finance-receipt-box">
+                                <div class="file-icon"><span class="material-icons-round">receipt_long</span></div>
+                                <div style="font-weight:600; margin-bottom:10px;" id="v-receipt-name">Dekont veya Fatura Seçin</div>
+                                <button type="button" class="btn-sm" style="background:white; border:1px solid #cbd5e1;" onclick="document.getElementById('v-receipt-file').click()">DOSYA SEÇ</button>
+                                <input type="file" id="v-receipt-file" hidden onchange="document.getElementById('v-receipt-name').innerText = this.files[0].name; document.getElementById('receipt-upload-area').style.borderColor='#10b981';">
+                            </div>
+                        </div>
+
+                        <div style="margin-top:20px; background:#f0f9ff; padding:15px; border-radius:10px; border:1px solid #bae6fd; display:flex; justify-content:space-between; align-items:center;">
+                            <div><span style="font-weight:700; color:#0369a1;">KALAN BORÇ:</span></div>
+                            <div style="font-size:20px; font-weight:900; color:#0369a1;" id="disp-remain">0,00</div>
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; margin-top:20px;">
+                            <button type="button" class="btn" onclick="window.crm.goToStep(3)">&larr; GERİ</button>
+                            <button type="submit" class="btn btn-green" style="padding-left:30px; padding-right:30px;">
+                                <span class="material-icons-round">check</span> DOSYAYI OLUŞTUR
+                            </button>
+                        </div>
+                    </div>
                 </form>
-            </div>
-        </div>
-    </div>
+
 
     <div class="modal-overlay" id="modal-transaction-detail">
         <div class="modal-box" style="width: 500px;">
