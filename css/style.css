@@ -290,3 +290,29 @@ select.form-control option { padding: 10px; } select.form-control optgroup { fon
 .upload-icon:hover { transform: scale(1.1); background: #4338ca; }
 
 @media (max-width: 1024px) { .settings-grid { grid-template-columns: 1fr; } }
+
+/* DOSYA YÜKLEME KUTUSU */
+.file-upload-area {
+    border: 2px dashed #cbd5e1;
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 10px;
+}
+.file-upload-area:hover {
+    border-color: var(--blue-info);
+    background: #eff6ff;
+}
+.file-icon { font-size: 32px; color: #94a3b8; display: block; margin: 0 auto 5px; }
+.file-text { font-size: 12px; color: #64748b; font-weight: 600; }
+.cost-section {
+    background: #fff1f2; 
+    border: 1px solid #fecdd3; 
+    padding: 15px; 
+    border-radius: 8px; 
+    margin-top: 15px; 
+    display: none; /* Başlangıçta gizli */
+}
