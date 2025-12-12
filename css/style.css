@@ -316,3 +316,97 @@ select.form-control option { padding: 10px; } select.form-control optgroup { fon
     margin-top: 15px; 
     display: none; /* Başlangıçta gizli */
 }
+/* --- VİZE SİHİRBAZI YENİ TASARIM (V11.0) --- */
+
+/* 1. Yeni Evrak Kartları (Premium) */
+.doc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.doc-card-premium {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.doc-card-premium:hover {
+    border-color: var(--blue-info);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transform: translateY(-2px);
+}
+
+.doc-card-premium.uploaded {
+    border-color: var(--green-profit);
+    background: #f0fdf4;
+}
+
+.doc-icon-box {
+    width: 45px;
+    height: 45px;
+    background: #f1f5f9;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.doc-card-premium.uploaded .doc-icon-box {
+    background: var(--green-profit);
+    color: white;
+}
+
+.doc-info { flex: 1; overflow: hidden; }
+.doc-title { font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.doc-status { font-size: 11px; color: #94a3b8; font-weight: 500; }
+.uploaded .doc-status { color: var(--green-profit); font-weight: 700; }
+
+.doc-actions { display: flex; gap: 5px; }
+.btn-icon-sm {
+    width: 32px; height: 32px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: white;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: #64748b;
+    transition: 0.2s;
+}
+.btn-icon-sm:hover { background: #f8fafc; color: var(--blue-info); border-color: var(--blue-info); }
+.btn-icon-sm.delete:hover { color: var(--red-expense); border-color: var(--red-expense); background: #fef2f2; }
+
+/* 2. Finans ve Dekont Alanı */
+.finance-receipt-box {
+    border: 2px dashed #cbd5e1;
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    margin-top: 15px;
+    transition: 0.3s;
+    display: none; /* Başlangıçta gizli */
+}
+.finance-receipt-box.active { display: block; animation: fadeIn 0.3s; }
+.switch-wrapper { display: flex; align-items: center; gap: 10px; font-weight: 600; color: #475569; font-size: 13px; cursor: pointer; margin-top: 10px; }
+.switch-input { width: 40px; height: 20px; appearance: none; background: #cbd5e1; border-radius: 20px; position: relative; transition: 0.3s; cursor: pointer; }
+.switch-input::before { content: ''; position: absolute; left: 2px; top: 2px; width: 16px; height: 16px; background: white; border-radius: 50%; transition: 0.3s; }
+.switch-input:checked { background: var(--blue-info); }
+.switch-input:checked::before { left: 22px; }
+
+/* Form Düzeni İyileştirme */
+.section-title {
+    font-size: 12px; font-weight: 800; color: var(--blue-info); 
+    text-transform: uppercase; letter-spacing: 1px; 
+    border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; margin-bottom: 15px; margin-top: 20px;
+}
