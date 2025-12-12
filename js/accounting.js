@@ -397,7 +397,10 @@ window.accounting = {
 window.addEventListener('load', () => { 
     window.accounting.refreshDashboard(); 
     if(document.getElementById('form-expense')) document.getElementById('form-expense').onsubmit = (e) => { e.preventDefault(); window.accounting.genericSave('expense', 'modal-expense'); };
-    if(document.getElementById('form-extra-income')) document.getElementById('form-extra-income').onsubmit = (e) => { e.preventDefault(); window.accounting.genericSave('income', 'modal-extra-income'); };
+        if(document.getElementById('form-extra-income')) {
+        // YENİSİ BU OLACAK:
+        document.getElementById('form-extra-income').onsubmit = (e) => window.accounting.saveExtraIncomeNew(e);
+    }
     if(document.getElementById('form-escrow')) document.getElementById('form-escrow').onsubmit = (e) => { e.preventDefault(); window.accounting.genericSave('income', 'modal-escrow', true); };
     if(document.getElementById('form-exchange')) document.getElementById('form-exchange').onsubmit = (e) => window.accounting.saveExchange(e);
     if(document.getElementById('form-escrow-action')) document.getElementById('form-escrow-action').onsubmit = (e) => window.accounting.saveEscrowAction(e);
