@@ -367,19 +367,84 @@
     </div>
 
 
-    <div class="modal-overlay" id="modal-extra-income">
-        <div class="modal-box" style="width: 650px;">
-            <div class="modal-header"><h3>Ek Hizmet Geliri</h3><button class="close-btn" onclick="ui.closeModal('modal-extra-income')">✕</button></div>
+        <div class="modal-overlay" id="modal-extra-income">
+        <div class="modal-box" style="width: 600px;">
+            <div class="modal-header">
+                <h3>Ek Hizmet Satışı</h3>
+                <button class="close-btn" onclick="ui.closeModal('modal-extra-income')">✕</button>
+            </div>
             <div class="modal-body">
                 <form id="form-extra-income">
-                    <div class="form-group"><label>Müşteri</label><input type="text" class="form-control" id="ei-customer" required></div>
-                    <div class="form-group"><label>Hizmet</label><select class="form-control" id="ei-category"><optgroup label="SEYAHAT"><option value="flight_ticket">Uçak Bileti</option><option value="hotel_booking">Otel</option></optgroup><optgroup label="SİGORTA"><option value="travel_insurance">Sigorta</option></optgroup><option value="other">Diğer</option></select></div>
-                    <div class="form-group"><label>Tutar</label><div class="form-row"><input type="number" class="form-control" id="ei-amount" required><select class="form-control" style="width:100px;" id="ei-currency"><option>TRY</option><option>USD</option><option>EUR</option></select></div></div>
-                    <button class="btn btn-blue" style="width:100%;">KAYDET</button>
+                    
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label>Müşteri Adı</label>
+                            <input type="text" class="form-control" id="ei-customer" placeholder="Örn: Ahmet Yılmaz" required>
+                        </div>
+                        <div class="form-group half">
+                            <label>Hizmet Türü</label>
+                            <select class="form-control" id="ei-category">
+                                <optgroup label="SEYAHAT">
+                                    <option value="flight_ticket">Uçak Bileti</option>
+                                    <option value="hotel_booking">Otel Rezervasyonu</option>
+                                    <option value="transfer">Transfer</option>
+                                </optgroup>
+                                <optgroup label="DİĞER">
+                                    <option value="travel_insurance">Seyahat Sigortası</option>
+                                    <option value="consultancy">Danışmanlık</option>
+                                    <option value="other">Diğer</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Açıklama / Detay</label>
+                        <input type="text" class="form-control" id="ei-desc" placeholder="Örn: THY İstanbul-Berlin Gidiş Dönüş">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Satış Fiyatı (Müşteriden Alınan)</label>
+                        <div class="form-row">
+                            <input type="number" class="form-control" id="ei-amount" placeholder="0.00" required>
+                            <select class="form-control" style="width:100px;" id="ei-currency">
+                                <option value="TRY">TRY</option>
+                                <option value="USD">USD</option>
+                                <option value="EUR">EUR</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display:flex; align-items:center; cursor:pointer; gap:10px;">
+                            <input type="checkbox" id="ei-has-cost" onchange="document.getElementById('cost-box').style.display = this.checked ? 'block' : 'none'">
+                            <span style="font-weight:600; color:#ef4444;">Bu satışın bize bir maliyeti var mı? (Bilet alış fiyatı vb.)</span>
+                        </label>
+                    </div>
+
+                    <div id="cost-box" class="cost-section">
+                        <label style="color:#be123c;">Maliyet Tutarı (Bizim Ödediğimiz)</label>
+                        <div class="form-row">
+                            <input type="number" class="form-control" id="ei-cost-amount" placeholder="0.00">
+                            </div>
+                        <div style="font-size:11px; color:#be123c; margin-top:5px;">* Bu tutar kasadan 'Gider' olarak düşülecektir.</div>
+                    </div>
+
+                    <div class="form-group" style="margin-top:20px;">
+                        <label>Belge / Fatura (İsteğe Bağlı)</label>
+                        <div class="file-upload-area" onclick="document.getElementById('ei-file').click()">
+                            <span class="material-icons-round file-icon">cloud_upload</span>
+                            <span class="file-text" id="ei-file-text">Dosya seçmek için tıklayın (PDF, JPG, PNG)</span>
+                            <input type="file" id="ei-file" hidden onchange="document.getElementById('ei-file-text').innerText = this.files[0].name">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-blue" style="width:100%; margin-top:20px;">KAYDET</button>
                 </form>
             </div>
         </div>
     </div>
+
 
     <div class="modal-overlay" id="modal-exchange">
         <div class="modal-box">
