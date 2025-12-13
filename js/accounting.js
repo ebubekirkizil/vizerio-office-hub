@@ -338,7 +338,100 @@ window.accounting = {
     downloadBackup: function(){ if(!this.allTransactions.length) return alert("Veri yok."); let c="data:text/csv;charset=utf-8,Tarih,Aciklama,Tutar,Birim,Tip,Kategori,IP,Kullanici\n"; this.allTransactions.forEach(t=>{c+=`${new Date(t.created_at).toLocaleDateString()},"${t.description.replace(/"/g,'""')}",${t.amount},${t.currency},${t.type},${t.category},${t.user_ip||''},${t.created_by||''}\n`}); const e=encodeURI(c); const l=document.createElement("a"); l.setAttribute("href",e); l.setAttribute("download","Vizerio_Yedek.csv"); document.body.appendChild(l); l.click(); document.body.removeChild(l); }
 };
 
+    // A. KUR HESAPLAYICI (GÖRSEL)
+    calcExchangeRate: function() {
+        const outAmt = parseFloat(document.getElementById('ex-out-amt').value);
+        const inAmt = parseFloat(document.getElementById('ex-in-amt').value);
+        const outCurr = document.getElementById('ex-out-curr').value;
+        const inCurr = document.getElementById('ex-in-curr').value;
+        const infoBox = document.getElementById('ex-rate-info');
+        const display = document.getElementById('ex-rate-display');
 
+        if(outAmt > 0 && inAmt > 0) {
+            infoBox.style.display = 'block';
+            
+            // Kur Hesabı: Giren / Çıkan (Örn: 3400 TL / 100 USD = 34.00)
+            // Eğer Çıkan TL ise: 100 TL / 3 USD = 33.33 (Ters mantık)
+            
+            let rate = 0;
+            let text = "";
+
+            if (inCurr === 'TRY' && outCurr !== 'TRY') {
+                // Döviz Bozum (Döviz -> TL)
+                rate = inAmt / outAmt;
+                text = `1 ${outCurr} = ${rate.toFixed(4)} TL`;
+            } 
+            else if (outCurr === 'TRY' && inCurr !== 'TRY') {
+                // Döviz Alım (TL -> Döviz)
+                rate = outAmt / inAmt;
+                text = `1 ${inCurr} = ${rate.toFixed(4)} TL`;
+            }
+            else {
+                // Çapraz Kur (EUR -> USD vb.)
+                rate = inAmt / outAmt; // Basit oran
+                text = `Parite: ${rate.toFixed(4)}`;
+            }
+
+            display.innerText = text;
+        } else {
+            infoBox.style.display = 'none';
+        }
+    },
+
+    // B. KAYDETME (AÇIKLAMALI)
+    saveExchange: async function(e) {
+        e.preventDefault();
+        const btn = document.querySelector('#form-exchange button[type="submit"]');
+        const oldText = btn.innerText;
+        btn.disabled = true; btn.innerText = "İşleniyor...";
+
+        try {
+            const oa = document.getElementById('ex-out-amt').value;
+            const oc = document.getElementById('ex-out-curr').value;
+            const ia = document.getElementById('ex-in-amt').value;
+            const ic = document.getElementById('ex-in-curr').value;
+            const descInput = document.getElementById('ex-desc').value;
+
+            // Açıklama boşsa varsayılan yaz, doluysa onu kullan
+            const descText = descInput ? `Döviz İşlemi: ${descInput}` : 'Döviz Dönüşümü';
+
+            // İki hareket oluşturuyoruz (Biri Çıkan, Biri Giren)
+            const { error } = await window.supabaseClient.from('transactions').insert([
+                {
+                    type: 'expense', // Çıkan Para
+                    category: 'exchange_out',
+                    description: `${descText} (ÇIKIŞ)`,
+                    amount: oa,
+                    currency: oc,
+                    created_by: this.currentUserEmail,
+                    user_ip: this.userIP
+                },
+                {
+                    type: 'income', // Giren Para
+                    category: 'exchange_in',
+                    description: `${descText} (GİRİŞ)`,
+                    amount: ia,
+                    currency: ic,
+                    created_by: this.currentUserEmail,
+                    user_ip: this.userIP
+                }
+            ]);
+
+            if(error) throw error;
+
+            window.ui.closeModal('modal-exchange'); 
+            document.getElementById('form-exchange').reset();
+            document.getElementById('ex-rate-info').style.display = 'none'; // Kur kutusunu gizle
+            this.refreshDashboard();
+            alert("✅ Döviz işlemi kaydedildi.");
+
+        } catch (err) {
+            alert("Hata: " + err.message);
+        } finally {
+            btn.disabled = false; 
+            btn.innerText = oldText;
+        }
+    },
 
 // BUTON BAĞLANTILARI (FİX)
 window.addEventListener('load', () => { 
