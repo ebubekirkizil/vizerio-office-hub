@@ -234,25 +234,69 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="modal-expense">
+        <div class="modal-overlay" id="modal-expense">
         <div class="modal-box">
-            <div class="modal-header"><h3>Gider Ekle</h3><button class="close-btn" onclick="ui.closeModal('modal-expense')">✕</button></div>
+            <div class="modal-header">
+                <h3>Yeni Gider Ekle</h3>
+                <button class="close-btn" onclick="ui.closeModal('modal-expense')">✕</button>
+            </div>
             <div class="modal-body">
                 <form id="form-expense">
-                    <div class="form-group"><label>Başlık</label><input type="text" class="form-control" id="exp-title" required></div>
-                    <div class="form-group"><label>Kategori</label>
+                    
+                    <div class="form-group">
+                        <label>Gider Kategorisi</label>
                         <select class="form-control" id="exp-category">
-                            <optgroup label="OFİS"><option value="rent">Kira</option><option value="bills">Fatura</option></optgroup>
-                            <optgroup label="PERSONEL"><option value="salary">Maaş</option><option value="bonus">Prim</option></optgroup>
-                            <option value="other">Diğer</option>
+                            <option value="general">Genel Gider</option>
+                            <option value="rent">Kira & Ofis Aidat</option>
+                            <option value="bills">Faturalar (Elektrik/Su/İnternet)</option>
+                            <option value="software">Yazılım & Teknoloji (Developer)</option>
+                            <option value="personnel">Personel & Maaş</option>
+                            <option value="food">Yemek & İçecek</option>
+                            <option value="transport">Ulaşım & Yakıt</option>
+                            <option value="marketing">Reklam & Pazarlama</option>
+                            <option value="tax">Vergi & Stopaj</option>
+                            <option value="hardware">Demirbaş & Ekipman</option>
                         </select>
                     </div>
-                    <div class="form-group"><label>Tutar</label><div class="form-row"><input type="number" class="form-control" id="exp-amount" required><select class="form-control" style="width:100px;" id="exp-currency"><option>TRY</option><option>USD</option><option>EUR</option></select></div></div>
-                    <button class="btn btn-red" style="width:100%;">KAYDET</button>
+
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label>Harcama Başlığı</label>
+                            <input type="text" class="form-control" id="exp-title" placeholder="Örn: Sunucu Ödemesi" required>
+                        </div>
+                        <div class="form-group half">
+                            <label>Tutar</label>
+                            <div class="form-row" style="gap:5px;">
+                                <input type="number" class="form-control" id="exp-amount" placeholder="0.00" required>
+                                <select class="form-control" style="width:80px;" id="exp-currency">
+                                    <option value="TRY">TRY</option>
+                                    <option value="USD">USD</option>
+                                    <option value="EUR">EUR</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Detaylı Açıklama (İsteğe Bağlı)</label>
+                        <textarea class="form-control" id="exp-desc" rows="2" placeholder="Örn: 2 aylık AWS sunucu faturası ve domain yenileme..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Fatura / Fiş / Dekont</label>
+                        <div class="file-upload-area" onclick="document.getElementById('exp-file').click()" style="padding: 15px;">
+                            <span class="material-icons-round" style="color:#94a3b8;">attach_file</span>
+                            <span class="file-text" id="exp-file-text" style="margin-left:5px;">Dosya Yükle (PDF, Resim)</span>
+                            <input type="file" id="exp-file" hidden onchange="document.getElementById('exp-file-text').innerText = this.files[0].name; this.parentElement.style.borderColor='#10b981';">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-red" style="width:100%; margin-top:10px;">GİDERİ KAYDET</button>
                 </form>
             </div>
         </div>
     </div>
+
 
     <div class="modal-overlay" id="modal-escrow">
         <div class="modal-box">
