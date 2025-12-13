@@ -490,18 +490,59 @@
     </div>
 
 
-    <div class="modal-overlay" id="modal-exchange">
+        <div class="modal-overlay" id="modal-exchange">
         <div class="modal-box">
-            <div class="modal-header"><h3>Kur Dönüşümü</h3><button class="close-btn" onclick="ui.closeModal('modal-exchange')">✕</button></div>
+            <div class="modal-header">
+                <h3>Döviz Dönüşümü / Bozum</h3>
+                <button class="close-btn" onclick="ui.closeModal('modal-exchange')">✕</button>
+            </div>
             <div class="modal-body">
                 <form id="form-exchange">
-                    <div class="form-group"><label>Verilen (Çıkan)</label><div class="form-row"><input type="number" class="form-control" id="ex-out-amt" required><select class="form-control" id="ex-out-curr" style="width:100px;"><option>USD</option><option>EUR</option><option>TRY</option></select></div></div>
-                    <div class="form-group"><label>Alınan (Giren)</label><div class="form-row"><input type="number" class="form-control" id="ex-in-amt" required><select class="form-control" id="ex-in-curr" style="width:100px;"><option>TRY</option><option>USD</option><option>EUR</option></select></div></div>
-                    <button class="btn btn-blue" style="width:100%;">İŞLEMİ KAYDET</button>
+                    
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px;">
+                        
+                        <div style="flex:1;">
+                            <label style="color:#ef4444; font-weight:700;">ÇIKAN (Satılan)</label>
+                            <div class="form-row" style="gap:5px;">
+                                <input type="number" class="form-control" id="ex-out-amt" placeholder="0.00" oninput="accounting.calcExchangeRate()">
+                                <select class="form-control" style="width:80px;" id="ex-out-curr" onchange="accounting.calcExchangeRate()">
+                                    <option value="USD">USD</option>
+                                    <option value="EUR">EUR</option>
+                                    <option value="TRY">TRY</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <span class="material-icons-round" style="color:#64748b; margin-top:20px;">arrow_forward</span>
+
+                        <div style="flex:1;">
+                            <label style="color:#10b981; font-weight:700;">GİREN (Alınan)</label>
+                            <div class="form-row" style="gap:5px;">
+                                <input type="number" class="form-control" id="ex-in-amt" placeholder="0.00" oninput="accounting.calcExchangeRate()">
+                                <select class="form-control" style="width:80px;" id="ex-in-curr" onchange="accounting.calcExchangeRate()">
+                                    <option value="TRY" selected>TRY</option>
+                                    <option value="USD">USD</option>
+                                    <option value="EUR">EUR</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="ex-rate-info" style="background:#eff6ff; border:1px solid #bfdbfe; color:#1e40af; padding:10px; border-radius:8px; text-align:center; font-size:13px; font-weight:600; margin-bottom:15px; display:none;">
+                        İşlem Kuru: <span id="ex-rate-display">...</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>İşlem Açıklaması</label>
+                        <input type="text" class="form-control" id="ex-desc" placeholder="Örn: Kapalıçarşı Bozum, Ofis içi takas vb.">
+                    </div>
+
+                    <button type="submit" class="btn btn-blue" style="width:100%;">İŞLEMİ ONAYLA</button>
                 </form>
             </div>
         </div>
     </div>
+
 
     <div class="modal-overlay" id="modal-income">
         <div class="modal-box" style="width: 950px; max-height: 95vh;">
