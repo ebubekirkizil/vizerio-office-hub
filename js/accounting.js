@@ -294,19 +294,31 @@ window.accounting = {
         if(this.chartInstance) this.chartInstance.destroy();
         this.chartInstance = new Chart(ctx, { type:'line', data:{labels:l.length?l:['Wait'],datasets:[{label:'Net',data:p,borderColor:'#10b981',hidden:!this.chartState.profit},{label:'Ciro',data:i,borderColor:'#3b82f6',hidden:!this.chartState.income},{label:'Gider',data:e,borderColor:'#ef4444',hidden:!this.chartState.expense}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}} });
     },
-    translateCat: function(c) { const d={'rent':'Kira','bills':'Fatura','visa_service':'Vize Hizmeti','extra_service':'Ek Hizmet','escrow_deposit':'Emanet Girişi','escrow_refund':'Emanet İadesi','service_cost':'Hizmet Maliyeti','exchange_in':'Döviz Giriş','exchange_out':'Döviz Çıkış','archived_escrow':'Emanet (Kapandı)'}; return d[c]||c; },
-    renderTable: function(l) {
-        const tb = document.getElementById('transactions-body'); if(!tb) return; tb.innerHTML = '';
-        if (l.length === 0) { tb.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px;">Kayıt yok.</td></tr>'; return; }
-        l.forEach(t => {
-            let cl='row-expense', txt='text-red', sym='-';
-            if(t.type==='income'){ cl='row-income'; txt='text-green'; sym='+'; }
-            if(this.isEscrowItem(t)){ cl='row-escrow'; txt='text-orange'; } 
-            if(t.category && t.category.toLowerCase().includes('exchange')){ cl='row-transfer'; txt='text-primary'; sym='💱'; }
-            let cn = this.translateCat(t.category); if(t.category === 'archived_escrow') { cn = 'EMANET (KAPANDI)'; cl = 'row-escrow'; }
-            tb.innerHTML += `<tr class="${cl}" onclick="accounting.openTransactionDetail('${t.id}')"><td>${new Date(t.created_at).toLocaleDateString('tr-TR')}</td><td>${t.description}</td><td style="font-size:11px; font-weight:700;">${cn.toUpperCase()}</td><td class="${txt}" style="text-align:right; font-weight:800;">${sym} ${this.fmt(t.amount, t.currency)}</td></tr>`;
-        });
+        translateCat: function(c) { 
+        const d = {
+            'rent':'Kira & Ofis',
+            'bills':'Fatura',
+            'visa_service':'Vize Hizmeti',
+            'extra_service':'Ek Hizmet',
+            'escrow_deposit':'Emanet Girişi',
+            'escrow_refund':'Emanet İadesi',
+            'service_cost':'Hizmet Maliyeti',
+            'exchange_in':'Döviz Giriş',
+            'exchange_out':'Döviz Çıkış',
+            'archived_escrow':'Emanet (Kapandı)',
+            // Yeni Giderler
+            'software': 'Yazılım/Teknoloji',
+            'personnel': 'Personel/Maaş',
+            'food': 'Yemek/Gıda',
+            'transport': 'Ulaşım/Yakıt',
+            'marketing': 'Reklam/Pazarlama',
+            'tax': 'Vergi/Stopaj',
+            'hardware': 'Demirbaş',
+            'general': 'Genel Gider'
+        }; 
+        return d[c]||c; 
     },
+
     // Yardımcılar
     updateText: function(i, t) { const e = document.getElementById(i); if(e) e.innerText = t; },
     fmt: function(a, c) { return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: c }).format(a); },
