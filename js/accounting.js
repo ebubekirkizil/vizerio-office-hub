@@ -124,7 +124,7 @@ window.accounting = {
         finally { btn.disabled = false; btn.innerText = oldText; }
     },
 
-    // 3. DİĞER KAYITLAR (GİDER, EMANET GİRİŞİ)
+        // 3. GENEL KAYIT (GİDER, EK GELİR, EMANET) - GÜNCELLENDİ
     genericSave: async function(type, modalId, isEscrow=false) {
         const form = document.querySelector(`#${modalId} form`);
         const btn = form.querySelector('button');
@@ -133,12 +133,35 @@ window.accounting = {
 
         try {
             let cat='general', desc='', amt=0, curr='TRY';
+            let fileNote = ""; // Dosya notu için değişken
+
+            // --- GİDER FORMU ---
             if(modalId==='modal-expense'){ 
-                cat=document.getElementById('exp-category').value; 
-                desc=document.getElementById('exp-title').value; 
-                amt=document.getElementById('exp-amount').value; 
-                curr=document.getElementById('exp-currency').value; 
+                cat = document.getElementById('exp-category').value; 
+                const title = document.getElementById('exp-title').value; 
+                const detail = document.getElementById('exp-desc').value; // Detaylı açıklama
+                amt = document.getElementById('exp-amount').value; 
+                curr = document.getElementById('exp-currency').value; 
+                
+                // Dosya Kontrolü
+                const fileInput = document.getElementById('exp-file');
+                if(fileInput && fileInput.files.length > 0) {
+                    fileNote = ` [Belge: ${fileInput.files[0].name}]`;
+                }
+
+                // Açıklamayı Birleştir: "Başlık - Detay [Dosya]"
+                desc = `${title}`;
+                if(detail) desc += ` - ${detail}`;
+                desc += fileNote;
             }
+            // --- EK GELİR (BASİT) ---
+            else if(modalId==='modal-extra-income'){ 
+                cat='extra_service'; 
+                desc=document.getElementById('ei-customer').value; 
+                amt=document.getElementById('ei-amount').value; 
+                curr=document.getElementById('ei-currency').value; 
+            }
+            // --- EMANET GİRİŞİ ---
             else if(modalId==='modal-escrow'){ 
                 cat='escrow_deposit'; 
                 desc=document.getElementById('esc-customer').value; 
@@ -148,9 +171,16 @@ window.accounting = {
 
             if(!amt || amt<=0) throw new Error("Lütfen tutar giriniz.");
 
+            // Kayıt İşlemi
             const { error } = await window.supabaseClient.from('transactions').insert({ 
-                type: type, category: cat, description: desc, amount: amt, currency: curr, is_escrow: isEscrow,
-                created_by: this.currentUserEmail, user_ip: this.userIP
+                type: type, 
+                category: cat, 
+                description: desc, 
+                amount: amt, 
+                currency: curr, 
+                is_escrow: isEscrow,
+                created_by: this.currentUserEmail, 
+                user_ip: this.userIP
             });
 
             if (error) throw error;
@@ -158,11 +188,16 @@ window.accounting = {
             alert("✅ Kayıt Başarılı!");
             window.ui.closeModal(modalId);
             form.reset();
+            // Dosya yükleme yazısını sıfırla
+            if(document.getElementById('exp-file-text')) document.getElementById('exp-file-text').innerText = "Dosya Yükle (PDF, Resim)";
+            if(document.getElementById('exp-file')) document.getElementById('exp-file').parentElement.style.borderColor = '#cbd5e1';
+            
             this.refreshDashboard();
 
         } catch (err) { alert("🛑 HATA: " + err.message); } 
         finally { btn.disabled = false; btn.innerText = oldText; }
     },
+
 
     // 4. EMANET İŞLEM (ÇIKIŞ/İADE/SİLME)
     saveEscrowAction: async function(e) {
