@@ -864,7 +864,78 @@
     <script src="js/supabase.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/auth.js"></script>
-    <script src="js/accounting.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Ekrana bilgi ver
+        // alert("Sistem başlatılıyor... (Supabase Kontrol)");
+
+        // 1. Supabase Bağlantı Kontrolü
+        if (!window.supabaseClient) {
+            alert("KRİTİK HATA: Supabase bağlantısı yok! Lütfen internetinizi kontrol edin.");
+            return;
+        }
+
+        try {
+            // 2. Verileri Çek
+            const { data: list, error } = await window.supabaseClient
+                .from('transactions')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+
+            // 3. Veri Yoksa Uyar
+            if (!list || list.length === 0) {
+                alert("Bağlantı başarılı ama KAYIT BULUNAMADI. Tablo boş.");
+                return;
+            }
+
+            // 4. Tabloyu Doldur
+            const tbody = document.getElementById('transactions-body');
+            if (tbody) {
+                tbody.innerHTML = ''; // Temizle
+                
+                let tTRY = 0, tUSD = 0, tEUR = 0; // Toplamlar
+
+                list.forEach(item => {
+                    // Sayısal değerleri güvenli al
+                    const amount = parseFloat(item.amount) || 0;
+                    const curr = item.currency || 'TRY';
+                    const type = item.type || 'expense';
+
+                    // Hesapla
+                    if(curr === 'TRY') type === 'income' ? tTRY += amount : tTRY -= amount;
+                    if(curr === 'USD') type === 'income' ? tUSD += amount : tUSD -= amount;
+                    if(curr === 'EUR') type === 'income' ? tEUR += amount : tEUR -= amount;
+
+                    // Ekrana Bas
+                    tbody.innerHTML += `
+                        <tr style="border-bottom:1px solid #eee;">
+                            <td style="padding:10px;">${new Date(item.created_at).toLocaleDateString('tr-TR')}</td>
+                            <td style="padding:10px;">${item.description || '-'}</td>
+                            <td style="padding:10px;">${item.category || '-'}</td>
+                            <td style="padding:10px; text-align:right; font-weight:bold; color:${type === 'income' ? 'green' : 'red'}">
+                                ${type === 'income' ? '+' : '-'} ${amount} ${curr}
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                // 5. Kasa Kartlarını Güncelle
+                if(document.getElementById('wallet-try')) document.getElementById('wallet-try').innerText = '₺' + tTRY.toLocaleString('tr-TR');
+                if(document.getElementById('wallet-usd')) document.getElementById('wallet-usd').innerText = '$' + tUSD.toLocaleString('tr-TR');
+                if(document.getElementById('wallet-eur')) document.getElementById('wallet-eur').innerText = '€' + tEUR.toLocaleString('tr-TR');
+                
+                // Başarı Mesajı (İstersen bunu silebilirsin)
+                // alert("Veriler Başarıyla Yüklendi! Toplam: " + list.length + " işlem.");
+            }
+
+        } catch (err) {
+            alert("VERİ ÇEKME HATASI: " + err.message);
+        }
+    });
+</script>
+
     <script src="js/crm.js"></script>
     <script src="js/app.js"></script>
     <script>window.addEventListener('load', ()=>{ document.getElementById('main-app').style.display='flex'; });</script>
