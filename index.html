@@ -865,115 +865,201 @@
     <script src="js/ui.js"></script>
     <script src="js/auth.js"></script>
     <script>
+    // 1. GLOBAL FONKSİYONLAR (HTML'deki onclick'lerin çalışması için)
+    window.app = {
+        // Sekme Değiştirme (Sol Menü)
+        switchTab: function(tabId) {
+            console.log("Sekme değiştiriliyor:", tabId);
+            
+            // Tüm bölümleri gizle
+            document.querySelectorAll('.content-section').forEach(el => el.style.display = 'none');
+            // İstenen bölümü göster (ID'si "section-finance" gibi olmalı)
+            const target = document.getElementById('section-' + tabId);
+            if(target) {
+                target.style.display = 'block';
+            } else {
+                // Eğer section ID'leri farklıysa varsayılan olarak main-app içini yönet
+                console.warn("Hedef bölüm bulunamadı, varsayılan görünüm korunuyor.");
+            }
+
+            // Menü aktiflik ayarı
+            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+            // Tıklananı aktif yap (Basit seçim)
+            event.currentTarget.classList.add('active');
+        },
+
+        // Emanet Silme (Gerekirse)
+        deleteEscrowTransaction: async function(id) {
+            if(confirm("Bu kaydı silmek istediğine emin misin?")) {
+                const { error } = await window.supabaseClient.from('transactions').delete().eq('id', id);
+                if(!error) location.reload();
+            }
+        }
+    };
+
+    window.ui = {
+        // Modal Açma/Kapama
+        openModal: function(modalId) {
+            const modal = document.getElementById(modalId);
+            if(modal) {
+                modal.style.display = 'flex'; // Veya 'block'
+                modal.classList.add('show');
+            } else {
+                alert("Emanet Detay Penceresi (Modal) HTML'de bulunamadı!");
+            }
+        },
+        closeModal: function(modalId) {
+            const modal = document.getElementById(modalId);
+            if(modal) modal.style.display = 'none';
+        }
+    };
+
+    // 2. SAYFA YÜKLENİNCE ÇALIŞACAK ANA MOTOR
     document.addEventListener('DOMContentLoaded', async () => {
-        // 1. SUPABASE KONTROLÜ
+        
+        // A) Supabase Kontrol
         if (!window.supabaseClient) {
-            console.error("Supabase bulunamadı!");
+            alert("Veritabanı bağlantısı yok! (script.js eksik)");
             return;
         }
 
         try {
-            // 2. VERİLERİ ÇEK (Tüm geçmiş işlemler)
+            // B) Verileri Çek
             const { data: list, error } = await window.supabaseClient
                 .from('transactions')
                 .select('*')
-                .order('created_at', { ascending: false });
+                .order('created_at', { ascending: true }); // Grafiğin düzgün çizilmesi için eskidne yeniye sıraladık
 
             if (error) throw error;
+            if (!list) return;
 
-            // Veri yoksa dur
-            if (!list || list.length === 0) return;
-
-            // 3. HESAPLAMA DEĞİŞKENLERİ
+            // C) Değişkenler
             let wallet = { TRY: 0, USD: 0, EUR: 0 };
-            let totalIncome = 0; // Toplam Ciro (TL Bazlı Tahmini)
-            let totalExpense = 0; // Toplam Gider (TL Bazlı Tahmini)
-            let escrowTotal = 0; // Toplam Emanet Sayısı
+            let totalIncome = 0; 
+            let totalExpense = 0; 
+            let escrowCount = 0;
+            
+            // Grafik için veri hazırlığı
+            let chartLabels = [];
+            let chartDataTRY = [];
+            let runningBalance = 0;
 
-            // Tabloyu Temizle
+            // Tablo Elementi
             const tbody = document.getElementById('transactions-body');
             if (tbody) tbody.innerHTML = '';
 
-            // 4. LİSTEYİ DÖN VE HESAPLA
+            // LİSTEYİ TERS ÇEVİR (Tabloda en yeniyi en üstte göstermek için)
+            const reverseList = [...list].reverse(); 
+
+            // D) HESAPLAMA DÖNGÜSÜ
+            // Önce grafik için (Eskiden yeniye)
             list.forEach(item => {
                 const amt = parseFloat(item.amount) || 0;
                 const curr = item.currency || 'TRY';
-                const type = item.type || 'expense'; // income veya expense
-                const isEscrow = item.is_escrow || false;
+                const type = item.type || 'expense';
+                
+                // Grafik (Sadece TL işlemleri baz alalım karmaşa olmasın)
+                if(curr === 'TRY') {
+                    if(type === 'income') runningBalance += amt;
+                    else runningBalance -= amt;
+                    
+                    chartLabels.push(new Date(item.created_at).toLocaleDateString('tr-TR'));
+                    chartDataTRY.push(runningBalance);
+                }
 
-                // A) KASA HESABI (Cüzdan)
+                // Cüzdan Hesapları
                 if (type === 'income') {
                     wallet[curr] += amt;
-                    // Ciro Hesabı (Basit kur tahmini ile hepsi TL gibi gösterelim şimdilik)
                     if(curr === 'TRY') totalIncome += amt;
-                    if(curr === 'USD') totalIncome += (amt * 34.5);
-                    if(curr === 'EUR') totalIncome += (amt * 36.5);
                 } else {
                     wallet[curr] -= amt;
-                    // Gider Hesabı
                     if(curr === 'TRY') totalExpense += amt;
-                    if(curr === 'USD') totalExpense += (amt * 34.5);
-                    if(curr === 'EUR') totalExpense += (amt * 36.5);
                 }
-
-                if (isEscrow) escrowTotal++;
-
-                // B) TABLOYA YAZDIR (Tasarımı Düzgün)
-                if (tbody) {
-                    // Tarih Formatı
-                    const dateObj = new Date(item.created_at);
-                    const dateStr = dateObj.toLocaleDateString('tr-TR');
-                    
-                    // Renkler
-                    const colorClass = type === 'income' ? 'text-green-600' : 'text-red-600';
-                    const icon = type === 'income' ? 'arrow_downward' : 'arrow_upward';
-                    const bgClass = type === 'income' ? 'bg-green-50' : 'bg-red-50';
-
-                    tbody.innerHTML += `
-                        <tr class="hover:bg-gray-50 transition-colors border-b border-gray-100">
-                            <td class="p-4 whitespace-nowrap text-sm text-gray-600">${dateStr}</td>
-                            <td class="p-4 text-sm font-medium text-gray-900">${item.description || 'İsimsiz'}</td>
-                            <td class="p-4">
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full ${item.is_escrow ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-600'}">
-                                    ${item.category || 'Genel'}
-                                </span>
-                            </td>
-                            <td class="p-4 text-right whitespace-nowrap text-sm font-bold ${colorClass}">
-                                ${type === 'income' ? '+' : '-'} ${amt.toLocaleString('tr-TR')} ${curr}
-                            </td>
-                        </tr>
-                    `;
-                }
+                
+                if(item.is_escrow) escrowCount++;
             });
 
-            // 5. KARTLARI GÜNCELLE (DOM Manipülasyonu)
-            
-            // Kasa Varlıkları
-            if(document.getElementById('wallet-try')) document.getElementById('wallet-try').innerText = '₺' + wallet.TRY.toLocaleString('tr-TR', {minimumFractionDigits: 2});
-            if(document.getElementById('wallet-usd')) document.getElementById('wallet-usd').innerText = '$' + wallet.USD.toLocaleString('tr-TR', {minimumFractionDigits: 2});
-            if(document.getElementById('wallet-eur')) document.getElementById('wallet-eur').innerText = '€' + wallet.EUR.toLocaleString('tr-TR', {minimumFractionDigits: 2});
-            
-            // Toplam Varlık (Hepsini TL'ye çevirip gösterelim)
-            const totalAssets = wallet.TRY + (wallet.USD * 34.5) + (wallet.EUR * 36.5);
-            const totalAssetEl = document.querySelector('.total-asset-value'); // Eğer class varsa
-            if(totalAssetEl) totalAssetEl.innerText = '₺' + totalAssets.toLocaleString('tr-TR', {maximumFractionDigits: 0});
+            // E) TABLOYU DOLDUR (Yeniden eskiye)
+            reverseList.forEach(item => {
+                if (!tbody) return;
+                const amt = parseFloat(item.amount) || 0;
+                const type = item.type || 'expense';
+                const colorClass = type === 'income' ? 'color:green' : 'color:red';
+                const sign = type === 'income' ? '+' : '-';
 
-            // Alt Bilgi Kartları (Net Kâr vs.)
-            // Bu ID'ler HTML'de varsa doldurur
-            const netProfit = totalIncome - totalExpense;
-            
-            // ID'leri senin eski koduna göre tahmin ediyorum, varsa çalışır:
-            const elProfit = document.querySelector('.card-profit-value') || document.getElementById('net-profit-display');
-            if(elProfit) elProfit.innerText = '₺' + netProfit.toLocaleString('tr-TR', {maximumFractionDigits: 0});
+                tbody.innerHTML += `
+                    <tr style="border-bottom:1px solid #f0f0f0;">
+                        <td style="padding:12px;">${new Date(item.created_at).toLocaleDateString('tr-TR')}</td>
+                        <td style="padding:12px; font-weight:500;">${item.description || '-'}</td>
+                        <td style="padding:12px;">${item.category || 'Genel'}</td>
+                        <td style="padding:12px; text-align:right; font-weight:bold; ${colorClass}">
+                            ${sign} ${amt.toLocaleString('tr-TR')} ${item.currency}
+                        </td>
+                    </tr>
+                `;
+            });
 
-            const elIncome = document.querySelector('.card-income-value');
-            if(elIncome) elIncome.innerText = '₺' + totalIncome.toLocaleString('tr-TR', {maximumFractionDigits: 0});
+            // F) KARTLARI GÜNCELLE
+            const setTxt = (id, val, sym) => {
+                const el = document.getElementById(id);
+                if(el) el.innerText = sym + val.toLocaleString('tr-TR', {minimumFractionDigits: 2});
+            };
+
+            setTxt('wallet-try', wallet.TRY, '₺');
+            setTxt('wallet-usd', wallet.USD, '$');
+            setTxt('wallet-eur', wallet.EUR, '€');
             
-            const elExpense = document.querySelector('.card-expense-value');
-            if(elExpense) elExpense.innerText = '₺' + totalExpense.toLocaleString('tr-TR', {maximumFractionDigits: 0});
+            // Alt Bilgi Kartları (Gelir/Gider/Kâr) - HTML ID'lerini tahmin ediyoruz
+            // Eğer senin HTML'de bu ID'ler yoksa ekrana basmaz, sorun değil.
+            if(document.querySelector('.card-profit-value')) document.querySelector('.card-profit-value').innerText = '₺' + (totalIncome - totalExpense).toLocaleString('tr-TR');
+            if(document.querySelector('.card-income-value')) document.querySelector('.card-income-value').innerText = '₺' + totalIncome.toLocaleString('tr-TR');
+            if(document.querySelector('.card-expense-value')) document.querySelector('.card-expense-value').innerText = '₺' + totalExpense.toLocaleString('tr-TR');
+            
+            // Emanet Sayısı
+            const escrowEl = document.querySelector('.card-escrow-value') || document.getElementById('escrow-count-display');
+            if(escrowEl) escrowEl.innerText = escrowCount + " Adet";
+
+            // G) EMANET KARTINA ÇİFT TIKLAMA ÖZELLİĞİ EKLE
+            const escrowCard = document.querySelector('.card-escrow') || document.getElementById('card-escrow');
+            if(escrowCard) {
+                escrowCard.ondblclick = function() {
+                    window.ui.openModal('modal-escrow-details'); // Modal ID'si doğru olmalı
+                };
+                // Kullanıcıya ipucu ver
+                escrowCard.style.cursor = "pointer";
+                escrowCard.title = "Detaylar için çift tıkla";
+            }
+
+            // H) GRAFİĞİ ÇİZ (Chart.js)
+            const ctx = document.getElementById('financeChart'); // Canvas ID'si 'financeChart' olmalı
+            if (ctx && window.Chart) {
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: chartLabels,
+                        datasets: [{
+                            label: 'Kasa Durumu (TL)',
+                            data: chartDataTRY,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true } }
+                    }
+                });
+            } else {
+                console.warn("Grafik çizilemedi: Canvas veya Chart.js kütüphanesi eksik.");
+            }
 
         } catch (err) {
             console.error("Sistem Hatası:", err);
+            alert("Bir hata oluştu: " + err.message);
         }
     });
 </script>
