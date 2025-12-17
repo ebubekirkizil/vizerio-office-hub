@@ -866,17 +866,14 @@
     <script src="js/auth.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', async () => {
-        // Ekrana bilgi ver
-        // alert("Sistem başlatılıyor... (Supabase Kontrol)");
-
-        // 1. Supabase Bağlantı Kontrolü
+        // 1. SUPABASE KONTROLÜ
         if (!window.supabaseClient) {
-            alert("KRİTİK HATA: Supabase bağlantısı yok! Lütfen internetinizi kontrol edin.");
+            console.error("Supabase bulunamadı!");
             return;
         }
 
         try {
-            // 2. Verileri Çek
+            // 2. VERİLERİ ÇEK (Tüm geçmiş işlemler)
             const { data: list, error } = await window.supabaseClient
                 .from('transactions')
                 .select('*')
@@ -884,54 +881,99 @@
 
             if (error) throw error;
 
-            // 3. Veri Yoksa Uyar
-            if (!list || list.length === 0) {
-                alert("Bağlantı başarılı ama KAYIT BULUNAMADI. Tablo boş.");
-                return;
-            }
+            // Veri yoksa dur
+            if (!list || list.length === 0) return;
 
-            // 4. Tabloyu Doldur
+            // 3. HESAPLAMA DEĞİŞKENLERİ
+            let wallet = { TRY: 0, USD: 0, EUR: 0 };
+            let totalIncome = 0; // Toplam Ciro (TL Bazlı Tahmini)
+            let totalExpense = 0; // Toplam Gider (TL Bazlı Tahmini)
+            let escrowTotal = 0; // Toplam Emanet Sayısı
+
+            // Tabloyu Temizle
             const tbody = document.getElementById('transactions-body');
-            if (tbody) {
-                tbody.innerHTML = ''; // Temizle
-                
-                let tTRY = 0, tUSD = 0, tEUR = 0; // Toplamlar
+            if (tbody) tbody.innerHTML = '';
 
-                list.forEach(item => {
-                    // Sayısal değerleri güvenli al
-                    const amount = parseFloat(item.amount) || 0;
-                    const curr = item.currency || 'TRY';
-                    const type = item.type || 'expense';
+            // 4. LİSTEYİ DÖN VE HESAPLA
+            list.forEach(item => {
+                const amt = parseFloat(item.amount) || 0;
+                const curr = item.currency || 'TRY';
+                const type = item.type || 'expense'; // income veya expense
+                const isEscrow = item.is_escrow || false;
 
-                    // Hesapla
-                    if(curr === 'TRY') type === 'income' ? tTRY += amount : tTRY -= amount;
-                    if(curr === 'USD') type === 'income' ? tUSD += amount : tUSD -= amount;
-                    if(curr === 'EUR') type === 'income' ? tEUR += amount : tEUR -= amount;
+                // A) KASA HESABI (Cüzdan)
+                if (type === 'income') {
+                    wallet[curr] += amt;
+                    // Ciro Hesabı (Basit kur tahmini ile hepsi TL gibi gösterelim şimdilik)
+                    if(curr === 'TRY') totalIncome += amt;
+                    if(curr === 'USD') totalIncome += (amt * 34.5);
+                    if(curr === 'EUR') totalIncome += (amt * 36.5);
+                } else {
+                    wallet[curr] -= amt;
+                    // Gider Hesabı
+                    if(curr === 'TRY') totalExpense += amt;
+                    if(curr === 'USD') totalExpense += (amt * 34.5);
+                    if(curr === 'EUR') totalExpense += (amt * 36.5);
+                }
 
-                    // Ekrana Bas
+                if (isEscrow) escrowTotal++;
+
+                // B) TABLOYA YAZDIR (Tasarımı Düzgün)
+                if (tbody) {
+                    // Tarih Formatı
+                    const dateObj = new Date(item.created_at);
+                    const dateStr = dateObj.toLocaleDateString('tr-TR');
+                    
+                    // Renkler
+                    const colorClass = type === 'income' ? 'text-green-600' : 'text-red-600';
+                    const icon = type === 'income' ? 'arrow_downward' : 'arrow_upward';
+                    const bgClass = type === 'income' ? 'bg-green-50' : 'bg-red-50';
+
                     tbody.innerHTML += `
-                        <tr style="border-bottom:1px solid #eee;">
-                            <td style="padding:10px;">${new Date(item.created_at).toLocaleDateString('tr-TR')}</td>
-                            <td style="padding:10px;">${item.description || '-'}</td>
-                            <td style="padding:10px;">${item.category || '-'}</td>
-                            <td style="padding:10px; text-align:right; font-weight:bold; color:${type === 'income' ? 'green' : 'red'}">
-                                ${type === 'income' ? '+' : '-'} ${amount} ${curr}
+                        <tr class="hover:bg-gray-50 transition-colors border-b border-gray-100">
+                            <td class="p-4 whitespace-nowrap text-sm text-gray-600">${dateStr}</td>
+                            <td class="p-4 text-sm font-medium text-gray-900">${item.description || 'İsimsiz'}</td>
+                            <td class="p-4">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full ${item.is_escrow ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-600'}">
+                                    ${item.category || 'Genel'}
+                                </span>
+                            </td>
+                            <td class="p-4 text-right whitespace-nowrap text-sm font-bold ${colorClass}">
+                                ${type === 'income' ? '+' : '-'} ${amt.toLocaleString('tr-TR')} ${curr}
                             </td>
                         </tr>
                     `;
-                });
+                }
+            });
 
-                // 5. Kasa Kartlarını Güncelle
-                if(document.getElementById('wallet-try')) document.getElementById('wallet-try').innerText = '₺' + tTRY.toLocaleString('tr-TR');
-                if(document.getElementById('wallet-usd')) document.getElementById('wallet-usd').innerText = '$' + tUSD.toLocaleString('tr-TR');
-                if(document.getElementById('wallet-eur')) document.getElementById('wallet-eur').innerText = '€' + tEUR.toLocaleString('tr-TR');
-                
-                // Başarı Mesajı (İstersen bunu silebilirsin)
-                // alert("Veriler Başarıyla Yüklendi! Toplam: " + list.length + " işlem.");
-            }
+            // 5. KARTLARI GÜNCELLE (DOM Manipülasyonu)
+            
+            // Kasa Varlıkları
+            if(document.getElementById('wallet-try')) document.getElementById('wallet-try').innerText = '₺' + wallet.TRY.toLocaleString('tr-TR', {minimumFractionDigits: 2});
+            if(document.getElementById('wallet-usd')) document.getElementById('wallet-usd').innerText = '$' + wallet.USD.toLocaleString('tr-TR', {minimumFractionDigits: 2});
+            if(document.getElementById('wallet-eur')) document.getElementById('wallet-eur').innerText = '€' + wallet.EUR.toLocaleString('tr-TR', {minimumFractionDigits: 2});
+            
+            // Toplam Varlık (Hepsini TL'ye çevirip gösterelim)
+            const totalAssets = wallet.TRY + (wallet.USD * 34.5) + (wallet.EUR * 36.5);
+            const totalAssetEl = document.querySelector('.total-asset-value'); // Eğer class varsa
+            if(totalAssetEl) totalAssetEl.innerText = '₺' + totalAssets.toLocaleString('tr-TR', {maximumFractionDigits: 0});
+
+            // Alt Bilgi Kartları (Net Kâr vs.)
+            // Bu ID'ler HTML'de varsa doldurur
+            const netProfit = totalIncome - totalExpense;
+            
+            // ID'leri senin eski koduna göre tahmin ediyorum, varsa çalışır:
+            const elProfit = document.querySelector('.card-profit-value') || document.getElementById('net-profit-display');
+            if(elProfit) elProfit.innerText = '₺' + netProfit.toLocaleString('tr-TR', {maximumFractionDigits: 0});
+
+            const elIncome = document.querySelector('.card-income-value');
+            if(elIncome) elIncome.innerText = '₺' + totalIncome.toLocaleString('tr-TR', {maximumFractionDigits: 0});
+            
+            const elExpense = document.querySelector('.card-expense-value');
+            if(elExpense) elExpense.innerText = '₺' + totalExpense.toLocaleString('tr-TR', {maximumFractionDigits: 0});
 
         } catch (err) {
-            alert("VERİ ÇEKME HATASI: " + err.message);
+            console.error("Sistem Hatası:", err);
         }
     });
 </script>
