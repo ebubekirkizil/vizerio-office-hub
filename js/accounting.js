@@ -1,14 +1,14 @@
 window.accounting = {
-    // Sabit Kur Tanımları (Başlangıç için)
+    // Sabit Kur Tanımları
     liveRates: { TRY: 1, USD: 34.50, EUR: 36.50 },
     
     // Verileri Çekme ve Ekrana Basma Fonksiyonu
     refreshDashboard: async function() {
         console.log("Veriler çekiliyor...");
         
-        // Supabase bağlantısı var mı kontrol et
+        // Supabase bağlantısı kontrolü
         if (!window.supabaseClient) {
-            console.error("Supabase Client bulunamadı!");
+            console.error("HATA: Supabase Client bulunamadı! script.js yüklendi mi?");
             return;
         }
 
@@ -19,40 +19,41 @@ window.accounting = {
             .order('created_at', { ascending: false });
 
         if (error) {
-            console.error("Veri Hatası:", error);
+            console.error("Veri Çekme Hatası:", error);
             alert("Veriler alınamadı: " + error.message);
             return;
         }
 
-        console.log("Gelen Veriler:", list); // Konsolda verileri görmek için
+        console.log("Gelen Veriler:", list); // Kontrol için
 
         // 2. Tabloyu Temizle ve Doldur
         const tbody = document.getElementById('transactions-body');
         if(tbody) {
-            tbody.innerHTML = ''; // Eski verileri temizle
+            tbody.innerHTML = ''; // Temizle
             
             if (!list || list.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;"><b>Kayıt Yok</b><br>Veritabanı boş veya erişim izni yok.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;"><b>Kayıt Yok</b><br>Henüz işlem girilmemiş.</td></tr>';
             } else {
                 list.forEach(t => {
-                    // Veri güvenliği (Null kontrolü)
+                    // Veri güvenliği (Boş gelirse tire koy)
                     const date = t.created_at ? new Date(t.created_at).toLocaleDateString('tr-TR') : '-';
                     const desc = t.description || 'İsimsiz İşlem';
                     const amt = t.amount || 0;
                     const curr = t.currency || 'TRY';
                     const type = t.type || 'expense';
+                    const category = t.category || 'Genel';
                     
-                    // Renk Ayarı
-                    let color = type === 'income' ? 'green' : 'red';
+                    // Renk Ayarı (Gelir yeşil, Gider kırmızı)
+                    let color = type === 'income' ? 'text-green-600' : 'text-red-600';
                     let sign = type === 'income' ? '+' : '-';
 
                     // Satırı Ekle
                     tbody.innerHTML += `
                         <tr style="border-bottom:1px solid #eee;">
                             <td style="padding:10px;">${date}</td>
-                            <td style="padding:10px;">${desc}</td>
-                            <td style="padding:10px;"><span class="badge">${t.category || '-'}</span></td>
-                            <td style="padding:10px; text-align:right; color:${color}; font-weight:bold;">
+                            <td style="padding:10px; font-weight:500;">${desc}</td>
+                            <td style="padding:10px;"><span style="background:#f1f5f9; padding:2px 8px; border-radius:4px; font-size:12px;">${category}</span></td>
+                            <td style="padding:10px; text-align:right; font-weight:bold;" class="${color}">
                                 ${sign} ${amt} ${curr}
                             </td>
                         </tr>
@@ -70,7 +71,6 @@ window.accounting = {
         let totals = { TRY: 0, USD: 0, EUR: 0 };
 
         transactions.forEach(t => {
-            // Sadece sayısal değerleri al
             let val = parseFloat(t.amount);
             if (isNaN(val)) val = 0;
 
@@ -83,51 +83,65 @@ window.accounting = {
             }
         });
 
-        // Ekrana Yazdır
-        if(document.getElementById('wallet-try')) document.getElementById('wallet-try').innerText = '₺' + totals.TRY.toFixed(2);
-        if(document.getElementById('wallet-usd')) document.getElementById('wallet-usd').innerText = '$' + totals.USD.toFixed(2);
-        if(document.getElementById('wallet-eur')) document.getElementById('wallet-eur').innerText = '€' + totals.EUR.toFixed(2);
+        // Ekrana Yazdır (Elementler varsa)
+        const updateEl = (id, val, sym) => {
+            const el = document.getElementById(id);
+            if(el) el.innerText = sym + val.toLocaleString('tr-TR', {minimumFractionDigits: 2});
+        };
+
+        updateEl('wallet-try', totals.TRY, '₺');
+        updateEl('wallet-usd', totals.USD, '$');
+        updateEl('wallet-eur', totals.EUR, '€');
     },
     
-    // Emanet Penceresini Aç (Basit Versiyon)
+    // Emanet Penceresini Aç
     openEscrowDetails: function() {
         if(window.ui && window.ui.openModal) {
             window.ui.openModal('modal-escrow-details');
-            this.switchEscrowTab('EUR');
+            this.switchEscrowTab('EUR'); // Varsayılan EUR aç
         } else {
-            alert("Modal açma fonksiyonu (window.ui) bulunamadı!");
+            console.error("UI Modülü (window.ui) bulunamadı!");
         }
     },
 
     // Emanet Sekmesi Değiştirme
     switchEscrowTab: function(curr) {
+        // Sekme butonlarının rengini ayarla (Aktif olanı seç)
+        document.querySelectorAll('.esc-tab-btn').forEach(btn => {
+            if(btn.innerText.includes(curr)) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+
         const container = document.getElementById('escrow-dynamic-content');
         if(container) {
-            container.innerHTML = `<div style="padding:20px; text-align:center;"><b>${curr} KASA YÜKLENİYOR...</b></div>`;
+            container.innerHTML = `<div style="padding:40px; text-align:center;"><b>${curr} KASA YÜKLENİYOR...</b></div>`;
             
-            // Veritabanından sadece o para birimine ait emanetleri çek
+            // Veritabanından sadece o para birimine ait EMANETLERİ çek
             window.supabaseClient
                 .from('transactions')
                 .select('*')
-                .eq('is_escrow', true)
-                .eq('currency', curr)
+                .eq('is_escrow', true)  // Sadece emanetler
+                .eq('currency', curr)   // Sadece seçilen para birimi
+                .order('created_at', { ascending: false })
                 .then(({ data, error }) => {
                     if(error) {
-                        container.innerHTML = "Hata: " + error.message;
+                        container.innerHTML = "<div style='color:red; text-align:center'>Hata: " + error.message + "</div>";
                         return;
                     }
                     
                     if(!data || data.length === 0) {
-                        container.innerHTML = `<div style="padding:40px; text-align:center; color:#999;">Bu kasada emanet yok.</div>`;
+                        container.innerHTML = `<div style="padding:40px; text-align:center; color:#999;">Bu kasada aktif emanet yok.</div>`;
                     } else {
-                        let html = '<table style="width:100%; border-collapse:collapse;">';
-                        html += '<tr style="background:#f1f5f9; text-align:left;"><th>Açıklama</th><th style="text-align:right">Tutar</th></tr>';
+                        let html = '<table style="width:100%; border-collapse:collapse; background:white;">';
+                        html += '<tr style="background:#f8fafc; text-align:left; color:#64748b; font-size:12px;"><th style="padding:10px;">TARİH</th><th style="padding:10px;">AÇIKLAMA</th><th style="padding:10px; text-align:right">TUTAR</th></tr>';
                         
                         data.forEach(x => {
+                             const date = new Date(x.created_at).toLocaleDateString('tr-TR');
                              html += `
-                             <tr style="border-bottom:1px solid #eee;">
-                                <td style="padding:10px;">${x.description}</td>
-                                <td style="padding:10px; text-align:right;">${x.amount} ${x.currency}</td>
+                             <tr style="border-bottom:1px solid #f1f5f9;">
+                                <td style="padding:12px; font-size:13px;">${date}</td>
+                                <td style="padding:12px; font-weight:600;">${x.description}</td>
+                                <td style="padding:12px; text-align:right; color:#10b981; font-weight:bold;">+ ${x.amount} ${x.currency}</td>
                              </tr>`;
                         });
                         html += '</table>';
@@ -140,9 +154,10 @@ window.accounting = {
 
 // Sayfa Yüklendiğinde Başlat
 window.addEventListener('load', () => {
+    // Supabase'in yüklenmesi için kısa bir süre tanı
     setTimeout(() => {
-        if(window.accounting) {
+        if(window.accounting && window.accounting.refreshDashboard) {
             window.accounting.refreshDashboard();
         }
-    }, 1000); // 1 saniye bekle ki Supabase tam yüklensin
+    }, 500);
 });
