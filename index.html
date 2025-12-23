@@ -11,6 +11,7 @@
 </head>
 <body>
     <div class="app-container" id="main-app">
+        
         <aside class="sidebar">
             <div class="logo-area"><h2>VIZERIO</h2></div>
             <nav class="menu">
@@ -31,6 +32,7 @@
 
         <section id="section-settings" class="content-section" style="display:none;">
             <h2 style="margin-bottom: 25px; font-size: 24px;">Hesap ve Sistem Ayarları</h2>
+
             <div class="settings-tabs">
                 <button class="settings-tab-btn active" onclick="ui.switchSettingsTab('personal', this)">
                     <span class="material-icons-round">person</span> Kişisel Profil
@@ -92,6 +94,7 @@
         </section>
 
         <main class="main-content">
+            
             <header class="top-header">
                 <div class="header-left">
                     <div class="search-bar">
@@ -105,6 +108,7 @@
             </header>
 
             <section id="section-finance" class="content-section active">
+                
                 <div style="background:white; border-radius:16px; border:1px solid #e2e8f0; padding:25px; margin-bottom:25px;">
                     <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
                         <h3 style="margin:0; font-size:18px;">Kasa Varlıkları</h3>
@@ -156,6 +160,7 @@
                 </div>
 
                 <div class="chart-table-wrapper">
+                    
                     <div class="card" style="padding: 25px; margin-bottom: 25px; min-height: 400px;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                             <div style="display:flex; align-items:center; gap:15px;">
@@ -182,10 +187,12 @@
                    <div class="card" style="padding:0; overflow:hidden; border:1px solid #e2e8f0; margin-top: 20px;">
                         <div style="padding:20px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center; background:#fff;">
                             <span style="font-weight:800; color:#1e293b; font-size:14px; letter-spacing:0.5px;">SON İŞLEMLER</span>
+                            
                             <button class="btn-filter" onclick="accounting && accounting.refreshDashboard ? accounting.refreshDashboard() : null">
                                 <span class="material-icons-round">refresh</span> Yenile
                             </button>
                         </div>
+                        
                         <div class="table-container">
                             <table class="data-table" style="margin:0;">
                                 <tbody id="transactions-body">
@@ -204,7 +211,6 @@
         </main>
     </div>
 
-    <!-- Modals (forms are active and wired in the script below) -->
     <div class="modal-overlay" id="modal-select-income-type" style="display:none;">
         <div class="modal-box" style="width: 750px;">
             <div class="modal-header"><h3>İşlem Seçiniz</h3><button class="close-btn" onclick="ui.closeModal('modal-select-income-type')">✕</button></div>
@@ -227,7 +233,6 @@
         </div>
     </div>
 
-    <!-- Expense -->
     <div class="modal-overlay" id="modal-expense" style="display:none;">
         <div class="modal-box">
             <div class="modal-header">
@@ -235,7 +240,7 @@
                 <button class="close-btn" onclick="ui.closeModal('modal-expense')">✕</button>
             </div>
             <div class="modal-body">
-                <form id="form-expense" enctype="multipart/form-data">
+                <form id="form-expense">
                     <div class="form-group">
                         <label>Gider Kategorisi</label>
                         <select class="form-control" id="exp-category">
@@ -260,7 +265,7 @@
                         <div class="form-group half">
                             <label>Tutar</label>
                             <div class="form-row" style="gap:5px;">
-                                <input type="number" step="0.01" class="form-control" id="exp-amount" placeholder="0.00" required>
+                                <input type="number" class="form-control" id="exp-amount" placeholder="0.00" required>
                                 <select class="form-control" style="width:80px;" id="exp-currency">
                                     <option value="TRY">TRY</option>
                                     <option value="USD">USD</option>
@@ -277,10 +282,10 @@
 
                     <div class="form-group">
                         <label>Fatura / Fiş / Dekont</label>
-                        <div class="file-upload-area" onclick="document.getElementById('exp-file').click()" style="padding: 15px; cursor:pointer;">
+                        <div class="file-upload-area" onclick="document.getElementById('exp-file').click()" style="padding: 15px;">
                             <span class="material-icons-round" style="color:#94a3b8;">attach_file</span>
                             <span class="file-text" id="exp-file-text" style="margin-left:5px;">Dosya Yükle (PDF, Resim)</span>
-                            <input type="file" id="exp-file" hidden accept=".pdf,image/*">
+                            <input type="file" id="exp-file" hidden onchange="(function(){ const f = this.files[0]; if(f) { document.getElementById('exp-file-text').innerText = f.name; this.parentElement.style.borderColor='#10b981'; } }).call(this)">
                         </div>
                     </div>
 
@@ -290,37 +295,29 @@
         </div>
     </div>
 
-    <!-- Escrow -->
     <div class="modal-overlay" id="modal-escrow" style="display:none;">
         <div class="modal-box">
             <div class="modal-header"><h3>Emanet Girişi</h3><button class="close-btn" onclick="ui.closeModal('modal-escrow')">✕</button></div>
             <div class="modal-body">
-                <form id="form-escrow" enctype="multipart/form-data">
+                <form id="form-escrow">
                     <div class="form-group"><label>Müşteri</label><input type="text" class="form-control" id="esc-customer" required></div>
-                    <div class="form-group"><label>Tutar</label><div class="form-row" style="gap:8px;"><input type="number" step="0.01" class="form-control" id="esc-amount" required><select class="form-control" style="width:100px;" id="esc-currency"><option value="TRY">TRY</option><option value="USD">USD</option><option value="EUR">EUR</option></select></div></div>
+                    <div class="form-group"><label>Tutar</label><div class="form-row" style="gap:8px;"><input type="number" class="form-control" id="esc-amount" required><select class="form-control" style="width:100px;" id="esc-currency"><option value="TRY">TRY</option><option value="USD">USD</option><option value="EUR">EUR</option></select></div></div>
                     <div class="form-group"><label>Not</label><input type="text" class="form-control" id="esc-desc"></div>
-                    <div class="form-group">
-                        <label>Belge (İsteğe Bağlı)</label>
-                        <div class="file-upload-area" onclick="document.getElementById('esc-file').click()" style="padding:10px; cursor:pointer;">
-                            <span class="material-icons-round" style="color:#94a3b8;">attach_file</span>
-                            <span class="file-text" id="esc-file-text" style="margin-left:5px;">Dosya seçin</span>
-                            <input type="file" id="esc-file" hidden accept=".pdf,image/*">
-                        </div>
-                    </div>
                     <button class="btn btn-orange" type="submit" style="width:100%;">KASAYA AL</button>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Escrow details -->
     <div class="modal-overlay" id="modal-escrow-details" style="display:none;">
         <div class="modal-box" style="width: 850px;">
             <div class="modal-header">
                 <h3> Emanet Varlık Yönetimi</h3>
                 <button class="close-btn" onclick="ui.closeModal('modal-escrow-details')">✕</button>
             </div>
+            
             <div class="modal-body" style="background: #f8fafc; padding: 25px;">
+                
                 <div class="escrow-grid-premium">
                     <div class="escrow-card bg-eur">
                         <div class="esc-label">EUR BAKİYE</div>
@@ -367,7 +364,7 @@
         </div>
     </div>
 
-    <!-- Escrow action (single modal) -->
+    <!-- SINGLE escrow action modal (was duplicated in original file) -->
     <div class="modal-overlay" id="modal-escrow-action" style="display:none;">
         <div class="modal-box" style="width: 550px;">
             <div class="modal-header">
@@ -375,6 +372,7 @@
                 <button class="close-btn" onclick="ui.closeModal('modal-escrow-action')">✕</button>
             </div>
             <div class="modal-body" style="padding: 25px;">
+                
                 <div style="background: #fff7ed; border: 1px solid #ffedd5; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
                     <div style="font-size: 11px; font-weight: 700; color: #ea580c; text-transform: uppercase;">İŞLEM YAPILACAK KAYIT</div>
                     <div id="esc-act-desc" style="font-size: 14px; font-weight: 600; color: #1e293b; margin-top: 5px;">...</div>
@@ -396,7 +394,7 @@
 
                     <div class="form-group">
                         <label>Tutar</label>
-                        <input type="number" step="0.01" class="form-control" id="act-amount" required>
+                        <input type="number" class="form-control" id="act-amount" required>
                     </div>
 
                     <div class="form-group">
@@ -417,7 +415,6 @@
         </div>
     </div>
 
-    <!-- Extra income -->
     <div class="modal-overlay" id="modal-extra-income" style="display:none;">
         <div class="modal-box" style="width: 600px;">
             <div class="modal-header">
@@ -425,7 +422,7 @@
                 <button class="close-btn" onclick="ui.closeModal('modal-extra-income')">✕</button>
             </div>
             <div class="modal-body">
-                <form id="form-extra-income" enctype="multipart/form-data">
+                <form id="form-extra-income">
                     <div class="form-row">
                         <div class="form-group half">
                             <label>Müşteri Adı</label>
@@ -456,7 +453,7 @@
                     <div class="form-group">
                         <label>Satış Fiyatı (Müşteriden Alınan)</label>
                         <div class="form-row">
-                            <input type="number" step="0.01" class="form-control" id="ei-amount" placeholder="0.00" required>
+                            <input type="number" class="form-control" id="ei-amount" placeholder="0.00" required>
                             <select class="form-control" style="width:100px;" id="ei-currency">
                                 <option value="TRY">TRY</option>
                                 <option value="USD">USD</option>
@@ -475,7 +472,7 @@
                     <div id="cost-box" class="cost-section" style="display:none;">
                         <label style="color:#be123c;">Maliyet Tutarı (Bizim Ödediğimiz)</label>
                         <div class="form-row">
-                            <input type="number" step="0.01" class="form-control" id="ei-cost-amount" placeholder="0.00">
+                            <input type="number" class="form-control" id="ei-cost-amount" placeholder="0.00">
                         </div>
                         <div style="font-size:11px; color:#be123c; margin-top:5px;">* Bu tutar kasadan 'Gider' olarak düşülecektir.</div>
                     </div>
@@ -485,7 +482,7 @@
                         <div class="file-upload-area" onclick="document.getElementById('ei-file').click()">
                             <span class="material-icons-round file-icon">cloud_upload</span>
                             <span class="file-text" id="ei-file-text">Dosya seçmek için tıklayın (PDF, JPG, PNG)</span>
-                            <input type="file" id="ei-file" hidden accept=".pdf,image/*">
+                            <input type="file" id="ei-file" hidden onchange="(function(){ const f = this.files[0]; if(f) { document.getElementById('ei-file-text').innerText = f.name; } }).call(this)">
                         </div>
                     </div>
 
@@ -495,7 +492,6 @@
         </div>
     </div>
 
-    <!-- Exchange -->
     <div class="modal-overlay" id="modal-exchange" style="display:none;">
         <div class="modal-box">
             <div class="modal-header">
@@ -504,11 +500,13 @@
             </div>
             <div class="modal-body">
                 <form id="form-exchange">
+                    
                     <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px;">
+                        
                         <div style="flex:1;">
                             <label style="color:#ef4444; font-weight:700;">ÇIKAN (Satılan)</label>
                             <div class="form-row" style="gap:5px;">
-                                <input type="number" step="0.01" class="form-control" id="ex-out-amt" placeholder="0.00" oninput="accounting && accounting.calcExchangeRate ? accounting.calcExchangeRate() : null">
+                                <input type="number" class="form-control" id="ex-out-amt" placeholder="0.00" oninput="accounting && accounting.calcExchangeRate ? accounting.calcExchangeRate() : null">
                                 <select class="form-control" style="width:80px;" id="ex-out-curr" onchange="accounting && accounting.calcExchangeRate ? accounting.calcExchangeRate() : null">
                                     <option value="USD">USD</option>
                                     <option value="EUR">EUR</option>
@@ -522,7 +520,7 @@
                         <div style="flex:1;">
                             <label style="color:#10b981; font-weight:700;">GİREN (Alınan)</label>
                             <div class="form-row" style="gap:5px;">
-                                <input type="number" step="0.01" class="form-control" id="ex-in-amt" placeholder="0.00" oninput="accounting && accounting.calcExchangeRate ? accounting.calcExchangeRate() : null">
+                                <input type="number" class="form-control" id="ex-in-amt" placeholder="0.00" oninput="accounting && accounting.calcExchangeRate ? accounting.calcExchangeRate() : null">
                                 <select class="form-control" style="width:80px;" id="ex-in-curr" onchange="accounting && accounting.calcExchangeRate ? accounting.calcExchangeRate() : null">
                                     <option value="TRY" selected>TRY</option>
                                     <option value="USD">USD</option>
@@ -547,7 +545,6 @@
         </div>
     </div>
 
-    <!-- Income (Visa wizard trimmed to key fields; final submit creates a visa record + optional transaction) -->
     <div class="modal-overlay" id="modal-income" style="display:none;">
         <div class="modal-box" style="width: 950px; max-height: 95vh;">
             <div class="modal-header" style="background:#fff; border:none;"><h3>Yeni Vize Dosyası</h3><button class="close-btn" onclick="ui.closeModal('modal-income')">✕</button></div>
@@ -560,73 +557,193 @@
                 </div>
             </div>
             <div class="modal-body" style="background:#f8fafc; padding:30px;">
-                <form id="form-visa-wizard" enctype="multipart/form-data">
+                <form id="form-visa-wizard">
                     <div class="wizard-page" id="step-1">
                         <div class="section-title">Kişisel Bilgiler</div>
                         <div class="form-row">
                             <div class="form-group half"><label>Adı (Pasaporttaki)</label><input type="text" class="form-control" id="v-name" required placeholder="Örn: AHMET"></div>
                             <div class="form-group half"><label>Soyadı</label><input type="text" class="form-control" id="v-surname" required placeholder="Örn: YILMAZ"></div>
                         </div>
+                        <div class="form-row">
+                            <div class="form-group half"><label>TC Kimlik No</label><input type="text" class="form-control" id="v-tc" maxlength="11"></div>
+                            <div class="form-group half"><label>Doğum Tarihi</label><input type="date" class="form-control" id="v-dob"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group half"><label>Doğum Yeri (Şehir)</label><input type="text" class="form-control" id="v-pob"></div>
+                            <div class="form-group half"><label>Medeni Durum</label>
+                                <select class="form-control" id="v-marital">
+                                    <option value="single">Bekar</option>
+                                    <option value="married">Evli</option>
+                                    <option value="divorced">Boşanmış</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group half"><label>Meslek</label><input type="text" class="form-control" id="v-job" placeholder="Örn: Mühendis"></div>
+                            <div class="form-group half"><label>Telefon</label><input type="tel" class="form-control" id="v-phone" required></div>
+                        </div>
+
+                        <div class="section-title">Pasaport Detayları</div>
+                        <div class="form-row">
+                            <div class="form-group half"><label>Pasaport No</label><input type="text" class="form-control" id="v-passport" required></div>
+                            <div class="form-group half"><label>Pasaport Türü</label>
+                                <select class="form-control" id="v-pass-type">
+                                    <option value="bordo">Bordo (Umuma Mahsus)</option>
+                                    <option value="yesil">Yeşil (Hususi)</option>
+                                    <option value="gri">Gri (Hizmet)</option>
+                                    <option value="diplomatik">Siyah (Diplomatik)</option>
+                                    <option value="foreign">Yabancı Pasaport</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group half"><label>Veriliş Tarihi</label><input type="date" class="form-control" id="v-pass-issue"></div>
+                            <div class="form-group half"><label>Bitiş Tarihi</label><input type="date" class="form-control" id="v-pass-expire"></div>
+                        </div>
+
                         <div style="text-align:right; margin-top:20px;">
-                            <button type="button" class="btn btn-blue" onclick="crm && crm.goToStep ? crm.goToStep(2) : (function(){ document.getElementById('step-1').style.display='none'; document.getElementById('step-2').style.display='block'; document.getElementById('ws-1').classList.remove('active'); document.getElementById('ws-2').classList.add('active'); })()">SEYAHAT BİLGİLERİ &rarr;</button>
+                            <button type="button" class="btn btn-blue" onclick="window.crm && window.crm.goToStep ? window.crm.goToStep(2) : console.log('goToStep 2')">SEYAHAT BİLGİLERİ &rarr;</button>
                         </div>
                     </div>
 
                     <div class="wizard-page" id="step-2" style="display:none;">
                         <div class="section-title">Rotasyon ve Vize Türü</div>
+                        
                         <div class="form-group">
                             <label>Gidilecek Ülke</label>
-                            <select class="form-control" id="v-country">
+                            <select class="form-control" id="v-country" onchange="crm && crm.updateDocList ? crm.updateDocList() : null">
                                 <option value="">Seçiniz...</option>
-                                <option value="germany">Almanya</option>
-                                <option value="france">Fransa</option>
-                                <option value="usa">ABD</option>
-                                <option value="uk">İngiltere</option>
+                                <optgroup label="POPÜLER">
+                                    <option value="germany">Almanya</option>
+                                    <option value="france">Fransa</option>
+                                    <option value="usa">Amerika Birleşik Devletleri (ABD)</option>
+                                    <option value="uk">İngiltere (Birleşik Krallık)</option>
+                                    <option value="italy">İtalya</option>
+                                    <option value="spain">İspanya</option>
+                                    <option value="netherlands">Hollanda</option>
+                                </optgroup>
+                                <optgroup label="SCHENGEN / AVRUPA">
+                                    <option value="austria">Avusturya</option>
+                                    <option value="belgium">Belçika</option>
+                                    <option value="bulgaria">Bulgaristan</option>
+                                    <option value="czech">Çekya</option>
+                                    <option value="greece">Yunanistan</option>
+                                    <option value="hungary">Macaristan</option>
+                                    <option value="poland">Polonya</option>
+                                    <option value="portugal">Portekiz</option>
+                                    <option value="switzerland">İsviçre</option>
+                                </optgroup>
+                                <optgroup label="ASYA & ORTA DOĞU">
+                                    <option value="china">Çin</option>
+                                    <option value="japan">Japonya</option>
+                                    <option value="south_korea">Güney Kore</option>
+                                    <option value="dubai">Dubai (BAE)</option>
+                                    <option value="saudi">Suudi Arabistan</option>
+                                </optgroup>
+                                <optgroup label="AMERİKA (Kuzey & Güney)">
+                                    <option value="canada">Kanada</option>
+                                    <option value="mexico">Meksika</option>
+                                    <option value="brazil">Brezilya</option>
+                                    <option value="argentina">Arjantin</option>
+                                </optgroup>
                             </select>
                         </div>
+
+                        <div class="form-group">
+                            <label>Vize Tipi</label>
+                            <select class="form-control" id="v-type" onchange="crm && crm.updateDocList ? crm.updateDocList() : null">
+                                <optgroup label="ÖZEL">
+                                    <option value="seaman">GEMİ ADAMI (Seaman Visa)</option>
+                                    <option value="vip">VIP / Ekspres Başvuru</option>
+                                </optgroup>
+                                <optgroup label="GENEL">
+                                    <option value="tourist" selected>Turistik Vize</option>
+                                    <option value="commercial">Ticari Vize</option>
+                                    <option value="family">Aile / Arkadaş Ziyareti</option>
+                                    <option value="student">Öğrenci / Eğitim Vizesi</option>
+                                    <option value="transit">Transit Vize</option>
+                                    <option value="medical">Sağlık / Tedavi Vizesi</option>
+                                    <option value="cultural">Kültürel / Sportif Etkinlik</option>
+                                </optgroup>
+                                <optgroup label="UZUN DÖNEM">
+                                    <option value="work">Çalışma İzni (Work Permit)</option>
+                                    <option value="family_reunion">Aile Birleşimi</option>
+                                    <option value="erasmus">Erasmus / Staj</option>
+                                    <option value="digital_nomad">Digital Nomad</option>
+                                </optgroup>
+                            </select>
+                        </div>
+
+                        <div class="section-title">Seyahat Detayları</div>
+                        <div class="form-row">
+                            <div class="form-group half"><label>Giriş Tarihi</label><input type="date" class="form-control" id="v-travel-start"></div>
+                            <div class="form-group half"><label>Dönüş Tarihi</label><input type="date" class="form-control" id="v-travel-end"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group half">
+                                <label>Giriş Sayısı</label>
+                                <select class="form-control" id="v-entry-type">
+                                    <option value="single">Tek Giriş (Single)</option>
+                                    <option value="double">İki Giriş (Double)</option>
+                                    <option value="multi">Çok Giriş (Multi)</option>
+                                </select>
+                            </div>
+                            <div class="form-group half"><label>Talep Edilen Süre</label><input type="text" class="form-control" id="v-duration" placeholder="Örn: 1 Yıl"></div>
+                        </div>
+
                         <div style="display:flex; justify-content:space-between; margin-top:20px;">
-                            <button type="button" class="btn" onclick="(function(){ document.getElementById('step-2').style.display='none'; document.getElementById('step-1').style.display='block'; document.getElementById('ws-2').classList.remove('active'); document.getElementById('ws-1').classList.add('active'); })()">&larr; GERİ</button>
-                            <button type="button" class="btn btn-blue" onclick="(function(){ document.getElementById('step-2').style.display='none'; document.getElementById('step-3').style.display='block'; document.getElementById('ws-2').classList.remove('active'); document.getElementById('ws-3').classList.add('active'); })()">EVRAK LİSTESİ &rarr;</button>
+                            <button type="button" class="btn" onclick="window.crm && window.crm.goToStep ? window.crm.goToStep(1) : null">&larr; GERİ</button>
+                            <button type="button" class="btn btn-blue" onclick="window.crm && window.crm.goToStep ? window.crm.goToStep(3) : null">EVRAK LİSTESİ &rarr;</button>
                         </div>
                     </div>
 
                     <div class="wizard-page" id="step-3" style="display:none;">
-                        <h4>Gerekli Evraklar</h4>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                            <h4 style="margin:0;">Gerekli Evraklar</h4>
+                            <button type="button" class="btn-dashed" onclick="crm && crm.addManualDoc ? crm.addManualDoc() : null">+ Özel Evrak Ekle</button>
+                        </div>
+                        
                         <div id="doc-list-container" class="doc-grid"></div>
+
                         <div style="display:flex; justify-content:space-between; margin-top:30px;">
-                            <button type="button" class="btn" onclick="(function(){ document.getElementById('step-3').style.display='none'; document.getElementById('step-2').style.display='block'; document.getElementById('ws-3').classList.remove('active'); document.getElementById('ws-2').classList.add('active'); })()">&larr; GERİ</button>
-                            <button type="button" class="btn btn-blue" onclick="(function(){ document.getElementById('step-3').style.display='none'; document.getElementById('step-4').style.display='block'; document.getElementById('ws-3').classList.remove('active'); document.getElementById('ws-4').classList.add('active'); })()">FİNANSAL DETAYLAR &rarr;</button>
+                            <button type="button" class="btn" onclick="window.crm && window.crm.goToStep ? window.crm.goToStep(2) : null">&larr; GERİ</button>
+                            <button type="button" class="btn btn-blue" onclick="window.crm && window.crm.goToStep ? window.crm.goToStep(4) : null">FİNANSAL DETAYLAR &rarr;</button>
                         </div>
                     </div>
 
                     <div class="wizard-page" id="step-4" style="display:none;">
                         <div class="section-title">Ücretlendirme ve Maliyet</div>
+                        
                         <div class="card" style="margin-bottom:20px; padding:20px;">
                             <div class="form-row">
                                 <div class="form-group half">
                                     <label>Satış Fiyatı (Müşteriden Alınan)</label>
-                                    <input type="number" step="0.01" class="form-control" id="v-total-price" placeholder="0.00">
+                                    <input type="number" class="form-control" id="v-total-price" placeholder="0.00" oninput="crm && crm.calcFinance ? crm.calcFinance() : null">
                                 </div>
                                 <div class="form-group half">
                                     <label>Maliyet (Acenta/Harç/Sigorta)</label>
-                                    <input type="number" step="0.01" class="form-control" id="v-cost-price" placeholder="0.00" style="background:#fff1f2; color:#be123c;">
+                                    <input type="number" class="form-control" id="v-cost-price" placeholder="0.00" style="background:#fff1f2; color:#be123c;">
+                                    <small style="color:#be123c; font-size:10px;">* Şirketin cebinden çıkan tutar (Gider)</small>
                                 </div>
                                 <div class="form-group" style="width:100px;">
                                     <label>Birim</label>
-                                    <select class="form-control" id="v-currency">
+                                    <select class="form-control" id="v-currency" onchange="crm && crm.calcFinance ? crm.calcFinance() : null">
                                         <option value="EUR">EUR</option>
                                         <option value="USD">USD</option>
                                         <option value="TRY">TRY</option>
+                                        <option value="GBP">GBP</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
 
+                        <div class="section-title">Ödeme Durumu</div>
+                        
                         <div class="card" style="padding:20px;">
                             <div class="form-row">
                                 <div class="form-group half">
                                     <label>Ödenen Tutar (Peşinat)</label>
-                                    <input type="number" step="0.01" class="form-control" id="v-paid-now" placeholder="0.00">
+                                    <input type="number" class="form-control" id="v-paid-now" placeholder="0.00" oninput="crm && crm.calcFinance ? crm.calcFinance() : null">
                                 </div>
                                 <div class="form-group half">
                                     <label>Ödeme Yöntemi</label>
@@ -637,17 +754,22 @@
                                     </select>
                                 </div>
                             </div>
-
+                            
                             <div class="form-group">
                                 <label>Finansal Açıklama (Not)</label>
                                 <input type="text" class="form-control" id="v-finance-note" placeholder="Örn: Kalan ödeme pasaport tesliminde alınacak.">
                             </div>
 
+                            <label class="switch-wrapper">
+                                <input type="checkbox" class="switch-input" onchange="document.getElementById('receipt-upload-area').classList.toggle('active')">
+                                <span>Ödeme Dekontu / Dosya Yükle</span>
+                            </label>
+
                             <div id="receipt-upload-area" class="finance-receipt-box" style="display:none;">
                                 <div class="file-icon"><span class="material-icons-round">receipt_long</span></div>
                                 <div style="font-weight:600; margin-bottom:10px;" id="v-receipt-name">Dekont veya Fatura Seçin</div>
                                 <button type="button" class="btn-sm" style="background:white; border:1px solid #cbd5e1;" onclick="document.getElementById('v-receipt-file').click()">DOSYA SEÇ</button>
-                                <input type="file" id="v-receipt-file" hidden accept=".pdf,image/*">
+                                <input type="file" id="v-receipt-file" hidden onchange="(function(){ const f = this.files[0]; if(f) { document.getElementById('v-receipt-name').innerText = f.name; } }).call(this)">
                             </div>
                         </div>
 
@@ -657,7 +779,7 @@
                         </div>
 
                         <div style="display:flex; justify-content:space-between; margin-top:20px;">
-                            <button type="button" class="btn" onclick="(function(){ document.getElementById('step-4').style.display='none'; document.getElementById('step-3').style.display='block'; document.getElementById('ws-4').classList.remove('active'); document.getElementById('ws-3').classList.add('active'); })()">&larr; GERİ</button>
+                            <button type="button" class="btn" onclick="window.crm && window.crm.goToStep ? window.crm.goToStep(3) : null">&larr; GERİ</button>
                             <button type="submit" class="btn btn-green" style="padding-left:30px; padding-right:30px;">
                                 <span class="material-icons-round">check</span> DOSYAYI OLUŞTUR
                             </button>
@@ -668,7 +790,6 @@
         </div>
     </div>
 
-    <!-- Transaction detail -->
     <div class="modal-overlay" id="modal-transaction-detail" style="display:none;">
         <div class="modal-box" style="width: 500px;">
             <div class="modal-header"><h3>İşlem Fişi</h3><button class="close-btn" onclick="ui.closeModal('modal-transaction-detail')">✕</button></div>
@@ -692,624 +813,291 @@
         </div>
     </div>
 
-    <!-- Load core js (existing files) -->
     <script src="js/supabase.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/auth.js"></script>
 
-    <!-- Inline scripts to activate forms, integrate live rates, file uploads and Supabase binding -->
     <script>
-    // Configuration (update STORAGE_BUCKET if you have a different bucket)
-    const STORAGE_BUCKET = 'documents'; // <-- change to your Supabase Storage bucket name
-    const EXCHANGE_API = 'https://api.exchangerate.host/latest?base=TRY&symbols=USD,EUR'; // public, no key
-
-    // Simple toast
-    function showToast(msg, type = 'info', duration = 4000) {
-        const t = document.createElement('div');
-        t.className = 'app-toast ' + type;
-        t.style.position = 'fixed';
-        t.style.right = '20px';
-        t.style.bottom = (20 + (document.querySelectorAll('.app-toast').length * 60)) + 'px';
-        t.style.background = type === 'error' ? '#fdecea' : (type === 'success' ? '#ecfdf5' : '#eef2ff');
-        t.style.color = '#0f172a';
-        t.style.padding = '12px 16px';
-        t.style.borderRadius = '8px';
-        t.style.boxShadow = '0 6px 18px rgba(2,6,23,0.08)';
-        t.innerText = msg;
-        t.classList.add('app-toast');
-        document.body.appendChild(t);
-        setTimeout(()=> { t.remove(); }, duration);
-    }
-
-    // Helper: upload file to Supabase Storage (returns publicURL or null)
-    async function uploadFileToStorage(file, pathPrefix = '') {
-        if (!file) return null;
-        if (!window.supabaseClient || !window.supabaseClient.storage) {
-            console.warn('Supabase storage not configured');
-            return null;
-        }
-        try {
-            const fileName = Date.now() + '-' + file.name.replace(/\s+/g,'_');
-            const path = (pathPrefix ? pathPrefix + '/' : '') + fileName;
-            const { data, error } = await window.supabaseClient.storage.from(STORAGE_BUCKET).upload(path, file, { upsert: false });
-            if (error) {
-                console.error('Storage upload error', error);
-                return null;
-            }
-            // create public url
-            const { data: urlData, error: urlErr } = window.supabaseClient.storage.from(STORAGE_BUCKET).getPublicUrl(path);
-            if (urlErr) {
-                console.warn('Could not get public url', urlErr);
-                return null;
-            }
-            return urlData.publicUrl;
-        } catch (e) {
-            console.error('uploadFileToStorage error', e);
-            return null;
-        }
-    }
-
-    // Fetch exchange rates (TRY base) and compute USD_TRY & EUR_TRY
-    async function fetchExchangeRates() {
-        try {
-            const res = await fetch(EXCHANGE_API);
-            const j = await res.json();
-            if (!j || !j.rates) return null;
-            // j.rates: { USD: x, EUR: y } where x = 1 TRY -> x USD
-            // USD_TRY = 1 / (TRY->USD)
-            const usdTry = j.rates && j.rates.USD ? (1 / j.rates.USD) : 0;
-            const eurTry = j.rates && j.rates.EUR ? (1 / j.rates.EUR) : 0;
-            window.liveRates = { USD_TRY: usdTry, EUR_TRY: eurTry, fetchedAt: new Date().toISOString(), raw: j };
-            const disp = document.getElementById('live-rates-display');
-            if (disp) {
-                disp.innerText = `1 USD ≈ ₺${usdTry ? usdTry.toFixed(4) : '...'} — 1 EUR ≈ ₺${eurTry ? eurTry.toFixed(4) : '...'}`;
-            }
-            return window.liveRates;
-        } catch (e) {
-            console.warn('Kur çekilemedi', e);
-            return null;
-        }
-    }
-
-    // Format money
-    function fnum(n, digits=2) {
-        return Number(n || 0).toLocaleString('tr-TR', { minimumFractionDigits: digits, maximumFractionDigits: digits });
-    }
-
-    // Accounting object to hold form bindings and some actions
-    window.accounting = window.accounting || {};
-    (function(ac){
-        ac.state = { wallet: { TRY:0, USD:0, EUR:0 }, list: [] };
-
-        // refresh UI from state and liveRates
-        ac.refreshDashboard = function() {
-            const w = ac.state.wallet;
-            const elTry = document.getElementById('wallet-try');
-            const elUsd = document.getElementById('wallet-usd');
-            const elEur = document.getElementById('wallet-eur');
-            if (elTry) elTry.innerText = '₺' + fnum(w.TRY);
-            if (elUsd) elUsd.innerText = '$' + fnum(w.USD);
-            if (elEur) elEur.innerText = '€' + fnum(w.EUR);
-
-            // update val-usd/val-eur and total-equity when liveRates exist
-            const lv = window.liveRates || null;
-            const valUsdEl = document.getElementById('val-usd');
-            const valEurEl = document.getElementById('val-eur');
-            const totalEl = document.getElementById('total-equity');
-            if (lv && lv.USD_TRY && valUsdEl) {
-                valUsdEl.innerText = '≈ ₺' + fnum(w.USD * lv.USD_TRY);
-            }
-            if (lv && lv.EUR_TRY && valEurEl) {
-                valEurEl.innerText = '≈ ₺' + fnum(w.EUR * lv.EUR_TRY);
-            }
-            if (totalEl) {
-                if (lv && lv.USD_TRY && lv.EUR_TRY) {
-                    const totalTRY = (w.TRY || 0) + ((w.USD || 0) * lv.USD_TRY) + ((w.EUR || 0) * lv.EUR_TRY);
-                    totalEl.innerText = '₺' + fnum(totalTRY);
-                } else {
-                    totalEl.innerText = '₺' + fnum(w.TRY) + ' + $' + fnum(w.USD) + ' + €' + fnum(w.EUR);
-                }
-            }
-
-            // update summary cards
-            const incomeSum = ac.state.list.reduce((s,i)=> s + ((i.type==='income' && i.currency==='TRY') ? Number(i.amount) : 0), 0);
-            const expenseSum = ac.state.list.reduce((s,i)=> s + ((i.type!=='income' && i.currency==='TRY') ? Number(i.amount) : 0), 0);
-            const profitEl = document.getElementById('money-profit');
-            const incomeEl = document.getElementById('money-income');
-            const expenseEl = document.getElementById('money-expense');
-            if (profitEl) profitEl.innerText = '₺' + fnum(incomeSum - expenseSum);
-            if (incomeEl) incomeEl.innerText = '₺' + fnum(incomeSum);
-            if (expenseEl) expenseEl.innerText = '₺' + fnum(expenseSum);
-
-            // update transactions table and escrow counts handled elsewhere (we call loadTransactions())
-        };
-
-        // load transactions from supabase and update state/UI
-        ac.loadTransactions = async function() {
-            if (!window.supabaseClient) {
-                console.warn('Supabase client yok, transactions yüklenemiyor.');
-                return;
-            }
-            try {
-                const { data:list, error } = await window.supabaseClient.from('transactions').select('*').order('created_at', { ascending: true });
-                if (error) throw error;
-                ac.state.list = Array.isArray(list) ? list : [];
-                // rebuild wallet
-                ac.state.wallet = { TRY:0, USD:0, EUR:0 };
-                ac.state.list.forEach(item => {
-                    const amt = Number(item.amount) || 0;
-                    const curr = (item.currency || 'TRY').toUpperCase();
-                    if (!ac.state.wallet[curr]) ac.state.wallet[curr] = 0;
-                    if (item.type === 'income') ac.state.wallet[curr] += amt;
-                    else ac.state.wallet[curr] -= amt;
-                });
-                // fill transaction table
-                const tbody = document.getElementById('transactions-body');
-                if (tbody) {
-                    tbody.innerHTML = '';
-                    [...ac.state.list].reverse().forEach(item => {
-                        const amt = Number(item.amount) || 0;
-                        const curr = item.currency || 'TRY';
-                        const sign = item.type === 'income' ? '+' : '-';
-                        const tr = document.createElement('tr');
-                        tr.style.cursor = 'pointer';
-                        const tdDate = document.createElement('td');
-                        tdDate.style.width = '180px';
-                        tdDate.innerText = item.created_at ? new Date(item.created_at).toLocaleString('tr-TR') : '-';
-                        const tdDesc = document.createElement('td');
-                        tdDesc.innerText = item.title || item.description || (item.note || '-');
-                        const tdAmt = document.createElement('td');
-                        tdAmt.style.textAlign = 'right';
-                        tdAmt.innerText = sign + ' ' + curr + ' ' + fnum(amt);
-                        const tdAct = document.createElement('td');
-                        tdAct.style.textAlign = 'center';
-                        tdAct.style.width = '100px';
-                        tdAct.innerHTML = '<span class="material-icons-round" style="font-size:18px; color:#64748b;">receipt_long</span>';
-                        tr.appendChild(tdDate); tr.appendChild(tdDesc); tr.appendChild(tdAmt); tr.appendChild(tdAct);
-
-                        tr.addEventListener('click', () => {
-                            ui.openModal('modal-transaction-detail');
-                            const tdAmount = document.getElementById('td-amount');
-                            const tdCat = document.getElementById('td-cat');
-                            const tdDate = document.getElementById('td-date');
-                            const tdId = document.getElementById('td-id');
-                            const tdDesc = document.getElementById('td-desc');
-                            const tdUser = document.getElementById('td-user');
-                            if (tdAmount) tdAmount.innerText = (item.currency || 'TRY') + ' ' + fnum(amt);
-                            if (tdCat) tdCat.innerText = item.category || (item.type || 'Kategori');
-                            if (tdDate) tdDate.innerText = item.created_at ? new Date(item.created_at).toLocaleString('tr-TR') : '-';
-                            if (tdId) tdId.innerText = item.id || item._id || '-';
-                            if (tdDesc) tdDesc.innerText = item.title || item.description || (item.note || '-');
-                            if (tdUser) tdUser.innerText = item.user_name || 'Yetkili';
-                            window.__currentTransactionId = item.id || item._id || null;
-                        });
-
-                        tbody.appendChild(tr);
-                    });
-
-                    if (tbody.children.length === 0) {
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = '<td colspan="4" style="text-align:center; padding:30px; color:#94a3b8;">Kayıt bulunamadı</td>';
-                        tbody.appendChild(tr);
-                    }
-                }
-
-                // update escrow list
-                const escrowBody = document.getElementById('escrow-list-body');
-                if (escrowBody) {
-                    const escrows = ac.state.list.filter(it => it.is_escrow);
-                    escrowBody.innerHTML = '';
-                    if (escrows.length === 0) {
-                        escrowBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px;">Emanet kaydı bulunamadı.</td></tr>';
-                    } else {
-                        [...escrows].reverse().forEach(it => {
-                            const tr = document.createElement('tr');
-                            const tdDate = document.createElement('td');
-                            tdDate.style.width = '120px';
-                            tdDate.innerText = it.created_at ? new Date(it.created_at).toLocaleDateString('tr-TR') : '-';
-                            const tdDesc = document.createElement('td');
-                            tdDesc.innerText = it.customer || it.description || '—';
-                            const tdAmount = document.createElement('td');
-                            tdAmount.style.textAlign = 'right';
-                            tdAmount.innerText = (it.currency || 'TRY') + ' ' + fnum(it.amount || 0);
-                            const tdStatus = document.createElement('td');
-                            tdStatus.style.textAlign = 'center';
-                            tdStatus.innerText = it.status || 'Aktif';
-                            tr.appendChild(tdDate); tr.appendChild(tdDesc); tr.appendChild(tdAmount); tr.appendChild(tdStatus);
-
-                            tr.ondblclick = function() {
-                                document.getElementById('act-source-id').value = it.id || it._id || '';
-                                document.getElementById('act-currency').value = it.currency || 'TRY';
-                                document.getElementById('act-amount').value = it.amount || 0;
-                                const descEl = document.getElementById('esc-act-desc');
-                                const amtEl = document.getElementById('esc-act-amount');
-                                if (descEl) descEl.innerText = it.customer || it.description || '—';
-                                if (amtEl) amtEl.innerText = (it.currency || 'TRY') + ' ' + fnum(it.amount || 0);
-                                ui.openModal('modal-escrow-action');
-                            };
-
-                            escrowBody.appendChild(tr);
-                        });
-                    }
-                }
-
-                ac.refreshDashboard();
-            } catch (e) {
-                console.error('loadTransactions error', e);
-                showToast('Veriler yüklenirken hata oluştu', 'error');
-            }
-        };
-
-        // simple transaction deleter (example)
-        ac.deleteTransaction = async function(id = null) {
-            if (!id) id = window.__currentTransactionId;
-            if (!id) return showToast('Silinecek işlem bulunamadı', 'error');
-            if (!window.supabaseClient) return showToast('Sunucu bağlantısı yok', 'error');
-            try {
-                const { error } = await window.supabaseClient.from('transactions').delete().eq('id', id);
-                if (error) throw error;
-                showToast('İşlem silindi', 'success');
-                ac.loadTransactions();
-                ui.closeModal('modal-transaction-detail');
-            } catch (e) {
-                console.error('deleteTransaction', e);
-                showToast('İşlem silinemedi', 'error');
-            }
-        };
-
-        // delete escrow transaction (placeholder)
-        ac.deleteEscrowTransaction = async function() {
-            const id = document.getElementById('act-source-id').value;
-            if (!id) return showToast('Emanet kaydı seçili değil', 'error');
-            try {
-                const { error } = await window.supabaseClient.from('transactions').delete().eq('id', id);
-                if (error) throw error;
-                showToast('Emanet kaydı silindi', 'success');
-                ui.closeModal('modal-escrow-action');
-                ac.loadTransactions();
-            } catch (e) {
-                console.error('deleteEscrowTransaction', e);
-                showToast('Emanet silinemedi', 'error');
-            }
-        };
-
-        // submit escrow action (refund/payment/profit)
-        ac.performEscrowAction = async function(e) {
-            e.preventDefault();
-            const srcId = document.getElementById('act-source-id').value;
-            const type = document.getElementById('act-type').value;
-            const amount = Number(document.getElementById('act-amount').value) || 0;
-            const note = document.getElementById('act-note').value || '';
-            const currency = document.getElementById('act-currency').value || 'TRY';
-            if (!srcId) return showToast('Kaynak seçili değil', 'error');
-            if (!window.supabaseClient) return showToast('Sunucu bağlantısı yok', 'error');
-
-            try {
-                // create a transaction entry according to chosen action:
-                const txType = (type === 'profit') ? 'income' : 'expense';
-                // Insert transaction
-                const { data, error } = await window.supabaseClient.from('transactions').insert([{
-                    title: type === 'refund' ? 'Emanet İade' : (type === 'payment' ? 'Emanet Ödeme' : 'Emanet Şirket Transfer'),
-                    amount: amount,
-                    currency: currency,
-                    type: txType,
-                    note: note,
-                    source_escrow_id: srcId,
-                    created_at: new Date().toISOString()
-                }]);
-                if (error) throw error;
-                // Optionally mark escrow record as closed - depends on schema; try update
-                await window.supabaseClient.from('transactions').update({ status: 'closed' }).eq('id', srcId);
-                showToast('Emanet işlemi kaydedildi', 'success');
-                ui.closeModal('modal-escrow-action');
-                ac.loadTransactions();
-            } catch (err) {
-                console.error('performEscrowAction', err);
-                showToast('İşlem yapılamadı', 'error');
-            }
-        };
-
-        // Exchange handling: create two transactions (outgoing & incoming)
-        ac.handleExchange = async function(e) {
-            e.preventDefault();
-            const outAmt = Number(document.getElementById('ex-out-amt').value) || 0;
-            const inAmt = Number(document.getElementById('ex-in-amt').value) || 0;
-            const outCurr = document.getElementById('ex-out-curr').value || 'USD';
-            const inCurr = document.getElementById('ex-in-curr').value || 'TRY';
-            const desc = document.getElementById('ex-desc').value || ('Exchange ' + new Date().toISOString());
-
-            if (!window.supabaseClient) return showToast('Sunucu bağlantısı yok', 'error');
-
-            try {
-                const batch = [
-                    {
-                        title: 'Döviz Bozum - Çıkan ('+outCurr+')',
-                        amount: outAmt,
-                        currency: outCurr,
-                        type: 'expense',
-                        note: desc,
-                        created_at: new Date().toISOString()
-                    },
-                    {
-                        title: 'Döviz Bozum - Giren ('+inCurr+')',
-                        amount: inAmt,
-                        currency: inCurr,
-                        type: 'income',
-                        note: desc,
-                        created_at: new Date().toISOString()
-                    }
-                ];
-                const { error } = await window.supabaseClient.from('transactions').insert(batch);
-                if (error) throw error;
-                showToast('Döviz işlemi kaydedildi', 'success');
-                ui.closeModal('modal-exchange');
-                ac.loadTransactions();
-            } catch (e) {
-                console.error('handleExchange', e);
-                showToast('Döviz kaydı yapılamadı', 'error');
-            }
-        };
-
-        // Handle expense form
-        ac.handleExpense = async function(e) {
-            e.preventDefault();
-            const title = document.getElementById('exp-title').value || 'Gider';
-            const amount = Number(document.getElementById('exp-amount').value) || 0;
-            const currency = document.getElementById('exp-currency').value || 'TRY';
-            const category = document.getElementById('exp-category').value || 'general';
-            const desc = document.getElementById('exp-desc').value || '';
-            const fileInput = document.getElementById('exp-file');
-            let fileUrl = null;
-            if (fileInput && fileInput.files && fileInput.files[0]) {
-                const uploaded = await uploadFileToStorage(fileInput.files[0], 'expenses');
-                if (uploaded) fileUrl = uploaded;
-            }
-            if (!window.supabaseClient) return showToast('Sunucu bağlantısı yok', 'error');
-            try {
-                const { error } = await window.supabaseClient.from('transactions').insert([{
-                    title: title,
-                    amount: amount,
-                    currency: currency,
-                    category: category,
-                    type: 'expense',
-                    description: desc,
-                    file_url: fileUrl,
-                    created_at: new Date().toISOString()
-                }]);
-                if (error) throw error;
-                showToast('Gider kaydedildi', 'success');
-                ui.closeModal('modal-expense');
-                ac.loadTransactions();
-            } catch (err) {
-                console.error('handleExpense', err);
-                showToast('Gider kaydı başarısız', 'error');
-            }
-        };
-
-        // Handle escrow creation
-        ac.handleEscrow = async function(e) {
-            e.preventDefault();
-            const customer = document.getElementById('esc-customer').value || 'Müşteri';
-            const amount = Number(document.getElementById('esc-amount').value) || 0;
-            const currency = document.getElementById('esc-currency').value || 'TRY';
-            const note = document.getElementById('esc-desc').value || '';
-            const fileInput = document.getElementById('esc-file');
-            let fileUrl = null;
-            if (fileInput && fileInput.files && fileInput.files[0]) {
-                const uploaded = await uploadFileToStorage(fileInput.files[0], 'escrows');
-                if (uploaded) fileUrl = uploaded;
-            }
-            if (!window.supabaseClient) return showToast('Sunucu bağlantısı yok', 'error');
-            try {
-                const { error } = await window.supabaseClient.from('transactions').insert([{
-                    title: 'Emanet',
-                    amount: amount,
-                    currency: currency,
-                    type: 'escrow',
-                    is_escrow: true,
-                    customer: customer,
-                    description: note,
-                    file_url: fileUrl,
-                    status: 'active',
-                    created_at: new Date().toISOString()
-                }]);
-                if (error) throw error;
-                showToast('Emanet kaydedildi', 'success');
-                ui.closeModal('modal-escrow');
-                ac.loadTransactions();
-            } catch (err) {
-                console.error('handleEscrow', err);
-                showToast('Emanet kaydı başarısız', 'error');
-            }
-        };
-
-        // Handle extra income (ek hizmet)
-        ac.handleExtraIncome = async function(e) {
-            e.preventDefault();
-            const customer = document.getElementById('ei-customer').value || 'Müşteri';
-            const category = document.getElementById('ei-category').value || 'other';
-            const desc = document.getElementById('ei-desc').value || '';
-            const amount = Number(document.getElementById('ei-amount').value) || 0;
-            const currency = document.getElementById('ei-currency').value || 'TRY';
-            const cost = Number(document.getElementById('ei-cost-amount').value) || 0;
-            const hasCost = document.getElementById('ei-has-cost').checked;
-            const fileInput = document.getElementById('ei-file');
-            let fileUrl = null;
-            if (fileInput && fileInput.files && fileInput.files[0]) {
-                const uploaded = await uploadFileToStorage(fileInput.files[0], 'extra_income');
-                if (uploaded) fileUrl = uploaded;
-            }
-
-            if (!window.supabaseClient) return showToast('Sunucu bağlantısı yok', 'error');
-            try {
-                // Insert income record
-                const { error } = await window.supabaseClient.from('transactions').insert([{
-                    title: 'Ek Hizmet - ' + category,
-                    amount: amount,
-                    currency: currency,
-                    customer: customer,
-                    type: 'income',
-                    category: category,
-                    description: desc,
-                    file_url: fileUrl,
-                    created_at: new Date().toISOString()
-                }]);
-                if (error) throw error;
-                // If cost exists, create corresponding expense
-                if (hasCost && cost > 0) {
-                    const { error: err2 } = await window.supabaseClient.from('transactions').insert([{
-                        title: 'Maliyet - Ek Hizmet',
-                        amount: cost,
-                        currency: currency,
-                        type: 'expense',
-                        description: 'Maliyet: ' + desc,
-                        created_at: new Date().toISOString()
-                    }]);
-                    if (err2) console.warn('Cost transaction failed', err2);
-                }
-                showToast('Ek hizmet kaydedildi', 'success');
-                ui.closeModal('modal-extra-income');
-                ac.loadTransactions();
-            } catch (err) {
-                console.error('handleExtraIncome', err);
-                showToast('Ek hizmet kaydı başarısız', 'error');
-            }
-        };
-
-        // Handle visa wizard submit (creates visa record and optionally transaction)
-        ac.handleVisaCreate = async function(e) {
-            e.preventDefault();
-            const name = document.getElementById('v-name').value || '';
-            const surname = document.getElementById('v-surname').value || '';
-            const country = document.getElementById('v-country').value || '';
-            const price = Number(document.getElementById('v-total-price').value) || 0;
-            const currency = document.getElementById('v-currency').value || 'EUR';
-            const paid = Number(document.getElementById('v-paid-now').value) || 0;
-            const note = document.getElementById('v-finance-note').value || '';
-
-            if (!window.supabaseClient) return showToast('Sunucu bağlantısı yok', 'error');
-
-            try {
-                // create visa record
-                const visaPayload = {
-                    name, surname, country,
-                    price, currency,
-                    paid, note,
-                    created_at: new Date().toISOString()
-                };
-                const { error: visaErr } = await window.supabaseClient.from('visas').insert([visaPayload]);
-                if (visaErr) throw visaErr;
-
-                // If paid amount > 0, write an income transaction
-                if (paid > 0) {
-                    const { error: txErr } = await window.supabaseClient.from('transactions').insert([{
-                        title: 'Vize Ödemesi - ' + name + ' ' + surname,
-                        amount: paid,
-                        currency: currency,
-                        type: 'income',
-                        description: 'Peşinat - ' + note,
-                        created_at: new Date().toISOString()
-                    }]);
-                    if (txErr) console.warn('Visa payment transaction error', txErr);
-                }
-
-                showToast('Vize dosyası oluşturuldu', 'success');
-                ui.closeModal('modal-income');
-                ac.loadTransactions();
-            } catch (err) {
-                console.error('handleVisaCreate', err);
-                showToast('Vize kaydı başarısız', 'error');
-            }
-        };
-
-        // Initialize: attach form listeners
-        ac.init = function() {
-            // bind forms
-            const expForm = document.getElementById('form-expense');
-            if (expForm) expForm.addEventListener('submit', ac.handleExpense);
-
-            const escForm = document.getElementById('form-escrow');
-            if (escForm) escForm.addEventListener('submit', ac.handleEscrow);
-
-            const extraForm = document.getElementById('form-extra-income');
-            if (extraForm) extraForm.addEventListener('submit', ac.handleExtraIncome);
-
-            const visaForm = document.getElementById('form-visa-wizard');
-            if (visaForm) visaForm.addEventListener('submit', ac.handleVisaCreate);
-
-            const exchangeForm = document.getElementById('form-exchange');
-            if (exchangeForm) exchangeForm.addEventListener('submit', ac.handleExchange);
-
-            const escrowActionForm = document.getElementById('form-escrow-action');
-            if (escrowActionForm) escrowActionForm.addEventListener('submit', ac.performEscrowAction);
-
-            // load initial data and rates
-            (async () => {
-                await fetchExchangeRates();
-                await ac.loadTransactions();
-                // refresh rates periodically
-                setInterval(async () => {
-                    await fetchExchangeRates();
-                    ac.refreshDashboard();
-                }, 1000 * 60 * 10); // 10 dakika
-            })();
-        };
-
-    })(window.accounting);
-
-    // Initialize UI helpers
+    // Global UI Nesnesi (HTML'den erişilebilir olması için en dışta tanımladık)
     window.ui = window.ui || {};
-    (function(u){
-        u.openModal = function(modalId) {
+
+    (function(ui){
+        ui.openModal = function(modalId) {
             const modal = document.getElementById(modalId);
-            if (!modal) return console.error('Modal yok:', modalId);
-            modal.style.display = 'flex';
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
+            if (modal) {
+                modal.style.display = 'flex';
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            } else {
+                console.error("Modal bulunamadı:", modalId);
+            }
         };
-        u.closeModal = function(modalId) {
+
+        ui.closeModal = function(modalId) {
             const modal = document.getElementById(modalId);
-            if (!modal) return;
-            modal.style.display = 'none';
-            modal.classList.remove('active');
-            document.body.style.overflow = '';
+            if (modal) {
+                modal.style.display = 'none';
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
         };
-        u.switchSettingsTab = function(tab, btnEl) {
+
+        ui.switchSettingsTab = function(tab, btnEl) {
             document.querySelectorAll('.settings-tab-btn').forEach(b => b.classList.remove('active'));
-            if (btnEl) btnEl.classList.add('active');
+            if(btnEl) btnEl.classList.add('active');
+
             document.querySelectorAll('.settings-content').forEach(el => el.style.display = 'none');
             const target = document.getElementById('set-' + tab);
-            if (target) target.style.display = 'block';
+            if(target) target.style.display = 'block';
         };
-    })(window.ui);
 
-    // app switchTab
+        // handleProfileUpload placeholder to avoid errors if not implemented
+        ui.handleProfileUpload = ui.handleProfileUpload || function(input){ console.log('profile upload', input.files && input.files[0] ? input.files[0].name : null); };
+
+        ui.saveProfile = ui.saveProfile || function(){ console.log('saveProfile'); };
+        ui.changePassword = ui.changePassword || function(){ console.log('changePassword'); };
+    })(window.ui);
+    </script>
+
+    <script>
+    // app object for tab switching; accept event parameter to mark active btn correctly
     window.app = window.app || {};
     window.app.switchTab = function(tabId, event) {
         document.querySelectorAll('.content-section').forEach(el => el.style.display = 'none');
         const target = document.getElementById('section-' + tabId);
         if (target) target.style.display = 'block';
-        document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
-        if (event && event.currentTarget) event.currentTarget.classList.add('active');
-    };
 
-    // DOM ready
+        document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+        if (event && event.currentTarget) {
+            event.currentTarget.classList.add('active');
+        } else {
+            // fallback: try to find item by text
+            const items = document.querySelectorAll('.menu-item');
+            items.forEach(it => {
+                if (it.innerText.toLowerCase().includes(tabId)) it.classList.add('active');
+            });
+        }
+    };
+    </script>
+
+    <script>
     document.addEventListener('DOMContentLoaded', async () => {
-        // Defensive: if supabase client is defined in js/supabase.js it should expose window.supabaseClient
+        // Safety: require supabase client
         if (!window.supabaseClient) {
-            console.warn('Supabase client bulunamadı. Lütfen js/supabase.js içerisinde window.supabaseClient oluşturun.');
-            // still initialize some UI pieces and rates
-            await fetchExchangeRates();
+            console.warn("Supabase client bulunamadı. Veri çekilemeyecek.");
+            // still set up some UI behaviors but return early for data
             return;
         }
-        // Init accounting (bind forms, load data)
-        window.accounting.init();
+
+        // Fetch transactions (ascending created_at for chart)
+        const { data: list, error } = await window.supabaseClient
+            .from('transactions')
+            .select('*')
+            .order('created_at', { ascending: true });
+
+        if (error) {
+            console.error("Supabase sorgu hatası:", error);
+            return;
+        }
+        if (!Array.isArray(list)) {
+            console.warn("Beklenmeyen veri formatı:", list);
+            return;
+        }
+
+        // Aggregation
+        const wallet = { TRY: 0, USD: 0, EUR: 0 };
+        let income = 0;   // TL incomes
+        let expense = 0;  // TL expenses
+        let escrowCount = 0;
+
+        list.forEach(item => {
+            const amt = parseFloat(item.amount) || 0;
+            const curr = (item.currency || 'TRY').toUpperCase();
+            const type = item.type || 'expense';
+
+            if (!wallet.hasOwnProperty(curr)) wallet[curr] = 0;
+
+            if (item.is_escrow) {
+                escrowCount++;
+            }
+
+            if (type === 'income') {
+                wallet[curr] += amt;
+                if(curr === 'TRY') income += amt;
+            } else {
+                wallet[curr] -= amt;
+                if(curr === 'TRY') expense += amt;
+            }
+        });
+
+        // Display helper
+        const format = (n, locale='tr-TR', digits=2) => Number(n).toLocaleString(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits });
+
+        // Update wallets (safe checks)
+        const elTry = document.getElementById('wallet-try');
+        if (elTry) elTry.innerText = '₺' + format(wallet.TRY);
+
+        const elUsd = document.getElementById('wallet-usd');
+        if (elUsd) elUsd.innerText = '$' + format(wallet.USD);
+
+        const elEur = document.getElementById('wallet-eur');
+        if (elEur) elEur.innerText = '€' + format(wallet.EUR);
+
+        // total equity: since we don't have live rates here, show TRY + USD and EUR as raw as fallback
+        const totalEl = document.getElementById('total-equity');
+        if (totalEl) {
+            // If live rates are provided on window.liveRates use them
+            const liveRates = window.liveRates || { USD_TRY: 0, EUR_TRY: 0 };
+            const totalTRY = (wallet.TRY || 0) + ((wallet.USD || 0) * (liveRates.USD_TRY || 0)) + ((wallet.EUR || 0) * (liveRates.EUR_TRY || 0));
+            if (totalTRY && totalTRY !== 0) {
+                totalEl.innerText = '₺' + format(totalTRY);
+            } else {
+                // fallback: display sum of TRY and USD/EUR amounts as text to avoid misleading conversion
+                totalEl.innerText = '₺' + format(wallet.TRY) + ' + $' + format(wallet.USD) + ' + €' + format(wallet.EUR);
+            }
+        }
+
+        // Update middle summary cards
+        const profitEl = document.getElementById('money-profit');
+        if (profitEl) profitEl.innerText = '₺' + format((income - expense));
+
+        const incomeEl = document.getElementById('money-income');
+        if (incomeEl) incomeEl.innerText = '₺' + format(income);
+
+        const expenseEl = document.getElementById('money-expense');
+        if (expenseEl) expenseEl.innerText = '₺' + format(expense);
+
+        const escrowEl = document.getElementById('money-escrow');
+        if (escrowEl) escrowEl.innerText = escrowCount;
+
+        // Attach dblclick to the escrow card (ensure it's the intended one)
+        const escrowCard = escrowEl ? escrowEl.closest('.summary-item') : null;
+        if (escrowCard) {
+            escrowCard.style.cursor = 'pointer';
+            escrowCard.style.border = '1px solid #f59e0b';
+            escrowCard.onclick = null;
+            escrowCard.ondblclick = function() {
+                ui.openModal('modal-escrow-details');
+            };
+        }
+
+        // Fill transactions table (latest first)
+        const tbody = document.getElementById('transactions-body');
+        if (tbody) {
+            tbody.innerHTML = '';
+            // reverse to show newest first
+            [...list].reverse().forEach(item => {
+                const id = item.id || (item._id || Math.random().toString(36).substring(2,9));
+                const created = item.created_at ? new Date(item.created_at).toLocaleString('tr-TR') : '-';
+                const desc = item.description || item.title || (item.note || '-');
+                const amt = parseFloat(item.amount) || 0;
+                const sign = (item.type === 'income') ? '+' : '-';
+                const curr = item.currency || 'TRY';
+
+                const tr = document.createElement('tr');
+                tr.style.cursor = 'pointer';
+
+                const tdDate = document.createElement('td');
+                tdDate.style.width = '180px';
+                tdDate.innerText = created;
+
+                const tdDesc = document.createElement('td');
+                tdDesc.innerText = desc;
+
+                const tdAmount = document.createElement('td');
+                tdAmount.style.textAlign = 'right';
+                tdAmount.innerText = sign + ' ' + curr + ' ' + format(amt);
+
+                const tdActions = document.createElement('td');
+                tdActions.style.textAlign = 'center';
+                tdActions.style.width = '100px';
+                tdActions.innerHTML = '<span class="material-icons-round" style="font-size:18px; color:#64748b;">receipt_long</span>';
+
+                tr.appendChild(tdDate);
+                tr.appendChild(tdDesc);
+                tr.appendChild(tdAmount);
+                tr.appendChild(tdActions);
+
+                // On click - open transaction modal with details
+                tr.addEventListener('click', () => {
+                    const m = document.getElementById('modal-transaction-detail');
+                    if (m) ui.openModal('modal-transaction-detail');
+                    const tdAmount = document.getElementById('td-amount');
+                    const tdCat = document.getElementById('td-cat');
+                    const tdDate = document.getElementById('td-date');
+                    const tdId = document.getElementById('td-id');
+                    const tdDesc = document.getElementById('td-desc');
+                    const tdUser = document.getElementById('td-user');
+
+                    if (tdAmount) tdAmount.innerText = (item.currency || 'TRY') + ' ' + format(amt);
+                    if (tdCat) tdCat.innerText = item.category || (item.type || 'Kategori');
+                    if (tdDate) tdDate.innerText = created;
+                    if (tdId) tdId.innerText = id;
+                    if (tdDesc) tdDesc.innerText = desc;
+                    if (tdUser) tdUser.innerText = (item.user_name || 'Yetkili');
+                    // store current transaction id for delete operations
+                    window.__currentTransactionId = id;
+                });
+
+                tbody.appendChild(tr);
+            });
+
+            if (tbody.children.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = '<td colspan="4" style="text-align:center; padding:30px; color:#94a3b8;">Kayıt bulunamadı</td>';
+                tbody.appendChild(tr);
+            }
+        }
+
+        // Populate escrow list in the escrow modal
+        const escrowBody = document.getElementById('escrow-list-body');
+        if (escrowBody) {
+            escrowBody.innerHTML = '';
+            const escrows = list.filter(it => it.is_escrow);
+            if (escrows.length === 0) {
+                escrowBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px;">Emanet kaydı bulunamadı.</td></tr>';
+            } else {
+                // newest first
+                [...escrows].reverse().forEach(it => {
+                    const tr = document.createElement('tr');
+                    const tdDate = document.createElement('td');
+                    tdDate.style.width = '120px';
+                    tdDate.innerText = it.created_at ? new Date(it.created_at).toLocaleDateString('tr-TR') : '-';
+
+                    const tdDesc = document.createElement('td');
+                    tdDesc.innerText = (it.customer || it.description || '—');
+
+                    const tdAmount = document.createElement('td');
+                    tdAmount.style.textAlign = 'right';
+                    tdAmount.innerText = (it.currency || 'TRY') + ' ' + format(it.amount || 0);
+
+                    const tdStatus = document.createElement('td');
+                    tdStatus.style.textAlign = 'center';
+                    tdStatus.innerText = it.status || 'Aktif';
+
+                    tr.appendChild(tdDate);
+                    tr.appendChild(tdDesc);
+                    tr.appendChild(tdAmount);
+                    tr.appendChild(tdStatus);
+
+                    // double click to open escrow action modal with data
+                    tr.ondblclick = function() {
+                        document.getElementById('act-source-id').value = it.id || it._id || '';
+                        document.getElementById('act-currency').value = it.currency || 'TRY';
+                        document.getElementById('act-amount').value = it.amount || 0;
+                        const descEl = document.getElementById('esc-act-desc');
+                        const amtEl = document.getElementById('esc-act-amount');
+                        if (descEl) descEl.innerText = (it.customer || it.description || '—');
+                        if (amtEl) amtEl.innerText = (it.currency || 'TRY') + ' ' + format(it.amount || 0);
+                        ui.openModal('modal-escrow-action');
+                    };
+
+                    escrowBody.appendChild(tr);
+                });
+            }
+        }
     });
     </script>
 
-    <style>
-    /* Minimal toast styling fallback (should be replaced by your main css) */
-    .app-toast { transition: all .3s ease; z-index: 9999; }
-    </style>
 </body>
 </html>
