@@ -1148,6 +1148,179 @@
     });
     </script>
 
+    <script>
+    // TUR YÖNETİM SİSTEMİ
+    window.tours = {
+        activeTourFilter: null, // Hangi tura tıklandı? (Null ise hepsi)
+
+        // 1. ÖRNEK VERİLER (Supabase bağlanana kadar bunları kullanacağız)
+        data: {
+            tours: [
+                { id: 1, name: 'Büyük Balkan Turu', date: '15 Haziran 2026', capacity: 45, sold: 12, status: 'active' },
+                { id: 2, name: 'İtalya Yaz Rüyası', date: '20 Temmuz 2026', capacity: 30, sold: 28, status: 'active' },
+                { id: 3, name: 'Benelüks & Paris', date: '10 Ağustos 2026', capacity: 40, sold: 5, status: 'active' },
+                { id: 4, name: 'Eski Mısır Turu', date: '01 Ocak 2025', capacity: 20, sold: 20, status: 'completed' } // Geçmiş tur
+            ],
+            passengers: [
+                { id: 101, name: 'Ahmet Yılmaz', tourId: 1, tourName: 'Büyük Balkan Turu', phone: '0532 555 1122', date: '2026-01-02', status: 'pending' },
+                { id: 102, name: 'Ayşe Demir', tourId: 2, tourName: 'İtalya Yaz Rüyası', phone: '0555 444 3322', date: '2026-01-01', status: 'confirmed' }, // Ödemesi alınmış
+                { id: 103, name: 'Mehmet Kaya', tourId: 1, tourName: 'Büyük Balkan Turu', phone: '0533 222 1100', date: '2026-01-03', status: 'pending' }
+            ]
+        },
+
+        // 2. KARTLARI ÇİZ (Üst Kısım)
+        renderCards: function() {
+            const container = document.getElementById('tour-cards-container');
+            const showOnlyActive = document.getElementById('toggle-active-tours').checked;
+            container.innerHTML = '';
+
+            // Tüm Turlar Kartı (En Başa)
+            const allClass = this.activeTourFilter === null ? 'active' : '';
+            container.innerHTML += `
+                <div class="tour-card-box ${allClass}" onclick="tours.selectTour(null)">
+                    <div class="tour-date-badge" style="background:#3b82f6; color:white;">YENİ KAYIT HAVUZU</div>
+                    <div class="tour-title">Onay Bekleyenler</div>
+                    <div class="tour-stats">
+                        <span>Web'den gelenler</span>
+                        <span style="font-weight:bold; color:#f59e0b;">Bekleyen: ${this.data.passengers.filter(p=>p.status==='pending').length}</span>
+                    </div>
+                </div>
+            `;
+
+            // Diğer Turları Sırala
+            this.data.tours.forEach(t => {
+                if(showOnlyActive && t.status !== 'active') return; // Aktif filtre
+
+                const isActive = this.activeTourFilter === t.id ? 'active' : '';
+                const dotColor = t.status === 'active' ? 'dot-green' : 'dot-gray';
+                
+                // Doluluk oranı
+                const percent = Math.round((t.sold / t.capacity) * 100);
+                let barColor = percent > 90 ? '#ef4444' : '#10b981';
+
+                container.innerHTML += `
+                    <div class="tour-card-box ${isActive}" onclick="tours.selectTour(${t.id})">
+                        <div class="tour-date-badge">${t.date}</div>
+                        <div class="tour-title">${t.name}</div>
+                        
+                        <div style="margin-top:8px;">
+                            <div style="height:4px; background:#f1f5f9; border-radius:2px; overflow:hidden;">
+                                <div style="width:${percent}%; background:${barColor}; height:100%;"></div>
+                            </div>
+                            <div class="tour-stats">
+                                <span><span class="status-dot ${dotColor}"></span>${t.status === 'active' ? 'Satışta' : 'Tamamlandı'}</span>
+                                <span>${t.sold}/${t.capacity}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        },
+
+        // 3. TUR SEÇME VE LİSTELEME
+        selectTour: function(tourId) {
+            this.activeTourFilter = tourId;
+            this.renderCards(); // Kart rengini güncelle
+            this.renderPassengers(); // Alt listeyi güncelle
+        },
+
+        // 4. YOLCULARI LİSTELE (Alt Kısım)
+        renderPassengers: function() {
+            const tbody = document.getElementById('tour-passengers-body');
+            const titleEl = document.getElementById('list-title');
+            const subEl = document.getElementById('list-subtitle');
+            tbody.innerHTML = '';
+
+            let list = [];
+
+            if (this.activeTourFilter === null) {
+                // HAVUZ MODU: Sadece 'pending' (Ödeme Bekleyen) olanları göster
+                titleEl.innerText = "YENİ KAYITLAR (Ödeme Bekleyen)";
+                titleEl.style.color = "#ea580c"; // Turuncu
+                subEl.innerText = "Web sitesinden gelen ve henüz işlem yapılmamış başvurular";
+                list = this.data.passengers.filter(p => p.status === 'pending');
+            } else {
+                // TUR MODU: Seçilen tura ait 'confirmed' (Kesin Kayıt) olanları göster
+                const tour = this.data.tours.find(t => t.id === this.activeTourFilter);
+                titleEl.innerText = tour.name.toUpperCase() + " - YOLCU LİSTESİ";
+                titleEl.style.color = "#1e293b"; // Siyah
+                subEl.innerText = "Ödemesi alınmış kesin kayıtlı yolcular";
+                list = this.data.passengers.filter(p => p.tourId === this.activeTourFilter && p.status === 'confirmed');
+            }
+
+            if (list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px; color:#94a3b8;">Bu kategoride yolcu bulunamadı.</td></tr>';
+                return;
+            }
+
+            // Listeyi Dök
+            list.forEach(p => {
+                let actionBtn = '';
+                if(p.status === 'pending') {
+                    // Ödeme Al Butonu
+                    actionBtn = `<button class="btn-sm" style="background:#ecfdf5; color:#059669; border:1px solid #a7f3d0; font-weight:700;" onclick="tours.approvePayment(${p.id})">ÖDEME ALINDI ✅</button>`;
+                } else {
+                    // Detay Butonu
+                    actionBtn = `<button class="btn-sm" style="background:#f8fafc; color:#64748b; border:1px solid #e2e8f0;" onclick="alert('Yolcu detayı açılacak...')">DETAY</button>`;
+                }
+
+                tbody.innerHTML += `
+                    <tr style="border-bottom:1px solid #f1f5f9;">
+                        <td style="padding:15px;">${p.date}</td>
+                        <td style="font-weight:600;">${p.name}</td>
+                        <td><span class="badge badge-gray">${p.tourName}</span></td>
+                        <td>${p.phone}</td>
+                        <td>
+                            ${p.status === 'pending' 
+                                ? '<span style="color:#f59e0b; font-weight:bold; font-size:12px;">⏳ Ödeme Bekliyor</span>' 
+                                : '<span style="color:#10b981; font-weight:bold; font-size:12px;">✔ Kesin Kayıt</span>'}
+                        </td>
+                        <td style="text-align:center;">${actionBtn}</td>
+                    </tr>
+                `;
+            });
+        },
+
+        // 5. İŞLEM: ÖDEME ONAYLA (Pending -> Confirmed)
+        approvePayment: function(passengerId) {
+            const p = this.data.passengers.find(x => x.id === passengerId);
+            if(confirm(`${p.name} isimli yolcudan ödeme alındı mı? \nBu işlem yolcuyu 'Yeni Kayıtlar'dan çıkarıp ilgili Tur Listesine ekleyecek.`)) {
+                // Durumu güncelle
+                p.status = 'confirmed';
+                
+                // İlgili turun satış sayısını artır
+                const t = this.data.tours.find(x => x.id === p.tourId);
+                if(t) t.sold++;
+
+                // Ekranı Yenile
+                this.renderCards();
+                this.renderPassengers();
+                
+                // (Burada normalde Supabase güncellemesi yapılacak)
+                alert("İşlem Başarılı! Yolcu tura eklendi.");
+            }
+        },
+        
+        addNewTourModal: function() {
+            alert("Yeni Tur Ekleme penceresi buraya gelecek.");
+        },
+
+        searchPassenger: function(query) {
+            // Basit arama simülasyonu
+            console.log("Aranıyor:", query);
+        }
+    };
+
+    // Sayfa Yüklendiğinde Turları Başlat
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            if(window.tours) {
+                window.tours.renderCards();
+                window.tours.renderPassengers();
+            }
+        }, 500);
+    });
+</script>
 
 </body>
 </html>
