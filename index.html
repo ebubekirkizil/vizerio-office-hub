@@ -9,6 +9,43 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+    <style>
+    /* TURLAR İÇİN ÖZEL STİL */
+    .tours-scroll-wrapper {
+        display: flex;
+        gap: 15px;
+        overflow-x: auto;
+        padding-bottom: 10px;
+        scrollbar-width: thin; /* Firefox */
+    }
+    .tours-scroll-wrapper::-webkit-scrollbar {
+        height: 6px;
+    }
+    .tours-scroll-wrapper::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 10px;
+    }
+    
+    .tour-card-box {
+        min-width: 220px;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 15px;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+    }
+    .tour-card-box:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+    .tour-card-box.active { border: 2px solid #2563eb; background: #eff6ff; }
+    
+    .tour-date-badge { font-size: 11px; font-weight: 700; color: #64748b; background: #f1f5f9; padding: 3px 8px; border-radius: 6px; display: inline-block; margin-bottom: 8px; }
+    .tour-title { font-weight: 800; font-size: 15px; color: #1e293b; margin-bottom: 5px; }
+    .tour-stats { font-size: 12px; color: #64748b; display: flex; justify-content: space-between; margin-top: 10px; }
+    .status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+    .dot-green { background: #10b981; }
+    .dot-gray { background: #94a3b8; }
+</style>
 <body>
     <div class="app-container" id="main-app">
         
