@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -995,6 +996,11 @@
             // İstenen bölümü aç
             const target = document.getElementById('section-' + tabId);
             if (target) target.style.display = 'block';
+
+            // Turlar sekmesine girince kart ve listeyi çiz
+            if (tabId === 'tours' && window.tours) {
+                try { window.tours.renderCards(); window.tours.renderPassengers(); } catch (e) { console.error('Tours render error:', e); }
+            }
             
             // Menü düğmesini aktif yap
             document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
@@ -1225,7 +1231,9 @@
     });
     </script>
 
-   // 1. TURLAR VE YOLCU SİSTEMİ (GRUP ÖZELLİKLİ FİNAL)
+   
+<script>
+// 1. TURLAR VE YOLCU SİSTEMİ (GRUP ÖZELLİKLİ FİNAL)
     window.tours = {
         activeTourFilter: null,
         data: {
@@ -1414,3 +1422,5 @@
 
 </body>
 </html>
+
+</script>
