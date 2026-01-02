@@ -255,7 +255,17 @@
 <input checked="" id="toggle-active-tours" onchange="tours.renderCards()" type="checkbox"/>
 <span>Sadece Aktif Turlar</span>
 </label>
-<button class="btn btn-blue" onclick="tours.addNewTourModal()">+ YENİ TUR EKLE</button>
+<div style="display:flex; gap:10px;">
+    <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; cursor:pointer;">
+        <input type="checkbox" id="toggle-active-tours" checked onchange="tours.renderCards()">
+        <span>Aktif Turlar</span>
+    </label>
+    
+    <button class="btn btn-green" onclick="tours.openAddPassengerModal()">
+        <span class="material-icons-round" style="font-size:16px; vertical-align:middle;">person_add</span> YOLCU KAYDET
+    </button>
+    
+    <button class="btn btn-blue" onclick="alert('Yeni tur ekleme penceresi hazırlanıyor...')">+ YENİ TUR EKLE</button>
 </div>
 </div>
 <div class="tours-scroll-wrapper" id="tour-cards-container">
