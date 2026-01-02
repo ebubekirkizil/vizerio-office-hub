@@ -1,17 +1,18 @@
 
 
 <!DOCTYPE html>
+
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vizerio Office</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vizerio Office</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<link href="css/style.css" rel="stylesheet"/>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-    <style>
+<style>
     /* TURLAR İÇİN ÖZEL STİL */
     .tours-scroll-wrapper {
         display: flex;
@@ -55,936 +56,793 @@
 }
 </style>
 <body>
-    <div class="app-container" id="main-app">
-        
-        <aside class="sidebar">
-            <div class="logo-area"><h2>VIZERIO</h2></div>
-            <nav class="menu">
-                <div class="menu-item active" onclick="app.switchTab('finance', event)">
-                    <span class="material-icons-round">account_balance_wallet</span> Finans
+<div class="app-container" id="main-app">
+<aside class="sidebar">
+<div class="logo-area"><h2>VIZERIO</h2></div>
+<nav class="menu">
+<div class="menu-item active" onclick="app.switchTab('finance', event)">
+<span class="material-icons-round">account_balance_wallet</span> Finans
                 </div>
-                <div class="menu-item" onclick="app.switchTab('crm', event)">
-                    <span class="material-icons-round">people</span> Operasyon
+<div class="menu-item" onclick="app.switchTab('crm', event)">
+<span class="material-icons-round">people</span> Operasyon
                 </div>
-                <div class="menu-item" onclick="app.switchTab('tours', event)">
-    <span class="material-icons-round">tour</span> Turlar
+<div class="menu-item" onclick="app.switchTab('tours', event)">
+<span class="material-icons-round">tour</span> Turlar
 </div>
-                <div class="menu-item" onclick="app.switchTab('settings', event)">
-                    <span class="material-icons-round">settings</span> Ayarlar
+<div class="menu-item" onclick="app.switchTab('settings', event)">
+<span class="material-icons-round">settings</span> Ayarlar
                 </div>
-                <div class="menu-item" style="margin-top:auto; color:#ef4444;" onclick="window.auth && window.auth.logout ? window.auth.logout() : console.log('logout called')">
-                    <span class="material-icons-round">logout</span> Çıkış
+<div class="menu-item" onclick="window.auth &amp;&amp; window.auth.logout ? window.auth.logout() : console.log('logout called')" style="margin-top:auto; color:#ef4444;">
+<span class="material-icons-round">logout</span> Çıkış
                 </div>
-            </nav>
-        </aside>
-
-        <section id="section-settings" class="content-section" style="display:none;">
-            <h2 style="margin-bottom: 25px; font-size: 24px;">Hesap ve Sistem Ayarları</h2>
-
-            <div class="settings-tabs">
-                <button class="settings-tab-btn active" onclick="ui.switchSettingsTab('personal', this)">
-                    <span class="material-icons-round">person</span> Kişisel Profil
+</nav>
+</aside>
+<section class="content-section" id="section-settings" style="display:none;">
+<h2 style="margin-bottom: 25px; font-size: 24px;">Hesap ve Sistem Ayarları</h2>
+<div class="settings-tabs">
+<button class="settings-tab-btn active" onclick="ui.switchSettingsTab('personal', this)">
+<span class="material-icons-round">person</span> Kişisel Profil
                 </button>
-                <button class="settings-tab-btn" onclick="ui.switchSettingsTab('system', this)">
-                    <span class="material-icons-round">dvr</span> Sistem & Veri
+<button class="settings-tab-btn" onclick="ui.switchSettingsTab('system', this)">
+<span class="material-icons-round">dvr</span> Sistem &amp; Veri
                 </button>
-            </div>
-
-            <div id="set-personal" class="settings-content active">
-                <div class="settings-grid">
-                    <div class="card" style="text-align: center;">
-                        <div class="profile-upload-wrapper">
-                            <img src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff" id="profile-img-preview" class="profile-img-big" alt="profile">
-                            <div class="upload-icon" onclick="document.getElementById('profile-upload-input').click()"><span class="material-icons-round">photo_camera</span></div>
-                            <input type="file" id="profile-upload-input" hidden accept="image/*" onchange="ui.handleProfileUpload && ui.handleProfileUpload(this)">
-                        </div>
-                        <h3 id="profile-name-display" style="margin: 10px 0 5px 0;">Yetkili Kullanıcı</h3>
-                        <div style="font-size:12px; color:#64748b; margin-bottom:10px;">IP: <span id="current-user-ip">Yükleniyor...</span></div>
-                        <span class="badge badge-gray">Yönetici</span>
-                    </div>
-
-                    <div class="card">
-                        <h4 style="margin-top:0; border-bottom:1px solid #f1f5f9; padding-bottom:15px;">Kimlik Bilgileri</h4>
-                        <div class="form-row">
-                            <div class="form-group half"><label>Adınız</label><input type="text" class="form-control" id="p-name" value="Yetkili"></div>
-                            <div class="form-group half"><label>Soyadınız</label><input type="text" class="form-control" id="p-surname" value="Kullanıcı"></div>
-                        </div>
-                        <div class="form-group"><label>E-Posta (Sabit Kimlik)</label><input type="email" class="form-control" id="p-email" disabled style="background:#f1f5f9; color:#64748b;"></div>
-                        <div style="text-align:right;"><button class="btn btn-blue" style="width:auto;" onclick="ui.saveProfile && ui.saveProfile()">Bilgileri Güncelle</button></div>
-                        
-                        <h4 style="margin-top:30px; border-bottom:1px solid #f1f5f9; padding-bottom:15px; color:#ef4444;">Güvenlik (Şifre Değiştir)</h4>
-                        <div class="form-group"><label>Eski Şifreniz</label><input type="password" class="form-control" id="p-old-pass"></div>
-                        <div class="form-row">
-                            <div class="form-group half"><label>Yeni Şifre</label><input type="password" class="form-control" id="p-new-pass"></div>
-                            <div class="form-group half"><label>Yeni Şifre (Tekrar)</label><input type="password" class="form-control" id="p-confirm-pass"></div>
-                        </div>
-                        <div style="text-align:right;"><button class="btn btn-red" style="width:auto;" onclick="ui.changePassword && ui.changePassword()">Şifreyi Değiştir</button></div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="set-system" class="settings-content" style="display:none;">
-                <div class="settings-grid">
-                    <div class="card">
-                        <div style="display:flex; gap:15px; align-items:center; margin-bottom:20px;">
-                            <div style="width:50px; height:50px; background:#eff6ff; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#2563eb;">
-                                <span class="material-icons-round" style="font-size:28px;">cloud_download</span>
-                            </div>
-                            <div>
-                                <h4 style="margin:0;">Güvenli Veri Yedekleme</h4>
-                                <div style="font-size:13px; color:#64748b;">Tüm finansal verileri Excel formatında indirir.</div>
-                            </div>
-                        </div>
-                        <button class="btn btn-blue" onclick="accounting && accounting.downloadBackup ? accounting.downloadBackup() : console.log('downloadBackup')">YEDEĞİ İNDİR (EXCEL)</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <main class="main-content">
-            
-            <header class="top-header">
-                <div class="header-left">
-                    <div class="search-bar">
-                        <span class="material-icons-round">search</span>
-                        <input type="text" placeholder="Ara...">
-                    </div>
-                </div>
-                <div id="live-rates-display" style="font-size:12px; font-weight:700; color:#64748b;">
+</div>
+<div class="settings-content active" id="set-personal">
+<div class="settings-grid">
+<div class="card" style="text-align: center;">
+<div class="profile-upload-wrapper">
+<img alt="profile" class="profile-img-big" id="profile-img-preview" src="https://ui-avatars.com/api/?name=Admin&amp;background=0D8ABC&amp;color=fff"/>
+<div class="upload-icon" onclick="document.getElementById('profile-upload-input').click()"><span class="material-icons-round">photo_camera</span></div>
+<input accept="image/*" hidden="" id="profile-upload-input" onchange="ui.handleProfileUpload &amp;&amp; ui.handleProfileUpload(this)" type="file"/>
+</div>
+<h3 id="profile-name-display" style="margin: 10px 0 5px 0;">Yetkili Kullanıcı</h3>
+<div style="font-size:12px; color:#64748b; margin-bottom:10px;">IP: <span id="current-user-ip">Yükleniyor...</span></div>
+<span class="badge badge-gray">Yönetici</span>
+</div>
+<div class="card">
+<h4 style="margin-top:0; border-bottom:1px solid #f1f5f9; padding-bottom:15px;">Kimlik Bilgileri</h4>
+<div class="form-row">
+<div class="form-group half"><label>Adınız</label><input class="form-control" id="p-name" type="text" value="Yetkili"/></div>
+<div class="form-group half"><label>Soyadınız</label><input class="form-control" id="p-surname" type="text" value="Kullanıcı"/></div>
+</div>
+<div class="form-group"><label>E-Posta (Sabit Kimlik)</label><input class="form-control" disabled="" id="p-email" style="background:#f1f5f9; color:#64748b;" type="email"/></div>
+<div style="text-align:right;"><button class="btn btn-blue" onclick="ui.saveProfile &amp;&amp; ui.saveProfile()" style="width:auto;">Bilgileri Güncelle</button></div>
+<h4 style="margin-top:30px; border-bottom:1px solid #f1f5f9; padding-bottom:15px; color:#ef4444;">Güvenlik (Şifre Değiştir)</h4>
+<div class="form-group"><label>Eski Şifreniz</label><input class="form-control" id="p-old-pass" type="password"/></div>
+<div class="form-row">
+<div class="form-group half"><label>Yeni Şifre</label><input class="form-control" id="p-new-pass" type="password"/></div>
+<div class="form-group half"><label>Yeni Şifre (Tekrar)</label><input class="form-control" id="p-confirm-pass" type="password"/></div>
+</div>
+<div style="text-align:right;"><button class="btn btn-red" onclick="ui.changePassword &amp;&amp; ui.changePassword()" style="width:auto;">Şifreyi Değiştir</button></div>
+</div>
+</div>
+</div>
+<div class="settings-content" id="set-system" style="display:none;">
+<div class="settings-grid">
+<div class="card">
+<div style="display:flex; gap:15px; align-items:center; margin-bottom:20px;">
+<div style="width:50px; height:50px; background:#eff6ff; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#2563eb;">
+<span class="material-icons-round" style="font-size:28px;">cloud_download</span>
+</div>
+<div>
+<h4 style="margin:0;">Güvenli Veri Yedekleme</h4>
+<div style="font-size:13px; color:#64748b;">Tüm finansal verileri Excel formatında indirir.</div>
+</div>
+</div>
+<button class="btn btn-blue" onclick="accounting &amp;&amp; accounting.downloadBackup ? accounting.downloadBackup() : console.log('downloadBackup')">YEDEĞİ İNDİR (EXCEL)</button>
+</div>
+</div>
+</div>
+</section>
+<main class="main-content">
+<header class="top-header">
+<div class="header-left">
+<div class="search-bar">
+<span class="material-icons-round">search</span>
+<input placeholder="Ara..." type="text"/>
+</div>
+</div>
+<div id="live-rates-display" style="font-size:12px; font-weight:700; color:#64748b;">
                     Kur Yükleniyor...
                 </div>
-            </header>
-
-            <section id="section-finance" class="content-section active">
-                
-                <div style="background:white; border-radius:16px; border:1px solid #e2e8f0; padding:25px; margin-bottom:25px;">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
-                        <h3 style="margin:0; font-size:18px;">Kasa Varlıkları</h3>
-                        <div style="display:flex; gap:10px;">
-                            <button class="btn btn-green" onclick="ui.openModal('modal-select-income-type')">GELİR</button>
-                            <button class="btn btn-red" onclick="ui.openModal('modal-expense')">GİDER</button>
-                            <button class="btn btn-blue" onclick="ui.openModal('modal-exchange')">KUR</button>
-                        </div>
-                    </div>
-                    <div class="wallet-grid">
-                        <div class="wallet-item">
-                            <div class="wallet-label">TL KASA</div>
-                            <div class="wallet-amount" id="wallet-try">₺0.00</div>
-                        </div>
-                        <div class="wallet-item">
-                            <div class="wallet-label">USD KASA</div>
-                            <div class="wallet-amount" id="wallet-usd">$0.00</div>
-                            <div class="wallet-sub" id="val-usd">≈ ₺0.00</div>
-                        </div>
-                        <div class="wallet-item">
-                            <div class="wallet-label">EUR KASA</div>
-                            <div class="wallet-amount" id="wallet-eur">€0.00</div>
-                            <div class="wallet-sub" id="val-eur">≈ ₺0.00</div>
-                        </div>
-                        <div class="wallet-item">
-                            <div class="wallet-label">TOPLAM VARLIK</div>
-                            <div class="wallet-amount" style="color:#4f46e5;" id="total-equity">₺0.00</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="summary-cards">
-                    <div class="card summary-item border-green" style="cursor: pointer;" onclick="accounting && accounting.toggleChartData ? accounting.toggleChartData('profit', this) : null">
-                        <div class="card-title" id="lbl-profit">NET KÂR (AÇIK)</div>
-                        <div class="money" id="money-profit">₺0.00</div>
-                    </div>
-                    <div class="card summary-item border-blue" style="cursor: pointer;" onclick="accounting && accounting.toggleChartData ? accounting.toggleChartData('income', this) : null">
-                        <div class="card-title" id="lbl-income">TOPLAM CİRO (AÇIK)</div>
-                        <div class="money" id="money-income">₺0.00</div>
-                    </div>
-                    <div class="card summary-item border-red" style="cursor: pointer;" onclick="accounting && accounting.toggleChartData ? accounting.toggleChartData('expense', this) : null">
-                        <div class="card-title" id="lbl-expense">TOPLAM GİDER (AÇIK)</div>
-                        <div class="money" id="money-expense">₺0.00</div>
-                    </div>
-                    <div class="card summary-item border-orange" style="cursor: pointer;" ondblclick="ui.openModal('modal-escrow-details')">
-                        <div class="card-title">EMANET (ÇİFT TIKLA)</div>
-                        <div class="money" id="money-escrow">0</div>
-                    </div>
-                </div>
-
+</header>
+<section class="content-section active" id="section-finance">
+<div style="background:white; border-radius:16px; border:1px solid #e2e8f0; padding:25px; margin-bottom:25px;">
+<div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+<h3 style="margin:0; font-size:18px;">Kasa Varlıkları</h3>
+<div style="display:flex; gap:10px;">
+<button class="btn btn-green" onclick="ui.openModal('modal-select-income-type')">GELİR</button>
+<button class="btn btn-red" onclick="ui.openModal('modal-expense')">GİDER</button>
+<button class="btn btn-blue" onclick="ui.openModal('modal-exchange')">KUR</button>
+</div>
+</div>
+<div class="wallet-grid">
+<div class="wallet-item">
+<div class="wallet-label">TL KASA</div>
+<div class="wallet-amount" id="wallet-try">₺0.00</div>
+</div>
+<div class="wallet-item">
+<div class="wallet-label">USD KASA</div>
+<div class="wallet-amount" id="wallet-usd">$0.00</div>
+<div class="wallet-sub" id="val-usd">≈ ₺0.00</div>
+</div>
+<div class="wallet-item">
+<div class="wallet-label">EUR KASA</div>
+<div class="wallet-amount" id="wallet-eur">€0.00</div>
+<div class="wallet-sub" id="val-eur">≈ ₺0.00</div>
+</div>
+<div class="wallet-item">
+<div class="wallet-label">TOPLAM VARLIK</div>
+<div class="wallet-amount" id="total-equity" style="color:#4f46e5;">₺0.00</div>
+</div>
+</div>
+</div>
+<div class="summary-cards">
+<div class="card summary-item border-green" onclick="accounting &amp;&amp; accounting.toggleChartData ? accounting.toggleChartData('profit', this) : null" style="cursor: pointer;">
+<div class="card-title" id="lbl-profit">NET KÂR (AÇIK)</div>
+<div class="money" id="money-profit">₺0.00</div>
+</div>
+<div class="card summary-item border-blue" onclick="accounting &amp;&amp; accounting.toggleChartData ? accounting.toggleChartData('income', this) : null" style="cursor: pointer;">
+<div class="card-title" id="lbl-income">TOPLAM CİRO (AÇIK)</div>
+<div class="money" id="money-income">₺0.00</div>
+</div>
+<div class="card summary-item border-red" onclick="accounting &amp;&amp; accounting.toggleChartData ? accounting.toggleChartData('expense', this) : null" style="cursor: pointer;">
+<div class="card-title" id="lbl-expense">TOPLAM GİDER (AÇIK)</div>
+<div class="money" id="money-expense">₺0.00</div>
+</div>
+<div class="card summary-item border-orange" ondblclick="ui.openModal('modal-escrow-details')" style="cursor: pointer;">
+<div class="card-title">EMANET (ÇİFT TIKLA)</div>
+<div class="money" id="money-escrow">0</div>
+</div>
+</div>
 <div id="pd-group-area" style="display:none; margin-bottom:15px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:10px; padding:15px;">
-    <div style="font-size:12px; font-weight:700; color:#1e40af; margin-bottom:8px; display:flex; align-items:center; gap:5px;">
-        <span class="material-icons-round" style="font-size:16px;">groups</span> 
+<div style="font-size:12px; font-weight:700; color:#1e40af; margin-bottom:8px; display:flex; align-items:center; gap:5px;">
+<span class="material-icons-round" style="font-size:16px;">groups</span> 
         GRUP ÜYELERİ / AİLE FERTLERİ
     </div>
-    <div id="pd-group-list" style="display:flex; flex-wrap:wrap; gap:10px;">
-        </div>
+<div id="pd-group-list" style="display:flex; flex-wrap:wrap; gap:10px;">
 </div>
-                
-<div class="modal-overlay" id="modal-passenger-detail" style="display:none;">
-    <div class="modal-box" style="width: 700px;">
-        <div class="modal-header" style="background: linear-gradient(to right, #2563eb, #1e40af); color:white;">
-            <h3 style="color:white; display:flex; align-items:center; gap:10px;">
-                <span class="material-icons-round">person_pin</span> YOLCU KİMLİK KARTI
-            </h3>
-            <button class="close-btn" onclick="ui.closeModal('modal-passenger-detail')" style="color:white;">✕</button>
-        </div>
-        
-        <div class="modal-body" style="background:#f8fafc; padding:25px;">
-            
-            <div style="background:white; border-radius:12px; padding:20px; display:flex; gap:20px; border:1px solid #e2e8f0; margin-bottom:20px;">
-                <div style="width:80px; height:80px; background:#eff6ff; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#2563eb;">
-                    <span class="material-icons-round" style="font-size:40px;">person</span>
-                </div>
-                <div style="flex:1;">
-                    <div style="font-size:12px; font-weight:700; color:#64748b; letter-spacing:0.5px;">AD SOYAD</div>
-                    <div id="pd-name" style="font-size:22px; font-weight:800; color:#1e293b; margin-bottom:5px;">-</div>
-                    <div style="display:flex; gap:10px;">
-                        <span id="pd-status-badge" class="badge">Durum</span>
-                        <span id="pd-pax-type" class="badge" style="background:#f1f5f9; color:#475569;">Katılım Tipi</span>
-                    </div>
-                </div>
-                <div style="text-align:right;">
-                    <div style="font-size:11px; font-weight:700; color:#94a3b8;">REZERVASYON NO</div>
-                    <div id="pd-id" style="font-size:16px; font-family:monospace; font-weight:700;">#000</div>
-                </div>
-            </div>
-
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:20px;">
-                
-                <div class="card" style="margin:0; padding:15px;">
-                    <h4 style="margin-top:0; border-bottom:1px solid #f1f5f9; padding-bottom:10px; color:#3b82f6;">Kimlik & Pasaport</h4>
-                    <div class="receipt-item"><label>TC Kimlik No</label><span id="pd-tc">-</span></div>
-                    <div class="receipt-item"><label>Doğum Tarihi / Yaş</label><span id="pd-age">-</span></div>
-                    <div class="receipt-item"><label>Pasaport Durumu</label><span id="pd-passport-st">-</span></div>
-                    <div class="receipt-item"><label>Pasaport No</label><span id="pd-passport-no">-</span></div>
-                    <div class="receipt-item"><label>Pasaport Tipi</label><span id="pd-passport-type">-</span></div>
-                </div>
-
-                <div class="card" style="margin:0; padding:15px;">
-                    <h4 style="margin-top:0; border-bottom:1px solid #f1f5f9; padding-bottom:10px; color:#ea580c;">Tur & İletişim</h4>
-                    <div class="receipt-item"><label>Seçilen Tur</label><span id="pd-tour" style="font-weight:700;">-</span></div>
-                    <div class="receipt-item"><label>Gidiş Tarihi</label><span id="pd-date">-</span></div>
-                    <div class="receipt-item"><label>Telefon</label><span id="pd-phone">-</span></div>
-                    <div class="receipt-item"><label>E-Posta</label><span id="pd-email">-</span></div>
-                    <div class="receipt-item"><label>Katılım Şekli</label><span id="pd-group-type">-</span></div>
-                </div>
-            </div>
-
-            <div class="card" style="margin:0; padding:15px; border-left:4px solid #f59e0b;">
-                <h4 style="margin:0 0 10px 0; font-size:14px; color:#d97706;">📝 Müşteri Notu / Özel Talep</h4>
-                <div id="pd-note" style="font-style:italic; color:#475569; font-size:13px; line-height:1.5;">
-                    -
-                </div>
-            </div>
-
-        </div>
-    </div>
 </div>
-                
-                <div class="chart-table-wrapper">
-                    
-                    <div class="card" style="padding: 25px; margin-bottom: 25px; min-height: 400px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                            <div style="display:flex; align-items:center; gap:15px;">
-                                <h4 style="margin:0; font-size:16px; color:#1e293b; font-weight:700;">FİNANSAL ANALİZ</h4>
-                                <select id="chart-currency" onchange="accounting && accounting.refreshDashboard ? accounting.refreshDashboard() : null" class="form-control" style="width:auto; padding: 5px 10px; font-size:12px;">
-                                    <option value="TRY">₺ TRY</option>
-                                    <option value="USD">$ USD</option>
-                                    <option value="EUR">€ EUR</option>
-                                </select>
-                            </div>
-                            <div class="chart-controls">
-                                <button class="time-btn" onclick="accounting && accounting.filterChartDate ? accounting.filterChartDate('24h', this) : null">24S</button>
-                                <button class="time-btn" onclick="accounting && accounting.filterChartDate ? accounting.filterChartDate('1w', this) : null">1H</button>
-                                <button class="time-btn" onclick="accounting && accounting.filterChartDate ? accounting.filterChartDate('1m', this) : null">1A</button>
-                                <button class="time-btn" onclick="accounting && accounting.filterChartDate ? accounting.filterChartDate('1y', this) : null">1Y</button>
-                                <button class="time-btn active" onclick="accounting && accounting.filterChartDate ? accounting.filterChartDate('all', this) : null">TÜM</button>
-                            </div>
-                        </div>
-                        <div style="height: 320px; width: 100%; position: relative;">
-                            <canvas id="financeChart"></canvas>
-                        </div>
-                    </div>
 
-                   <div class="card" style="padding:0; overflow:hidden; border:1px solid #e2e8f0; margin-top: 20px;">
-                        <div style="padding:20px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center; background:#fff;">
-                            <span style="font-weight:800; color:#1e293b; font-size:14px; letter-spacing:0.5px;">SON İŞLEMLER</span>
-                            
-                            <button class="btn-filter" onclick="accounting && accounting.refreshDashboard ? accounting.refreshDashboard() : null">
-                                <span class="material-icons-round">refresh</span> Yenile
+<div class="chart-table-wrapper">
+<div class="card" style="padding: 25px; margin-bottom: 25px; min-height: 400px;">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+<div style="display:flex; align-items:center; gap:15px;">
+<h4 style="margin:0; font-size:16px; color:#1e293b; font-weight:700;">FİNANSAL ANALİZ</h4>
+<select class="form-control" id="chart-currency" onchange="accounting &amp;&amp; accounting.refreshDashboard ? accounting.refreshDashboard() : null" style="width:auto; padding: 5px 10px; font-size:12px;">
+<option value="TRY">₺ TRY</option>
+<option value="USD">$ USD</option>
+<option value="EUR">€ EUR</option>
+</select>
+</div>
+<div class="chart-controls">
+<button class="time-btn" onclick="accounting &amp;&amp; accounting.filterChartDate ? accounting.filterChartDate('24h', this) : null">24S</button>
+<button class="time-btn" onclick="accounting &amp;&amp; accounting.filterChartDate ? accounting.filterChartDate('1w', this) : null">1H</button>
+<button class="time-btn" onclick="accounting &amp;&amp; accounting.filterChartDate ? accounting.filterChartDate('1m', this) : null">1A</button>
+<button class="time-btn" onclick="accounting &amp;&amp; accounting.filterChartDate ? accounting.filterChartDate('1y', this) : null">1Y</button>
+<button class="time-btn active" onclick="accounting &amp;&amp; accounting.filterChartDate ? accounting.filterChartDate('all', this) : null">TÜM</button>
+</div>
+</div>
+<div style="height: 320px; width: 100%; position: relative;">
+<canvas id="financeChart"></canvas>
+</div>
+</div>
+<div class="card" style="padding:0; overflow:hidden; border:1px solid #e2e8f0; margin-top: 20px;">
+<div style="padding:20px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center; background:#fff;">
+<span style="font-weight:800; color:#1e293b; font-size:14px; letter-spacing:0.5px;">SON İŞLEMLER</span>
+<button class="btn-filter" onclick="accounting &amp;&amp; accounting.refreshDashboard ? accounting.refreshDashboard() : null">
+<span class="material-icons-round">refresh</span> Yenile
                             </button>
-                        </div>
-                        
-                        <div class="table-container">
-                            <table class="data-table" style="margin:0;">
-                                <tbody id="transactions-body">
-                                    <tr><td colspan="4" style="text-align:center; padding:30px; color:#94a3b8;">Veriler Yükleniyor...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                </div>
-            </section>
-
-            <section id="section-crm" class="content-section" style="display:none;">
-            </section>
-
-<section id="section-tours" class="content-section" style="display:none;">
-    
-    <div style="margin-bottom: 25px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <h2 style="margin:0; font-size:20px;">Tur Yönetimi</h2>
-            <div style="display:flex; gap:10px;">
-                <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; cursor:pointer;">
-                    <input type="checkbox" id="toggle-active-tours" checked onchange="tours.renderCards()">
-                    <span>Sadece Aktif Turlar</span>
-                </label>
-                <button class="btn btn-blue" onclick="tours.addNewTourModal()">+ YENİ TUR EKLE</button>
-            </div>
-        </div>
-
-        <div class="tours-scroll-wrapper" id="tour-cards-container">
-            </div>
-    </div>
-
-    <div class="card" style="padding:0; overflow:hidden; border:1px solid #e2e8f0;">
-        <div style="padding:20px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center; background:#fff;">
-            <div>
-                <span id="list-title" style="font-weight:800; color:#1e293b; font-size:16px;">YENİ KAYITLAR (Ödeme Bekleyen)</span>
-                <div id="list-subtitle" style="font-size:12px; color:#64748b; margin-top:3px;">Web sitesinden gelen onaylanmamış başvurular</div>
-            </div>
-            <div class="search-bar" style="width: 250px;">
-                <span class="material-icons-round">search</span>
-                <input type="text" placeholder="Yolcu Ara..." onkeyup="tours.searchPassenger(this.value)">
-            </div>
-        </div>
-        
-        <div class="table-container">
-            <table class="data-table" style="margin:0;">
-                <thead>
-                    <tr style="background:#f8fafc; text-align:left; font-size:12px; color:#64748b;">
-                        <th style="padding:15px;">TARİH</th>
-                        <th>YOLCU ADI</th>
-                        <th>HEDEF TUR</th>
-                        <th>İLETİŞİM</th>
-                        <th>DURUM</th>
-                        <th style="text-align:center;">İŞLEM</th>
-                    </tr>
-                </thead>
-                <tbody id="tour-passengers-body">
-                    </tbody>
-            </table>
-        </div>
-    </div>
+</div>
+<div class="table-container">
+<table class="data-table" style="margin:0;">
+<tbody id="transactions-body">
+<tr><td colspan="4" style="text-align:center; padding:30px; color:#94a3b8;">Veriler Yükleniyor...</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
 </section>
-            
-        </main>
-    </div>
-    
-    <div class="modal-overlay" id="modal-select-income-type" style="display:none;">
-        <div class="modal-box" style="width: 750px;">
-            <div class="modal-header"><h3>İşlem Seçiniz</h3><button class="close-btn" onclick="ui.closeModal('modal-select-income-type')">✕</button></div>
-            <div class="modal-body" style="background: #f8fafc;">
-                <div class="income-selection-grid">
-                    <div class="income-card theme-visa" onclick="ui.closeModal('modal-select-income-type'); ui.openModal('modal-income');">
-                        <div class="income-icon-box"><span class="material-icons-round">post_add</span></div>
-                        <div class="income-content"><div class="income-title">VİZE DOSYASI</div><div class="income-desc">Yeni başvuru oluştur</div></div>
-                    </div>
-                    <div class="income-card theme-extra" onclick="ui.closeModal('modal-select-income-type'); ui.openModal('modal-extra-income');">
-                        <div class="income-icon-box"><span class="material-icons-round">airplane_ticket</span></div>
-                        <div class="income-content"><div class="income-title">EK HİZMET</div><div class="income-desc">Uçak, Sigorta, Otel</div></div>
-                    </div>
-                    <div class="income-card theme-escrow" onclick="ui.closeModal('modal-select-income-type'); ui.openModal('modal-escrow');">
-                        <div class="income-icon-box"><span class="material-icons-round">account_balance_wallet</span></div>
-                        <div class="income-content"><div class="income-title">EMANET</div><div class="income-desc">Geçici para girişi</div></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="modal-expense" style="display:none;">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3>Yeni Gider Ekle</h3>
-                <button class="close-btn" onclick="ui.closeModal('modal-expense')">✕</button>
-            </div>
-            <div class="modal-body">
-                <form id="form-expense">
-                    <div class="form-group">
-                        <label>Gider Kategorisi</label>
-                        <select class="form-control" id="exp-category">
-                            <option value="general">Genel Gider</option>
-                            <option value="rent">Kira & Ofis Aidat</option>
-                            <option value="bills">Faturalar (Elektrik/Su/İnternet)</option>
-                            <option value="software">Yazılım & Teknoloji (Developer)</option>
-                            <option value="personnel">Personel & Maaş</option>
-                            <option value="food">Yemek & İçecek</option>
-                            <option value="transport">Ulaşım & Yakıt</option>
-                            <option value="marketing">Reklam & Pazarlama</option>
-                            <option value="tax">Vergi & Stopaj</option>
-                            <option value="hardware">Demirbaş & Ekipman</option>
-                        </select>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group half">
-                            <label>Harcama Başlığı</label>
-                            <input type="text" class="form-control" id="exp-title" placeholder="Örn: Sunucu Ödemesi" required>
-                        </div>
-                        <div class="form-group half">
-                            <label>Tutar</label>
-                            <div class="form-row" style="gap:5px;">
-                                <input type="number" class="form-control" id="exp-amount" placeholder="0.00" required>
-                                <select class="form-control" style="width:80px;" id="exp-currency">
-                                    <option value="TRY">TRY</option>
-                                    <option value="USD">USD</option>
-                                    <option value="EUR">EUR</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Detaylı Açıklama (İsteğe Bağlı)</label>
-                        <textarea class="form-control" id="exp-desc" rows="2" placeholder="Örn: 2 aylık AWS sunucu faturası ve domain yenileme..."></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Fatura / Fiş / Dekont</label>
-                        <div class="file-upload-area" onclick="document.getElementById('exp-file').click()" style="padding: 15px;">
-                            <span class="material-icons-round" style="color:#94a3b8;">attach_file</span>
-                            <span class="file-text" id="exp-file-text" style="margin-left:5px;">Dosya Yükle (PDF, Resim)</span>
-                            <input type="file" id="exp-file" hidden onchange="(function(){ const f = this.files[0]; if(f) { document.getElementById('exp-file-text').innerText = f.name; this.parentElement.style.borderColor='#10b981'; } }).call(this)">
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-red" style="width:100%; margin-top:10px;">GİDERİ KAYDET</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="modal-escrow" style="display:none;">
-        <div class="modal-box">
-            <div class="modal-header"><h3>Emanet Girişi</h3><button class="close-btn" onclick="ui.closeModal('modal-escrow')">✕</button></div>
-            <div class="modal-body">
-                <form id="form-escrow">
-                    <div class="form-group"><label>Müşteri</label><input type="text" class="form-control" id="esc-customer" required></div>
-                    <div class="form-group"><label>Tutar</label><div class="form-row" style="gap:8px;"><input type="number" class="form-control" id="esc-amount" required><select class="form-control" style="width:100px;" id="esc-currency"><option value="TRY">TRY</option><option value="USD">USD</option><option value="EUR">EUR</option></select></div></div>
-                    <div class="form-group"><label>Not</label><input type="text" class="form-control" id="esc-desc"></div>
-                    <button class="btn btn-orange" type="submit" style="width:100%;">KASAYA AL</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="modal-escrow-details" style="display:none;">
-        <div class="modal-box" style="width: 850px;">
-            <div class="modal-header">
-                <h3> Emanet Varlık Yönetimi</h3>
-                <button class="close-btn" onclick="ui.closeModal('modal-escrow-details')">✕</button>
-            </div>
-            
-            <div class="modal-body" style="background: #f8fafc; padding: 25px;">
-                
-                <div class="escrow-grid-premium">
-                    <div class="escrow-card bg-eur">
-                        <div class="esc-label">EUR BAKİYE</div>
-                        <div class="esc-amount" id="esc-total-eur">€0,00</div>
-                        <span class="material-icons-round esc-icon-bg">euro</span>
-                    </div>
-                    <div class="escrow-card bg-usd">
-                        <div class="esc-label">USD BAKİYE</div>
-                        <div class="esc-amount" id="esc-total-usd">$0,00</div>
-                        <span class="material-icons-round esc-icon-bg">attach_money</span>
-                    </div>
-                    <div class="escrow-card bg-try">
-                        <div class="esc-label">TL BAKİYE</div>
-                        <div class="esc-amount" id="esc-total-try">₺0,00</div>
-                        <span class="material-icons-round esc-icon-bg">currency_lira</span>
-                    </div>
-                </div>
-
-                <div style="background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-top:15px;">
-                    <div style="padding: 15px 20px; border-bottom: 1px solid #f1f5f9; background: #fff;">
-                        <span style="font-weight: 700; color: #64748b; font-size: 12px;">AKTİF EMANET HAREKETLERİ (İşlem için satıra çift tıkla)</span>
-                    </div>
-                    <div class="table-container" style="max-height: 350px; overflow-y: auto;">
-                        <table class="data-table" style="margin:0;">
-                            <thead style="position: sticky; top: 0; background: white; z-index: 10;">
-                                <tr>
-                                    <th style="width: 120px;">Tarih</th>
-                                    <th>Müşteri / Açıklama</th>
-                                    <th style="text-align: right;">Tutar</th>
-                                    <th style="text-align: center; width: 100px;">Durum</th>
-                                </tr>
-                            </thead>
-                            <tbody id="escrow-list-body">
-                                <tr><td colspan="4" style="text-align:center; padding:30px;">Yükleniyor...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div style="margin-top: 15px; text-align: right; color: #94a3b8; font-size: 11px;">
+<section class="content-section" id="section-crm" style="display:none;">
+</section>
+<section class="content-section" id="section-tours" style="display:none;">
+<div style="margin-bottom: 25px;">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+<h2 style="margin:0; font-size:20px;">Tur Yönetimi</h2>
+<div style="display:flex; gap:10px;">
+<label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; cursor:pointer;">
+<input checked="" id="toggle-active-tours" onchange="tours.renderCards()" type="checkbox"/>
+<span>Sadece Aktif Turlar</span>
+</label>
+<button class="btn btn-blue" onclick="tours.addNewTourModal()">+ YENİ TUR EKLE</button>
+</div>
+</div>
+<div class="tours-scroll-wrapper" id="tour-cards-container">
+</div>
+</div>
+<div class="card" style="padding:0; overflow:hidden; border:1px solid #e2e8f0;">
+<div style="padding:20px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center; background:#fff;">
+<div>
+<span id="list-title" style="font-weight:800; color:#1e293b; font-size:16px;">YENİ KAYITLAR (Ödeme Bekleyen)</span>
+<div id="list-subtitle" style="font-size:12px; color:#64748b; margin-top:3px;">Web sitesinden gelen onaylanmamış başvurular</div>
+</div>
+<div class="search-bar" style="width: 250px;">
+<span class="material-icons-round">search</span>
+<input onkeyup="tours.searchPassenger(this.value)" placeholder="Yolcu Ara..." type="text"/>
+</div>
+</div>
+<div class="table-container">
+<table class="data-table" style="margin:0;">
+<thead>
+<tr style="background:#f8fafc; text-align:left; font-size:12px; color:#64748b;">
+<th style="padding:15px;">TARİH</th>
+<th>YOLCU ADI</th>
+<th>HEDEF TUR</th>
+<th>İLETİŞİM</th>
+<th>DURUM</th>
+<th style="text-align:center;">İŞLEM</th>
+</tr>
+</thead>
+<tbody id="tour-passengers-body">
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</main>
+</div>
+<div class="modal-overlay" id="modal-select-income-type" style="display:none;">
+<div class="modal-box" style="width: 750px;">
+<div class="modal-header"><h3>İşlem Seçiniz</h3><button class="close-btn" onclick="ui.closeModal('modal-select-income-type')">✕</button></div>
+<div class="modal-body" style="background: #f8fafc;">
+<div class="income-selection-grid">
+<div class="income-card theme-visa" onclick="ui.closeModal('modal-select-income-type'); ui.openModal('modal-income');">
+<div class="income-icon-box"><span class="material-icons-round">post_add</span></div>
+<div class="income-content"><div class="income-title">VİZE DOSYASI</div><div class="income-desc">Yeni başvuru oluştur</div></div>
+</div>
+<div class="income-card theme-extra" onclick="ui.closeModal('modal-select-income-type'); ui.openModal('modal-extra-income');">
+<div class="income-icon-box"><span class="material-icons-round">airplane_ticket</span></div>
+<div class="income-content"><div class="income-title">EK HİZMET</div><div class="income-desc">Uçak, Sigorta, Otel</div></div>
+</div>
+<div class="income-card theme-escrow" onclick="ui.closeModal('modal-select-income-type'); ui.openModal('modal-escrow');">
+<div class="income-icon-box"><span class="material-icons-round">account_balance_wallet</span></div>
+<div class="income-content"><div class="income-title">EMANET</div><div class="income-desc">Geçici para girişi</div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="modal-overlay" id="modal-expense" style="display:none;">
+<div class="modal-box">
+<div class="modal-header">
+<h3>Yeni Gider Ekle</h3>
+<button class="close-btn" onclick="ui.closeModal('modal-expense')">✕</button>
+</div>
+<div class="modal-body">
+<form id="form-expense">
+<div class="form-group">
+<label>Gider Kategorisi</label>
+<select class="form-control" id="exp-category">
+<option value="general">Genel Gider</option>
+<option value="rent">Kira &amp; Ofis Aidat</option>
+<option value="bills">Faturalar (Elektrik/Su/İnternet)</option>
+<option value="software">Yazılım &amp; Teknoloji (Developer)</option>
+<option value="personnel">Personel &amp; Maaş</option>
+<option value="food">Yemek &amp; İçecek</option>
+<option value="transport">Ulaşım &amp; Yakıt</option>
+<option value="marketing">Reklam &amp; Pazarlama</option>
+<option value="tax">Vergi &amp; Stopaj</option>
+<option value="hardware">Demirbaş &amp; Ekipman</option>
+</select>
+</div>
+<div class="form-row">
+<div class="form-group half">
+<label>Harcama Başlığı</label>
+<input class="form-control" id="exp-title" placeholder="Örn: Sunucu Ödemesi" required="" type="text"/>
+</div>
+<div class="form-group half">
+<label>Tutar</label>
+<div class="form-row" style="gap:5px;">
+<input class="form-control" id="exp-amount" placeholder="0.00" required="" type="number"/>
+<select class="form-control" id="exp-currency" style="width:80px;">
+<option value="TRY">TRY</option>
+<option value="USD">USD</option>
+<option value="EUR">EUR</option>
+</select>
+</div>
+</div>
+</div>
+<div class="form-group">
+<label>Detaylı Açıklama (İsteğe Bağlı)</label>
+<textarea class="form-control" id="exp-desc" placeholder="Örn: 2 aylık AWS sunucu faturası ve domain yenileme..." rows="2"></textarea>
+</div>
+<div class="form-group">
+<label>Fatura / Fiş / Dekont</label>
+<div class="file-upload-area" onclick="document.getElementById('exp-file').click()" style="padding: 15px;">
+<span class="material-icons-round" style="color:#94a3b8;">attach_file</span>
+<span class="file-text" id="exp-file-text" style="margin-left:5px;">Dosya Yükle (PDF, Resim)</span>
+<input hidden="" id="exp-file" onchange="(function(){ const f = this.files[0]; if(f) { document.getElementById('exp-file-text').innerText = f.name; this.parentElement.style.borderColor='#10b981'; } }).call(this)" type="file"/>
+</div>
+</div>
+<button class="btn btn-red" style="width:100%; margin-top:10px;" type="submit">GİDERİ KAYDET</button>
+</form>
+</div>
+</div>
+</div>
+<div class="modal-overlay" id="modal-escrow" style="display:none;">
+<div class="modal-box">
+<div class="modal-header"><h3>Emanet Girişi</h3><button class="close-btn" onclick="ui.closeModal('modal-escrow')">✕</button></div>
+<div class="modal-body">
+<form id="form-escrow">
+<div class="form-group"><label>Müşteri</label><input class="form-control" id="esc-customer" required="" type="text"/></div>
+<div class="form-group"><label>Tutar</label><div class="form-row" style="gap:8px;"><input class="form-control" id="esc-amount" required="" type="number"/><select class="form-control" id="esc-currency" style="width:100px;"><option value="TRY">TRY</option><option value="USD">USD</option><option value="EUR">EUR</option></select></div></div>
+<div class="form-group"><label>Not</label><input class="form-control" id="esc-desc" type="text"/></div>
+<button class="btn btn-orange" style="width:100%;" type="submit">KASAYA AL</button>
+</form>
+</div>
+</div>
+</div>
+<div class="modal-overlay" id="modal-escrow-details" style="display:none;">
+<div class="modal-box" style="width: 850px;">
+<div class="modal-header">
+<h3> Emanet Varlık Yönetimi</h3>
+<button class="close-btn" onclick="ui.closeModal('modal-escrow-details')">✕</button>
+</div>
+<div class="modal-body" style="background: #f8fafc; padding: 25px;">
+<div class="escrow-grid-premium">
+<div class="escrow-card bg-eur">
+<div class="esc-label">EUR BAKİYE</div>
+<div class="esc-amount" id="esc-total-eur">€0,00</div>
+<span class="material-icons-round esc-icon-bg">euro</span>
+</div>
+<div class="escrow-card bg-usd">
+<div class="esc-label">USD BAKİYE</div>
+<div class="esc-amount" id="esc-total-usd">$0,00</div>
+<span class="material-icons-round esc-icon-bg">attach_money</span>
+</div>
+<div class="escrow-card bg-try">
+<div class="esc-label">TL BAKİYE</div>
+<div class="esc-amount" id="esc-total-try">₺0,00</div>
+<span class="material-icons-round esc-icon-bg">currency_lira</span>
+</div>
+</div>
+<div style="background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-top:15px;">
+<div style="padding: 15px 20px; border-bottom: 1px solid #f1f5f9; background: #fff;">
+<span style="font-weight: 700; color: #64748b; font-size: 12px;">AKTİF EMANET HAREKETLERİ (İşlem için satıra çift tıkla)</span>
+</div>
+<div class="table-container" style="max-height: 350px; overflow-y: auto;">
+<table class="data-table" style="margin:0;">
+<thead style="position: sticky; top: 0; background: white; z-index: 10;">
+<tr>
+<th style="width: 120px;">Tarih</th>
+<th>Müşteri / Açıklama</th>
+<th style="text-align: right;">Tutar</th>
+<th style="text-align: center; width: 100px;">Durum</th>
+</tr>
+</thead>
+<tbody id="escrow-list-body">
+<tr><td colspan="4" style="text-align:center; padding:30px;">Yükleniyor...</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div style="margin-top: 15px; text-align: right; color: #94a3b8; font-size: 11px;">
                     * Çıkış yapmak veya iade etmek istediğiniz işleme tablodan çift tıklayınız.
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SINGLE escrow action modal (was duplicated in original file) -->
-    <div class="modal-overlay" id="modal-escrow-action" style="display:none;">
-        <div class="modal-box" style="width: 550px;">
-            <div class="modal-header">
-                <h3>Emanet İşlemi</h3>
-                <button class="close-btn" onclick="ui.closeModal('modal-escrow-action')">✕</button>
-            </div>
-            <div class="modal-body" style="padding: 25px;">
-                
-                <div style="background: #fff7ed; border: 1px solid #ffedd5; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
-                    <div style="font-size: 11px; font-weight: 700; color: #ea580c; text-transform: uppercase;">İŞLEM YAPILACAK KAYIT</div>
-                    <div id="esc-act-desc" style="font-size: 14px; font-weight: 600; color: #1e293b; margin-top: 5px;">...</div>
-                    <div id="esc-act-amount" style="font-size: 18px; font-weight: 800; color: #ea580c; margin-top: 2px;">...</div>
-                </div>
-
-                <form id="form-escrow-action">
-                    <input type="hidden" id="act-source-id">
-                    <input type="hidden" id="act-currency">
-                    
-                    <div class="form-group">
-                        <label>Ne Yapmak İstiyorsunuz?</label>
-                        <select class="form-control" id="act-type" required>
-                            <option value="refund">Müşteriye İade Et (Para Çıkışı)</option>
-                            <option value="payment">Konsolosluk / Hizmet Ödemesi Yap (Gider)</option>
-                            <option value="profit">Şirket Kasasına Al (Gelir Kaydet)</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Tutar</label>
-                        <input type="number" class="form-control" id="act-amount" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Açıklama / Not</label>
-                        <input type="text" class="form-control" id="act-note" placeholder="Örn: İade yapıldı..." required>
-                    </div>
-
-                    <div style="display: flex; gap: 10px; margin-top: 20px;">
-                        <button type="button" class="btn btn-red" style="width: 40%;" onclick="accounting && accounting.deleteEscrowTransaction ? accounting.deleteEscrowTransaction() : null">
-                            <span class="material-icons-round">delete</span> SİL (HATALI GİRİŞ)
+</div>
+</div>
+</div>
+<!-- SINGLE escrow action modal (was duplicated in original file) -->
+<div class="modal-overlay" id="modal-escrow-action" style="display:none;">
+<div class="modal-box" style="width: 550px;">
+<div class="modal-header">
+<h3>Emanet İşlemi</h3>
+<button class="close-btn" onclick="ui.closeModal('modal-escrow-action')">✕</button>
+</div>
+<div class="modal-body" style="padding: 25px;">
+<div style="background: #fff7ed; border: 1px solid #ffedd5; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+<div style="font-size: 11px; font-weight: 700; color: #ea580c; text-transform: uppercase;">İŞLEM YAPILACAK KAYIT</div>
+<div id="esc-act-desc" style="font-size: 14px; font-weight: 600; color: #1e293b; margin-top: 5px;">...</div>
+<div id="esc-act-amount" style="font-size: 18px; font-weight: 800; color: #ea580c; margin-top: 2px;">...</div>
+</div>
+<form id="form-escrow-action">
+<input id="act-source-id" type="hidden"/>
+<input id="act-currency" type="hidden"/>
+<div class="form-group">
+<label>Ne Yapmak İstiyorsunuz?</label>
+<select class="form-control" id="act-type" required="">
+<option value="refund">Müşteriye İade Et (Para Çıkışı)</option>
+<option value="payment">Konsolosluk / Hizmet Ödemesi Yap (Gider)</option>
+<option value="profit">Şirket Kasasına Al (Gelir Kaydet)</option>
+</select>
+</div>
+<div class="form-group">
+<label>Tutar</label>
+<input class="form-control" id="act-amount" required="" type="number"/>
+</div>
+<div class="form-group">
+<label>Açıklama / Not</label>
+<input class="form-control" id="act-note" placeholder="Örn: İade yapıldı..." required="" type="text"/>
+</div>
+<div style="display: flex; gap: 10px; margin-top: 20px;">
+<button class="btn btn-red" onclick="accounting &amp;&amp; accounting.deleteEscrowTransaction ? accounting.deleteEscrowTransaction() : null" style="width: 40%;" type="button">
+<span class="material-icons-round">delete</span> SİL (HATALI GİRİŞ)
                         </button>
-                        <button type="submit" class="btn btn-orange" style="width: 60%;">
-                            <span class="material-icons-round">check_circle</span> İŞLEMİ ONAYLA
+<button class="btn btn-orange" style="width: 60%;" type="submit">
+<span class="material-icons-round">check_circle</span> İŞLEMİ ONAYLA
                         </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="modal-extra-income" style="display:none;">
-        <div class="modal-box" style="width: 600px;">
-            <div class="modal-header">
-                <h3>Ek Hizmet Satışı</h3>
-                <button class="close-btn" onclick="ui.closeModal('modal-extra-income')">✕</button>
-            </div>
-            <div class="modal-body">
-                <form id="form-extra-income">
-                    <div class="form-row">
-                        <div class="form-group half">
-                            <label>Müşteri Adı</label>
-                            <input type="text" class="form-control" id="ei-customer" placeholder="Örn: Ahmet Yılmaz" required>
-                        </div>
-                        <div class="form-group half">
-                            <label>Hizmet Türü</label>
-                            <select class="form-control" id="ei-category">
-                                <optgroup label="SEYAHAT">
-                                    <option value="flight_ticket">Uçak Bileti</option>
-                                    <option value="hotel_booking">Otel Rezervasyonu</option>
-                                    <option value="transfer">Transfer</option>
-                                </optgroup>
-                                <optgroup label="DİĞER">
-                                    <option value="travel_insurance">Seyahat Sigortası</option>
-                                    <option value="consultancy">Danışmanlık</option>
-                                    <option value="other">Diğer</option>
-                                </optgroup>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Açıklama / Detay</label>
-                        <input type="text" class="form-control" id="ei-desc" placeholder="Örn: THY İstanbul-Berlin Gidiş Dönüş">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Satış Fiyatı (Müşteriden Alınan)</label>
-                        <div class="form-row">
-                            <input type="number" class="form-control" id="ei-amount" placeholder="0.00" required>
-                            <select class="form-control" style="width:100px;" id="ei-currency">
-                                <option value="TRY">TRY</option>
-                                <option value="USD">USD</option>
-                                <option value="EUR">EUR</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label style="display:flex; align-items:center; cursor:pointer; gap:10px;">
-                            <input type="checkbox" id="ei-has-cost" onchange="document.getElementById('cost-box').style.display = this.checked ? 'block' : 'none'">
-                            <span style="font-weight:600; color:#ef4444;">Bu satışın bize bir maliyeti var mı? (Bilet alış fiyatı vb.)</span>
-                        </label>
-                    </div>
-
-                    <div id="cost-box" class="cost-section" style="display:none;">
-                        <label style="color:#be123c;">Maliyet Tutarı (Bizim Ödediğimiz)</label>
-                        <div class="form-row">
-                            <input type="number" class="form-control" id="ei-cost-amount" placeholder="0.00">
-                        </div>
-                        <div style="font-size:11px; color:#be123c; margin-top:5px;">* Bu tutar kasadan 'Gider' olarak düşülecektir.</div>
-                    </div>
-
-                    <div class="form-group" style="margin-top:20px;">
-                        <label>Belge / Fatura (İsteğe Bağlı)</label>
-                        <div class="file-upload-area" onclick="document.getElementById('ei-file').click()">
-                            <span class="material-icons-round file-icon">cloud_upload</span>
-                            <span class="file-text" id="ei-file-text">Dosya seçmek için tıklayın (PDF, JPG, PNG)</span>
-                            <input type="file" id="ei-file" hidden onchange="(function(){ const f = this.files[0]; if(f) { document.getElementById('ei-file-text').innerText = f.name; } }).call(this)">
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-blue" style="width:100%; margin-top:20px;">KAYDET</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="modal-exchange" style="display:none;">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3>Döviz Dönüşümü / Bozum</h3>
-                <button class="close-btn" onclick="ui.closeModal('modal-exchange')">✕</button>
-            </div>
-            <div class="modal-body">
-                <form id="form-exchange">
-                    
-                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px;">
-                        
-                        <div style="flex:1;">
-                            <label style="color:#ef4444; font-weight:700;">ÇIKAN (Satılan)</label>
-                            <div class="form-row" style="gap:5px;">
-                                <input type="number" class="form-control" id="ex-out-amt" placeholder="0.00" oninput="accounting && accounting.calcExchangeRate ? accounting.calcExchangeRate() : null">
-                                <select class="form-control" style="width:80px;" id="ex-out-curr" onchange="accounting && accounting.calcExchangeRate ? accounting.calcExchangeRate() : null">
-                                    <option value="USD">USD</option>
-                                    <option value="EUR">EUR</option>
-                                    <option value="TRY">TRY</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <span class="material-icons-round" style="color:#64748b; margin-top:20px;">arrow_forward</span>
-
-                        <div style="flex:1;">
-                            <label style="color:#10b981; font-weight:700;">GİREN (Alınan)</label>
-                            <div class="form-row" style="gap:5px;">
-                                <input type="number" class="form-control" id="ex-in-amt" placeholder="0.00" oninput="accounting && accounting.calcExchangeRate ? accounting.calcExchangeRate() : null">
-                                <select class="form-control" style="width:80px;" id="ex-in-curr" onchange="accounting && accounting.calcExchangeRate ? accounting.calcExchangeRate() : null">
-                                    <option value="TRY" selected>TRY</option>
-                                    <option value="USD">USD</option>
-                                    <option value="EUR">EUR</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="ex-rate-info" style="background:#eff6ff; border:1px solid #bfdbfe; color:#1e40af; padding:10px; border-radius:8px; text-align:center; font-size:13px; font-weight:600; margin-bottom:10px;">
+</div>
+</form>
+</div>
+</div>
+</div>
+<div class="modal-overlay" id="modal-extra-income" style="display:none;">
+<div class="modal-box" style="width: 600px;">
+<div class="modal-header">
+<h3>Ek Hizmet Satışı</h3>
+<button class="close-btn" onclick="ui.closeModal('modal-extra-income')">✕</button>
+</div>
+<div class="modal-body">
+<form id="form-extra-income">
+<div class="form-row">
+<div class="form-group half">
+<label>Müşteri Adı</label>
+<input class="form-control" id="ei-customer" placeholder="Örn: Ahmet Yılmaz" required="" type="text"/>
+</div>
+<div class="form-group half">
+<label>Hizmet Türü</label>
+<select class="form-control" id="ei-category">
+<optgroup label="SEYAHAT">
+<option value="flight_ticket">Uçak Bileti</option>
+<option value="hotel_booking">Otel Rezervasyonu</option>
+<option value="transfer">Transfer</option>
+</optgroup>
+<optgroup label="DİĞER">
+<option value="travel_insurance">Seyahat Sigortası</option>
+<option value="consultancy">Danışmanlık</option>
+<option value="other">Diğer</option>
+</optgroup>
+</select>
+</div>
+</div>
+<div class="form-group">
+<label>Açıklama / Detay</label>
+<input class="form-control" id="ei-desc" placeholder="Örn: THY İstanbul-Berlin Gidiş Dönüş" type="text"/>
+</div>
+<div class="form-group">
+<label>Satış Fiyatı (Müşteriden Alınan)</label>
+<div class="form-row">
+<input class="form-control" id="ei-amount" placeholder="0.00" required="" type="number"/>
+<select class="form-control" id="ei-currency" style="width:100px;">
+<option value="TRY">TRY</option>
+<option value="USD">USD</option>
+<option value="EUR">EUR</option>
+</select>
+</div>
+</div>
+<div class="form-group">
+<label style="display:flex; align-items:center; cursor:pointer; gap:10px;">
+<input id="ei-has-cost" onchange="document.getElementById('cost-box').style.display = this.checked ? 'block' : 'none'" type="checkbox"/>
+<span style="font-weight:600; color:#ef4444;">Bu satışın bize bir maliyeti var mı? (Bilet alış fiyatı vb.)</span>
+</label>
+</div>
+<div class="cost-section" id="cost-box" style="display:none;">
+<label style="color:#be123c;">Maliyet Tutarı (Bizim Ödediğimiz)</label>
+<div class="form-row">
+<input class="form-control" id="ei-cost-amount" placeholder="0.00" type="number"/>
+</div>
+<div style="font-size:11px; color:#be123c; margin-top:5px;">* Bu tutar kasadan 'Gider' olarak düşülecektir.</div>
+</div>
+<div class="form-group" style="margin-top:20px;">
+<label>Belge / Fatura (İsteğe Bağlı)</label>
+<div class="file-upload-area" onclick="document.getElementById('ei-file').click()">
+<span class="material-icons-round file-icon">cloud_upload</span>
+<span class="file-text" id="ei-file-text">Dosya seçmek için tıklayın (PDF, JPG, PNG)</span>
+<input hidden="" id="ei-file" onchange="(function(){ const f = this.files[0]; if(f) { document.getElementById('ei-file-text').innerText = f.name; } }).call(this)" type="file"/>
+</div>
+</div>
+<button class="btn btn-blue" style="width:100%; margin-top:20px;" type="submit">KAYDET</button>
+</form>
+</div>
+</div>
+</div>
+<div class="modal-overlay" id="modal-exchange" style="display:none;">
+<div class="modal-box">
+<div class="modal-header">
+<h3>Döviz Dönüşümü / Bozum</h3>
+<button class="close-btn" onclick="ui.closeModal('modal-exchange')">✕</button>
+</div>
+<div class="modal-body">
+<form id="form-exchange">
+<div style="display:flex; align-items:center; gap:10px; margin-bottom:15px;">
+<div style="flex:1;">
+<label style="color:#ef4444; font-weight:700;">ÇIKAN (Satılan)</label>
+<div class="form-row" style="gap:5px;">
+<input class="form-control" id="ex-out-amt" oninput="accounting &amp;&amp; accounting.calcExchangeRate ? accounting.calcExchangeRate() : null" placeholder="0.00" type="number"/>
+<select class="form-control" id="ex-out-curr" onchange="accounting &amp;&amp; accounting.calcExchangeRate ? accounting.calcExchangeRate() : null" style="width:80px;">
+<option value="USD">USD</option>
+<option value="EUR">EUR</option>
+<option value="TRY">TRY</option>
+</select>
+</div>
+</div>
+<span class="material-icons-round" style="color:#64748b; margin-top:20px;">arrow_forward</span>
+<div style="flex:1;">
+<label style="color:#10b981; font-weight:700;">GİREN (Alınan)</label>
+<div class="form-row" style="gap:5px;">
+<input class="form-control" id="ex-in-amt" oninput="accounting &amp;&amp; accounting.calcExchangeRate ? accounting.calcExchangeRate() : null" placeholder="0.00" type="number"/>
+<select class="form-control" id="ex-in-curr" onchange="accounting &amp;&amp; accounting.calcExchangeRate ? accounting.calcExchangeRate() : null" style="width:80px;">
+<option selected="" value="TRY">TRY</option>
+<option value="USD">USD</option>
+<option value="EUR">EUR</option>
+</select>
+</div>
+</div>
+</div>
+<div id="ex-rate-info" style="background:#eff6ff; border:1px solid #bfdbfe; color:#1e40af; padding:10px; border-radius:8px; text-align:center; font-size:13px; font-weight:600; margin-bottom:10px;">
                         İşlem Kuru: <span id="ex-rate-display">...</span>
-                    </div>
-
-                    <div class="form-group">
-                        <label>İşlem Açıklaması</label>
-                        <input type="text" class="form-control" id="ex-desc" placeholder="Örn: Kapalıçarşı Bozum, Ofis içi takas vb.">
-                    </div>
-
-                    <button type="submit" class="btn btn-blue" style="width:100%;">İŞLEMİ ONAYLA</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="modal-income" style="display:none;">
-        <div class="modal-box" style="width: 950px; max-height: 95vh;">
-            <div class="modal-header" style="background:#fff; border:none;"><h3>Yeni Vize Dosyası</h3><button class="close-btn" onclick="ui.closeModal('modal-income')">✕</button></div>
-            <div style="padding:10px 40px; background:#fff;">
-                <div class="wizard-header">
-                    <div class="wizard-step active" id="ws-1">KİMLİK</div>
-                    <div class="wizard-step" id="ws-2">SEYAHAT</div>
-                    <div class="wizard-step" id="ws-3">EVRAK</div>
-                    <div class="wizard-step" id="ws-4">FİNANS</div>
-                </div>
-            </div>
-            <div class="modal-body" style="background:#f8fafc; padding:30px;">
-                <form id="form-visa-wizard">
-                    <div class="wizard-page" id="step-1">
-                        <div class="section-title">Kişisel Bilgiler</div>
-                        <div class="form-row">
-                            <div class="form-group half"><label>Adı (Pasaporttaki)</label><input type="text" class="form-control" id="v-name" required placeholder="Örn: AHMET"></div>
-                            <div class="form-group half"><label>Soyadı</label><input type="text" class="form-control" id="v-surname" required placeholder="Örn: YILMAZ"></div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group half"><label>TC Kimlik No</label><input type="text" class="form-control" id="v-tc" maxlength="11"></div>
-                            <div class="form-group half"><label>Doğum Tarihi</label><input type="date" class="form-control" id="v-dob"></div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group half"><label>Doğum Yeri (Şehir)</label><input type="text" class="form-control" id="v-pob"></div>
-                            <div class="form-group half"><label>Medeni Durum</label>
-                                <select class="form-control" id="v-marital">
-                                    <option value="single">Bekar</option>
-                                    <option value="married">Evli</option>
-                                    <option value="divorced">Boşanmış</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group half"><label>Meslek</label><input type="text" class="form-control" id="v-job" placeholder="Örn: Mühendis"></div>
-                            <div class="form-group half"><label>Telefon</label><input type="tel" class="form-control" id="v-phone" required></div>
-                        </div>
-
-                        <div class="section-title">Pasaport Detayları</div>
-                        <div class="form-row">
-                            <div class="form-group half"><label>Pasaport No</label><input type="text" class="form-control" id="v-passport" required></div>
-                            <div class="form-group half"><label>Pasaport Türü</label>
-                                <select class="form-control" id="v-pass-type">
-                                    <option value="bordo">Bordo (Umuma Mahsus)</option>
-                                    <option value="yesil">Yeşil (Hususi)</option>
-                                    <option value="gri">Gri (Hizmet)</option>
-                                    <option value="diplomatik">Siyah (Diplomatik)</option>
-                                    <option value="foreign">Yabancı Pasaport</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group half"><label>Veriliş Tarihi</label><input type="date" class="form-control" id="v-pass-issue"></div>
-                            <div class="form-group half"><label>Bitiş Tarihi</label><input type="date" class="form-control" id="v-pass-expire"></div>
-                        </div>
-
-                        <div style="text-align:right; margin-top:20px;">
-                            <button type="button" class="btn btn-blue" onclick="window.crm && window.crm.goToStep ? window.crm.goToStep(2) : console.log('goToStep 2')">SEYAHAT BİLGİLERİ &rarr;</button>
-                        </div>
-                    </div>
-
-                    <div class="wizard-page" id="step-2" style="display:none;">
-                        <div class="section-title">Rotasyon ve Vize Türü</div>
-                        
-                        <div class="form-group">
-                            <label>Gidilecek Ülke</label>
-                            <select class="form-control" id="v-country" onchange="crm && crm.updateDocList ? crm.updateDocList() : null">
-                                <option value="">Seçiniz...</option>
-                                <optgroup label="POPÜLER">
-                                    <option value="germany">Almanya</option>
-                                    <option value="france">Fransa</option>
-                                    <option value="usa">Amerika Birleşik Devletleri (ABD)</option>
-                                    <option value="uk">İngiltere (Birleşik Krallık)</option>
-                                    <option value="italy">İtalya</option>
-                                    <option value="spain">İspanya</option>
-                                    <option value="netherlands">Hollanda</option>
-                                </optgroup>
-                                <optgroup label="SCHENGEN / AVRUPA">
-                                    <option value="austria">Avusturya</option>
-                                    <option value="belgium">Belçika</option>
-                                    <option value="bulgaria">Bulgaristan</option>
-                                    <option value="czech">Çekya</option>
-                                    <option value="greece">Yunanistan</option>
-                                    <option value="hungary">Macaristan</option>
-                                    <option value="poland">Polonya</option>
-                                    <option value="portugal">Portekiz</option>
-                                    <option value="switzerland">İsviçre</option>
-                                </optgroup>
-                                <optgroup label="ASYA & ORTA DOĞU">
-                                    <option value="china">Çin</option>
-                                    <option value="japan">Japonya</option>
-                                    <option value="south_korea">Güney Kore</option>
-                                    <option value="dubai">Dubai (BAE)</option>
-                                    <option value="saudi">Suudi Arabistan</option>
-                                </optgroup>
-                                <optgroup label="AMERİKA (Kuzey & Güney)">
-                                    <option value="canada">Kanada</option>
-                                    <option value="mexico">Meksika</option>
-                                    <option value="brazil">Brezilya</option>
-                                    <option value="argentina">Arjantin</option>
-                                </optgroup>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Vize Tipi</label>
-                            <select class="form-control" id="v-type" onchange="crm && crm.updateDocList ? crm.updateDocList() : null">
-                                <optgroup label="ÖZEL">
-                                    <option value="seaman">GEMİ ADAMI (Seaman Visa)</option>
-                                    <option value="vip">VIP / Ekspres Başvuru</option>
-                                </optgroup>
-                                <optgroup label="GENEL">
-                                    <option value="tourist" selected>Turistik Vize</option>
-                                    <option value="commercial">Ticari Vize</option>
-                                    <option value="family">Aile / Arkadaş Ziyareti</option>
-                                    <option value="student">Öğrenci / Eğitim Vizesi</option>
-                                    <option value="transit">Transit Vize</option>
-                                    <option value="medical">Sağlık / Tedavi Vizesi</option>
-                                    <option value="cultural">Kültürel / Sportif Etkinlik</option>
-                                </optgroup>
-                                <optgroup label="UZUN DÖNEM">
-                                    <option value="work">Çalışma İzni (Work Permit)</option>
-                                    <option value="family_reunion">Aile Birleşimi</option>
-                                    <option value="erasmus">Erasmus / Staj</option>
-                                    <option value="digital_nomad">Digital Nomad</option>
-                                </optgroup>
-                            </select>
-                        </div>
-
-                        <div class="section-title">Seyahat Detayları</div>
-                        <div class="form-row">
-                            <div class="form-group half"><label>Giriş Tarihi</label><input type="date" class="form-control" id="v-travel-start"></div>
-                            <div class="form-group half"><label>Dönüş Tarihi</label><input type="date" class="form-control" id="v-travel-end"></div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group half">
-                                <label>Giriş Sayısı</label>
-                                <select class="form-control" id="v-entry-type">
-                                    <option value="single">Tek Giriş (Single)</option>
-                                    <option value="double">İki Giriş (Double)</option>
-                                    <option value="multi">Çok Giriş (Multi)</option>
-                                </select>
-                            </div>
-                            <div class="form-group half"><label>Talep Edilen Süre</label><input type="text" class="form-control" id="v-duration" placeholder="Örn: 1 Yıl"></div>
-                        </div>
-
-                        <div style="display:flex; justify-content:space-between; margin-top:20px;">
-                            <button type="button" class="btn" onclick="window.crm && window.crm.goToStep ? window.crm.goToStep(1) : null">&larr; GERİ</button>
-                            <button type="button" class="btn btn-blue" onclick="window.crm && window.crm.goToStep ? window.crm.goToStep(3) : null">EVRAK LİSTESİ &rarr;</button>
-                        </div>
-                    </div>
-
-                    <div class="wizard-page" id="step-3" style="display:none;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                            <h4 style="margin:0;">Gerekli Evraklar</h4>
-                            <button type="button" class="btn-dashed" onclick="crm && crm.addManualDoc ? crm.addManualDoc() : null">+ Özel Evrak Ekle</button>
-                        </div>
-                        
-                        <div id="doc-list-container" class="doc-grid"></div>
-
-                        <div style="display:flex; justify-content:space-between; margin-top:30px;">
-                            <button type="button" class="btn" onclick="window.crm && window.crm.goToStep ? window.crm.goToStep(2) : null">&larr; GERİ</button>
-                            <button type="button" class="btn btn-blue" onclick="window.crm && window.crm.goToStep ? window.crm.goToStep(4) : null">FİNANSAL DETAYLAR &rarr;</button>
-                        </div>
-                    </div>
-
-                    <div class="wizard-page" id="step-4" style="display:none;">
-                        <div class="section-title">Ücretlendirme ve Maliyet</div>
-                        
-                        <div class="card" style="margin-bottom:20px; padding:20px;">
-                            <div class="form-row">
-                                <div class="form-group half">
-                                    <label>Satış Fiyatı (Müşteriden Alınan)</label>
-                                    <input type="number" class="form-control" id="v-total-price" placeholder="0.00" oninput="crm && crm.calcFinance ? crm.calcFinance() : null">
-                                </div>
-                                <div class="form-group half">
-                                    <label>Maliyet (Acenta/Harç/Sigorta)</label>
-                                    <input type="number" class="form-control" id="v-cost-price" placeholder="0.00" style="background:#fff1f2; color:#be123c;">
-                                    <small style="color:#be123c; font-size:10px;">* Şirketin cebinden çıkan tutar (Gider)</small>
-                                </div>
-                                <div class="form-group" style="width:100px;">
-                                    <label>Birim</label>
-                                    <select class="form-control" id="v-currency" onchange="crm && crm.calcFinance ? crm.calcFinance() : null">
-                                        <option value="EUR">EUR</option>
-                                        <option value="USD">USD</option>
-                                        <option value="TRY">TRY</option>
-                                        <option value="GBP">GBP</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="section-title">Ödeme Durumu</div>
-                        
-                        <div class="card" style="padding:20px;">
-                            <div class="form-row">
-                                <div class="form-group half">
-                                    <label>Ödenen Tutar (Peşinat)</label>
-                                    <input type="number" class="form-control" id="v-paid-now" placeholder="0.00" oninput="crm && crm.calcFinance ? crm.calcFinance() : null">
-                                </div>
-                                <div class="form-group half">
-                                    <label>Ödeme Yöntemi</label>
-                                    <select class="form-control" id="v-payment-method">
-                                        <option value="cash">Nakit (Elden)</option>
-                                        <option value="bank">Havale / EFT</option>
-                                        <option value="card">Kredi Kartı</option>
-                                    </select>
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Finansal Açıklama (Not)</label>
-                                <input type="text" class="form-control" id="v-finance-note" placeholder="Örn: Kalan ödeme pasaport tesliminde alınacak.">
-                            </div>
-
-                            <label class="switch-wrapper">
-                                <input type="checkbox" class="switch-input" onchange="document.getElementById('receipt-upload-area').classList.toggle('active')">
-                                <span>Ödeme Dekontu / Dosya Yükle</span>
-                            </label>
-
-                            <div id="receipt-upload-area" class="finance-receipt-box" style="display:none;">
-                                <div class="file-icon"><span class="material-icons-round">receipt_long</span></div>
-                                <div style="font-weight:600; margin-bottom:10px;" id="v-receipt-name">Dekont veya Fatura Seçin</div>
-                                <button type="button" class="btn-sm" style="background:white; border:1px solid #cbd5e1;" onclick="document.getElementById('v-receipt-file').click()">DOSYA SEÇ</button>
-                                <input type="file" id="v-receipt-file" hidden onchange="(function(){ const f = this.files[0]; if(f) { document.getElementById('v-receipt-name').innerText = f.name; } }).call(this)">
-                            </div>
-                        </div>
-
-                        <div style="margin-top:20px; background:#f0f9ff; padding:15px; border-radius:10px; border:1px solid #bae6fd; display:flex; justify-content:space-between; align-items:center;">
-                            <div><span style="font-weight:700; color:#0369a1;">KALAN BORÇ:</span></div>
-                            <div style="font-size:20px; font-weight:900; color:#0369a1;" id="disp-remain">0,00</div>
-                        </div>
-
-                        <div style="display:flex; justify-content:space-between; margin-top:20px;">
-                            <button type="button" class="btn" onclick="window.crm && window.crm.goToStep ? window.crm.goToStep(3) : null">&larr; GERİ</button>
-                            <button type="submit" class="btn btn-green" style="padding-left:30px; padding-right:30px;">
-                                <span class="material-icons-round">check</span> DOSYAYI OLUŞTUR
+</div>
+<div class="form-group">
+<label>İşlem Açıklaması</label>
+<input class="form-control" id="ex-desc" placeholder="Örn: Kapalıçarşı Bozum, Ofis içi takas vb." type="text"/>
+</div>
+<button class="btn btn-blue" style="width:100%;" type="submit">İŞLEMİ ONAYLA</button>
+</form>
+</div>
+</div>
+</div>
+<div class="modal-overlay" id="modal-income" style="display:none;">
+<div class="modal-box" style="width: 950px; max-height: 95vh;">
+<div class="modal-header" style="background:#fff; border:none;"><h3>Yeni Vize Dosyası</h3><button class="close-btn" onclick="ui.closeModal('modal-income')">✕</button></div>
+<div style="padding:10px 40px; background:#fff;">
+<div class="wizard-header">
+<div class="wizard-step active" id="ws-1">KİMLİK</div>
+<div class="wizard-step" id="ws-2">SEYAHAT</div>
+<div class="wizard-step" id="ws-3">EVRAK</div>
+<div class="wizard-step" id="ws-4">FİNANS</div>
+</div>
+</div>
+<div class="modal-body" style="background:#f8fafc; padding:30px;">
+<form id="form-visa-wizard">
+<div class="wizard-page" id="step-1">
+<div class="section-title">Kişisel Bilgiler</div>
+<div class="form-row">
+<div class="form-group half"><label>Adı (Pasaporttaki)</label><input class="form-control" id="v-name" placeholder="Örn: AHMET" required="" type="text"/></div>
+<div class="form-group half"><label>Soyadı</label><input class="form-control" id="v-surname" placeholder="Örn: YILMAZ" required="" type="text"/></div>
+</div>
+<div class="form-row">
+<div class="form-group half"><label>TC Kimlik No</label><input class="form-control" id="v-tc" maxlength="11" type="text"/></div>
+<div class="form-group half"><label>Doğum Tarihi</label><input class="form-control" id="v-dob" type="date"/></div>
+</div>
+<div class="form-row">
+<div class="form-group half"><label>Doğum Yeri (Şehir)</label><input class="form-control" id="v-pob" type="text"/></div>
+<div class="form-group half"><label>Medeni Durum</label>
+<select class="form-control" id="v-marital">
+<option value="single">Bekar</option>
+<option value="married">Evli</option>
+<option value="divorced">Boşanmış</option>
+</select>
+</div>
+</div>
+<div class="form-row">
+<div class="form-group half"><label>Meslek</label><input class="form-control" id="v-job" placeholder="Örn: Mühendis" type="text"/></div>
+<div class="form-group half"><label>Telefon</label><input class="form-control" id="v-phone" required="" type="tel"/></div>
+</div>
+<div class="section-title">Pasaport Detayları</div>
+<div class="form-row">
+<div class="form-group half"><label>Pasaport No</label><input class="form-control" id="v-passport" required="" type="text"/></div>
+<div class="form-group half"><label>Pasaport Türü</label>
+<select class="form-control" id="v-pass-type">
+<option value="bordo">Bordo (Umuma Mahsus)</option>
+<option value="yesil">Yeşil (Hususi)</option>
+<option value="gri">Gri (Hizmet)</option>
+<option value="diplomatik">Siyah (Diplomatik)</option>
+<option value="foreign">Yabancı Pasaport</option>
+</select>
+</div>
+</div>
+<div class="form-row">
+<div class="form-group half"><label>Veriliş Tarihi</label><input class="form-control" id="v-pass-issue" type="date"/></div>
+<div class="form-group half"><label>Bitiş Tarihi</label><input class="form-control" id="v-pass-expire" type="date"/></div>
+</div>
+<div style="text-align:right; margin-top:20px;">
+<button class="btn btn-blue" onclick="window.crm &amp;&amp; window.crm.goToStep ? window.crm.goToStep(2) : console.log('goToStep 2')" type="button">SEYAHAT BİLGİLERİ →</button>
+</div>
+</div>
+<div class="wizard-page" id="step-2" style="display:none;">
+<div class="section-title">Rotasyon ve Vize Türü</div>
+<div class="form-group">
+<label>Gidilecek Ülke</label>
+<select class="form-control" id="v-country" onchange="crm &amp;&amp; crm.updateDocList ? crm.updateDocList() : null">
+<option value="">Seçiniz...</option>
+<optgroup label="POPÜLER">
+<option value="germany">Almanya</option>
+<option value="france">Fransa</option>
+<option value="usa">Amerika Birleşik Devletleri (ABD)</option>
+<option value="uk">İngiltere (Birleşik Krallık)</option>
+<option value="italy">İtalya</option>
+<option value="spain">İspanya</option>
+<option value="netherlands">Hollanda</option>
+</optgroup>
+<optgroup label="SCHENGEN / AVRUPA">
+<option value="austria">Avusturya</option>
+<option value="belgium">Belçika</option>
+<option value="bulgaria">Bulgaristan</option>
+<option value="czech">Çekya</option>
+<option value="greece">Yunanistan</option>
+<option value="hungary">Macaristan</option>
+<option value="poland">Polonya</option>
+<option value="portugal">Portekiz</option>
+<option value="switzerland">İsviçre</option>
+</optgroup>
+<optgroup label="ASYA &amp; ORTA DOĞU">
+<option value="china">Çin</option>
+<option value="japan">Japonya</option>
+<option value="south_korea">Güney Kore</option>
+<option value="dubai">Dubai (BAE)</option>
+<option value="saudi">Suudi Arabistan</option>
+</optgroup>
+<optgroup label="AMERİKA (Kuzey &amp; Güney)">
+<option value="canada">Kanada</option>
+<option value="mexico">Meksika</option>
+<option value="brazil">Brezilya</option>
+<option value="argentina">Arjantin</option>
+</optgroup>
+</select>
+</div>
+<div class="form-group">
+<label>Vize Tipi</label>
+<select class="form-control" id="v-type" onchange="crm &amp;&amp; crm.updateDocList ? crm.updateDocList() : null">
+<optgroup label="ÖZEL">
+<option value="seaman">GEMİ ADAMI (Seaman Visa)</option>
+<option value="vip">VIP / Ekspres Başvuru</option>
+</optgroup>
+<optgroup label="GENEL">
+<option selected="" value="tourist">Turistik Vize</option>
+<option value="commercial">Ticari Vize</option>
+<option value="family">Aile / Arkadaş Ziyareti</option>
+<option value="student">Öğrenci / Eğitim Vizesi</option>
+<option value="transit">Transit Vize</option>
+<option value="medical">Sağlık / Tedavi Vizesi</option>
+<option value="cultural">Kültürel / Sportif Etkinlik</option>
+</optgroup>
+<optgroup label="UZUN DÖNEM">
+<option value="work">Çalışma İzni (Work Permit)</option>
+<option value="family_reunion">Aile Birleşimi</option>
+<option value="erasmus">Erasmus / Staj</option>
+<option value="digital_nomad">Digital Nomad</option>
+</optgroup>
+</select>
+</div>
+<div class="section-title">Seyahat Detayları</div>
+<div class="form-row">
+<div class="form-group half"><label>Giriş Tarihi</label><input class="form-control" id="v-travel-start" type="date"/></div>
+<div class="form-group half"><label>Dönüş Tarihi</label><input class="form-control" id="v-travel-end" type="date"/></div>
+</div>
+<div class="form-row">
+<div class="form-group half">
+<label>Giriş Sayısı</label>
+<select class="form-control" id="v-entry-type">
+<option value="single">Tek Giriş (Single)</option>
+<option value="double">İki Giriş (Double)</option>
+<option value="multi">Çok Giriş (Multi)</option>
+</select>
+</div>
+<div class="form-group half"><label>Talep Edilen Süre</label><input class="form-control" id="v-duration" placeholder="Örn: 1 Yıl" type="text"/></div>
+</div>
+<div style="display:flex; justify-content:space-between; margin-top:20px;">
+<button class="btn" onclick="window.crm &amp;&amp; window.crm.goToStep ? window.crm.goToStep(1) : null" type="button">← GERİ</button>
+<button class="btn btn-blue" onclick="window.crm &amp;&amp; window.crm.goToStep ? window.crm.goToStep(3) : null" type="button">EVRAK LİSTESİ →</button>
+</div>
+</div>
+<div class="wizard-page" id="step-3" style="display:none;">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+<h4 style="margin:0;">Gerekli Evraklar</h4>
+<button class="btn-dashed" onclick="crm &amp;&amp; crm.addManualDoc ? crm.addManualDoc() : null" type="button">+ Özel Evrak Ekle</button>
+</div>
+<div class="doc-grid" id="doc-list-container"></div>
+<div style="display:flex; justify-content:space-between; margin-top:30px;">
+<button class="btn" onclick="window.crm &amp;&amp; window.crm.goToStep ? window.crm.goToStep(2) : null" type="button">← GERİ</button>
+<button class="btn btn-blue" onclick="window.crm &amp;&amp; window.crm.goToStep ? window.crm.goToStep(4) : null" type="button">FİNANSAL DETAYLAR →</button>
+</div>
+</div>
+<div class="wizard-page" id="step-4" style="display:none;">
+<div class="section-title">Ücretlendirme ve Maliyet</div>
+<div class="card" style="margin-bottom:20px; padding:20px;">
+<div class="form-row">
+<div class="form-group half">
+<label>Satış Fiyatı (Müşteriden Alınan)</label>
+<input class="form-control" id="v-total-price" oninput="crm &amp;&amp; crm.calcFinance ? crm.calcFinance() : null" placeholder="0.00" type="number"/>
+</div>
+<div class="form-group half">
+<label>Maliyet (Acenta/Harç/Sigorta)</label>
+<input class="form-control" id="v-cost-price" placeholder="0.00" style="background:#fff1f2; color:#be123c;" type="number"/>
+<small style="color:#be123c; font-size:10px;">* Şirketin cebinden çıkan tutar (Gider)</small>
+</div>
+<div class="form-group" style="width:100px;">
+<label>Birim</label>
+<select class="form-control" id="v-currency" onchange="crm &amp;&amp; crm.calcFinance ? crm.calcFinance() : null">
+<option value="EUR">EUR</option>
+<option value="USD">USD</option>
+<option value="TRY">TRY</option>
+<option value="GBP">GBP</option>
+</select>
+</div>
+</div>
+</div>
+<div class="section-title">Ödeme Durumu</div>
+<div class="card" style="padding:20px;">
+<div class="form-row">
+<div class="form-group half">
+<label>Ödenen Tutar (Peşinat)</label>
+<input class="form-control" id="v-paid-now" oninput="crm &amp;&amp; crm.calcFinance ? crm.calcFinance() : null" placeholder="0.00" type="number"/>
+</div>
+<div class="form-group half">
+<label>Ödeme Yöntemi</label>
+<select class="form-control" id="v-payment-method">
+<option value="cash">Nakit (Elden)</option>
+<option value="bank">Havale / EFT</option>
+<option value="card">Kredi Kartı</option>
+</select>
+</div>
+</div>
+<div class="form-group">
+<label>Finansal Açıklama (Not)</label>
+<input class="form-control" id="v-finance-note" placeholder="Örn: Kalan ödeme pasaport tesliminde alınacak." type="text"/>
+</div>
+<label class="switch-wrapper">
+<input class="switch-input" onchange="document.getElementById('receipt-upload-area').classList.toggle('active')" type="checkbox"/>
+<span>Ödeme Dekontu / Dosya Yükle</span>
+</label>
+<div class="finance-receipt-box" id="receipt-upload-area" style="display:none;">
+<div class="file-icon"><span class="material-icons-round">receipt_long</span></div>
+<div id="v-receipt-name" style="font-weight:600; margin-bottom:10px;">Dekont veya Fatura Seçin</div>
+<button class="btn-sm" onclick="document.getElementById('v-receipt-file').click()" style="background:white; border:1px solid #cbd5e1;" type="button">DOSYA SEÇ</button>
+<input hidden="" id="v-receipt-file" onchange="(function(){ const f = this.files[0]; if(f) { document.getElementById('v-receipt-name').innerText = f.name; } }).call(this)" type="file"/>
+</div>
+</div>
+<div style="margin-top:20px; background:#f0f9ff; padding:15px; border-radius:10px; border:1px solid #bae6fd; display:flex; justify-content:space-between; align-items:center;">
+<div><span style="font-weight:700; color:#0369a1;">KALAN BORÇ:</span></div>
+<div id="disp-remain" style="font-size:20px; font-weight:900; color:#0369a1;">0,00</div>
+</div>
+<div style="display:flex; justify-content:space-between; margin-top:20px;">
+<button class="btn" onclick="window.crm &amp;&amp; window.crm.goToStep ? window.crm.goToStep(3) : null" type="button">← GERİ</button>
+<button class="btn btn-green" style="padding-left:30px; padding-right:30px;" type="submit">
+<span class="material-icons-round">check</span> DOSYAYI OLUŞTUR
                             </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="modal-transaction-detail" style="display:none;">
-        <div class="modal-box" style="width: 500px;">
-            <div class="modal-header"><h3>İşlem Fişi</h3><button class="close-btn" onclick="ui.closeModal('modal-transaction-detail')">✕</button></div>
-            <div class="modal-body" style="padding: 30px;">
-                <div class="receipt-header">
-                    <div style="font-size:12px; color:#94a3b8; font-weight:600;">İŞLEM TUTARI</div>
-                    <div class="receipt-amount" id="td-amount">-</div>
-                    <div class="badge badge-gray" id="td-cat">Kategori</div>
-                </div>
-                <div class="receipt-grid">
-                    <div class="receipt-item"><label>Tarih</label><span id="td-date">-</span></div>
-                    <div class="receipt-item"><label>ID</label><span id="td-id" style="font-family:monospace; font-size:12px;">-</span></div>
-                </div>
-                <div class="receipt-item" style="margin-top:15px;"><label>Açıklama</label><span id="td-desc" style="line-height:1.5;">-</span></div>
-                <div class="receipt-item" style="margin-top:20px; background:#f8fafc; padding:15px; border-radius:10px;">
-                    <label style="margin-bottom:5px;">Yetkili</label>
-                    <div class="user-badge"><div class="user-avatar">Y</div><span id="td-user">Yetkili</span></div>
-                </div>
-                <div style="margin-top:25px; text-align:center;"><button class="btn btn-red" style="width:100%;" onclick="accounting && accounting.deleteTransaction ? accounting.deleteTransaction() : null">KAYDI SİL</button></div>
-            </div>
-        </div>
-    </div>
-
-    <script src="js/supabase.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/auth.js"></script>
-
-    <script>
+</div>
+</div>
+</form>
+</div>
+</div>
+</div>
+<div class="modal-overlay" id="modal-transaction-detail" style="display:none;">
+<div class="modal-box" style="width: 500px;">
+<div class="modal-header"><h3>İşlem Fişi</h3><button class="close-btn" onclick="ui.closeModal('modal-transaction-detail')">✕</button></div>
+<div class="modal-body" style="padding: 30px;">
+<div class="receipt-header">
+<div style="font-size:12px; color:#94a3b8; font-weight:600;">İŞLEM TUTARI</div>
+<div class="receipt-amount" id="td-amount">-</div>
+<div class="badge badge-gray" id="td-cat">Kategori</div>
+</div>
+<div class="receipt-grid">
+<div class="receipt-item"><label>Tarih</label><span id="td-date">-</span></div>
+<div class="receipt-item"><label>ID</label><span id="td-id" style="font-family:monospace; font-size:12px;">-</span></div>
+</div>
+<div class="receipt-item" style="margin-top:15px;"><label>Açıklama</label><span id="td-desc" style="line-height:1.5;">-</span></div>
+<div class="receipt-item" style="margin-top:20px; background:#f8fafc; padding:15px; border-radius:10px;">
+<label style="margin-bottom:5px;">Yetkili</label>
+<div class="user-badge"><div class="user-avatar">Y</div><span id="td-user">Yetkili</span></div>
+</div>
+<div style="margin-top:25px; text-align:center;"><button class="btn btn-red" onclick="accounting &amp;&amp; accounting.deleteTransaction ? accounting.deleteTransaction() : null" style="width:100%;">KAYDI SİL</button></div>
+</div>
+</div>
+</div>
+<script src="js/supabase.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/auth.js"></script>
+<script>
     // ---------------------------------------------------------
     // 1. EL VE AYAKLAR (Tıklama Fonksiyonları)
     // ---------------------------------------------------------
@@ -1236,8 +1094,7 @@
         }
     });
     </script>
-
-   <script>
+<script>
 // 1. TURLAR VE YOLCU SİSTEMİ (GRUP ÖZELLİKLİ FİNAL)
     window.tours = {
         activeTourFilter: null,
@@ -1427,5 +1284,59 @@
 
 
 </script>
+
+<div class="modal-overlay" id="modal-passenger-detail" style="display:none;">
+<div class="modal-box" style="width: 700px;">
+<div class="modal-header" style="background: linear-gradient(to right, #2563eb, #1e40af); color:white;">
+<h3 style="color:white; display:flex; align-items:center; gap:10px;">
+<span class="material-icons-round">person_pin</span> YOLCU KİMLİK KARTI
+            </h3>
+<button class="close-btn" onclick="ui.closeModal('modal-passenger-detail')" style="color:white;">✕</button>
+</div>
+<div class="modal-body" style="background:#f8fafc; padding:25px;">
+<div style="background:white; border-radius:12px; padding:20px; display:flex; gap:20px; border:1px solid #e2e8f0; margin-bottom:20px;">
+<div style="width:80px; height:80px; background:#eff6ff; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#2563eb;">
+<span class="material-icons-round" style="font-size:40px;">person</span>
+</div>
+<div style="flex:1;">
+<div style="font-size:12px; font-weight:700; color:#64748b; letter-spacing:0.5px;">AD SOYAD</div>
+<div id="pd-name" style="font-size:22px; font-weight:800; color:#1e293b; margin-bottom:5px;">-</div>
+<div style="display:flex; gap:10px;">
+<span class="badge" id="pd-status-badge">Durum</span>
+<span class="badge" id="pd-pax-type" style="background:#f1f5f9; color:#475569;">Katılım Tipi</span>
+</div>
+</div>
+<div style="text-align:right;">
+<div style="font-size:11px; font-weight:700; color:#94a3b8;">REZERVASYON NO</div>
+<div id="pd-id" style="font-size:16px; font-family:monospace; font-weight:700;">#000</div>
+</div>
+</div>
+<div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:20px;">
+<div class="card" style="margin:0; padding:15px;">
+<h4 style="margin-top:0; border-bottom:1px solid #f1f5f9; padding-bottom:10px; color:#3b82f6;">Kimlik &amp; Pasaport</h4>
+<div class="receipt-item"><label>TC Kimlik No</label><span id="pd-tc">-</span></div>
+<div class="receipt-item"><label>Doğum Tarihi / Yaş</label><span id="pd-age">-</span></div>
+<div class="receipt-item"><label>Pasaport Durumu</label><span id="pd-passport-st">-</span></div>
+<div class="receipt-item"><label>Pasaport No</label><span id="pd-passport-no">-</span></div>
+<div class="receipt-item"><label>Pasaport Tipi</label><span id="pd-passport-type">-</span></div>
+</div>
+<div class="card" style="margin:0; padding:15px;">
+<h4 style="margin-top:0; border-bottom:1px solid #f1f5f9; padding-bottom:10px; color:#ea580c;">Tur &amp; İletişim</h4>
+<div class="receipt-item"><label>Seçilen Tur</label><span id="pd-tour" style="font-weight:700;">-</span></div>
+<div class="receipt-item"><label>Gidiş Tarihi</label><span id="pd-date">-</span></div>
+<div class="receipt-item"><label>Telefon</label><span id="pd-phone">-</span></div>
+<div class="receipt-item"><label>E-Posta</label><span id="pd-email">-</span></div>
+<div class="receipt-item"><label>Katılım Şekli</label><span id="pd-group-type">-</span></div>
+</div>
+</div>
+<div class="card" style="margin:0; padding:15px; border-left:4px solid #f59e0b;">
+<h4 style="margin:0 0 10px 0; font-size:14px; color:#d97706;">📝 Müşteri Notu / Özel Talep</h4>
+<div id="pd-note" style="font-style:italic; color:#475569; font-size:13px; line-height:1.5;">
+                    -
+                </div>
+</div>
+</div>
+</div>
+</div>
 </body>
 </html>
