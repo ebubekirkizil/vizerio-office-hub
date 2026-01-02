@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 
 <html lang="tr">
@@ -250,23 +248,19 @@
 <div style="margin-bottom: 25px;">
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
 <h2 style="margin:0; font-size:20px;">Tur Yönetimi</h2>
-<div style="display:flex; gap:10px;">
-<label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; cursor:pointer;">
-<input checked="" id="toggle-active-tours" onchange="tours.renderCards()" type="checkbox"/>
-<span>Sadece Aktif Turlar</span>
-</label>
-<div style="display:flex; gap:10px;">
-    <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; cursor:pointer;">
-        <input type="checkbox" id="toggle-active-tours" checked onchange="tours.renderCards()">
-        <span>Aktif Turlar</span>
-    </label>
-    
-    <button class="btn btn-green" onclick="tours.openAddPassengerModal()">
-        <span class="material-icons-round" style="font-size:16px; vertical-align:middle;">person_add</span> YOLCU KAYDET
-    </button>
-    
-    <button class="btn btn-blue" onclick="alert('Yeni tur ekleme penceresi hazırlanıyor...')">+ YENİ TUR EKLE</button>
-</div>
+<div class="tour-header-actions" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+  <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; cursor:pointer; user-select:none;">
+    <input id="toggle-active-tours" type="checkbox" checked onchange="tours.renderCards()"/>
+    <span>Aktif Turlar</span>
+  </label>
+
+  <button class="btn btn-green" onclick="tours.openAddPassengerModal()" style="width:auto;">
+    <span class="material-icons-round" style="font-size:16px; vertical-align:middle;">person_add</span> YOLCU KAYDET
+  </button>
+
+  <button class="btn btn-blue" onclick="alert('Yeni tur ekleme penceresi hazırlanıyor...')" style="width:auto;">
+    + YENİ TUR EKLE
+  </button>
 </div>
 <div class="tours-scroll-wrapper" id="tour-cards-container">
 </div>
@@ -1360,6 +1354,16 @@
             
             alert("Yolcu Başarıyla Eklendi!");
         }
+
+    }; // window.tours end
+
+    // İlk yüklemede (ve sekme görünür olmasa bile) test verilerini DOM'a bas
+    window.addEventListener('load', () => {
+        try {
+            window.tours && window.tours.renderCards && window.tours.renderCards();
+            window.tours && window.tours.renderPassengers && window.tours.renderPassengers();
+        } catch (e) { console.error('Tours init render error:', e); }
+    });
 
 
 </script>
