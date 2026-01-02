@@ -199,6 +199,67 @@
                     </div>
                 </div>
 
+<div class="modal-overlay" id="modal-passenger-detail" style="display:none;">
+    <div class="modal-box" style="width: 700px;">
+        <div class="modal-header" style="background: linear-gradient(to right, #2563eb, #1e40af); color:white;">
+            <h3 style="color:white; display:flex; align-items:center; gap:10px;">
+                <span class="material-icons-round">person_pin</span> YOLCU KİMLİK KARTI
+            </h3>
+            <button class="close-btn" onclick="ui.closeModal('modal-passenger-detail')" style="color:white;">✕</button>
+        </div>
+        
+        <div class="modal-body" style="background:#f8fafc; padding:25px;">
+            
+            <div style="background:white; border-radius:12px; padding:20px; display:flex; gap:20px; border:1px solid #e2e8f0; margin-bottom:20px;">
+                <div style="width:80px; height:80px; background:#eff6ff; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#2563eb;">
+                    <span class="material-icons-round" style="font-size:40px;">person</span>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-size:12px; font-weight:700; color:#64748b; letter-spacing:0.5px;">AD SOYAD</div>
+                    <div id="pd-name" style="font-size:22px; font-weight:800; color:#1e293b; margin-bottom:5px;">-</div>
+                    <div style="display:flex; gap:10px;">
+                        <span id="pd-status-badge" class="badge">Durum</span>
+                        <span id="pd-pax-type" class="badge" style="background:#f1f5f9; color:#475569;">Katılım Tipi</span>
+                    </div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:11px; font-weight:700; color:#94a3b8;">REZERVASYON NO</div>
+                    <div id="pd-id" style="font-size:16px; font-family:monospace; font-weight:700;">#000</div>
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:20px;">
+                
+                <div class="card" style="margin:0; padding:15px;">
+                    <h4 style="margin-top:0; border-bottom:1px solid #f1f5f9; padding-bottom:10px; color:#3b82f6;">Kimlik & Pasaport</h4>
+                    <div class="receipt-item"><label>TC Kimlik No</label><span id="pd-tc">-</span></div>
+                    <div class="receipt-item"><label>Doğum Tarihi / Yaş</label><span id="pd-age">-</span></div>
+                    <div class="receipt-item"><label>Pasaport Durumu</label><span id="pd-passport-st">-</span></div>
+                    <div class="receipt-item"><label>Pasaport No</label><span id="pd-passport-no">-</span></div>
+                    <div class="receipt-item"><label>Pasaport Tipi</label><span id="pd-passport-type">-</span></div>
+                </div>
+
+                <div class="card" style="margin:0; padding:15px;">
+                    <h4 style="margin-top:0; border-bottom:1px solid #f1f5f9; padding-bottom:10px; color:#ea580c;">Tur & İletişim</h4>
+                    <div class="receipt-item"><label>Seçilen Tur</label><span id="pd-tour" style="font-weight:700;">-</span></div>
+                    <div class="receipt-item"><label>Gidiş Tarihi</label><span id="pd-date">-</span></div>
+                    <div class="receipt-item"><label>Telefon</label><span id="pd-phone">-</span></div>
+                    <div class="receipt-item"><label>E-Posta</label><span id="pd-email">-</span></div>
+                    <div class="receipt-item"><label>Katılım Şekli</label><span id="pd-group-type">-</span></div>
+                </div>
+            </div>
+
+            <div class="card" style="margin:0; padding:15px; border-left:4px solid #f59e0b;">
+                <h4 style="margin:0 0 10px 0; font-size:14px; color:#d97706;">📝 Müşteri Notu / Özel Talep</h4>
+                <div id="pd-note" style="font-style:italic; color:#475569; font-size:13px; line-height:1.5;">
+                    -
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+                
                 <div class="chart-table-wrapper">
                     
                     <div class="card" style="padding: 25px; margin-bottom: 25px; min-height: 400px;">
