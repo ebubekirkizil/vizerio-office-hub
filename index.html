@@ -250,7 +250,56 @@
 
         </main>
     </div>
+    
+<section id="section-tours" class="content-section" style="display:none;">
+    
+    <div style="margin-bottom: 25px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h2 style="margin:0; font-size:20px;">Tur Yönetimi</h2>
+            <div style="display:flex; gap:10px;">
+                <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; cursor:pointer;">
+                    <input type="checkbox" id="toggle-active-tours" checked onchange="tours.renderCards()">
+                    <span>Sadece Aktif Turlar</span>
+                </label>
+                <button class="btn btn-blue" onclick="tours.addNewTourModal()">+ YENİ TUR EKLE</button>
+            </div>
+        </div>
 
+        <div class="tours-scroll-wrapper" id="tour-cards-container">
+            </div>
+    </div>
+
+    <div class="card" style="padding:0; overflow:hidden; border:1px solid #e2e8f0;">
+        <div style="padding:20px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center; background:#fff;">
+            <div>
+                <span id="list-title" style="font-weight:800; color:#1e293b; font-size:16px;">YENİ KAYITLAR (Ödeme Bekleyen)</span>
+                <div id="list-subtitle" style="font-size:12px; color:#64748b; margin-top:3px;">Web sitesinden gelen onaylanmamış başvurular</div>
+            </div>
+            <div class="search-bar" style="width: 250px;">
+                <span class="material-icons-round">search</span>
+                <input type="text" placeholder="Yolcu Ara..." onkeyup="tours.searchPassenger(this.value)">
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table class="data-table" style="margin:0;">
+                <thead>
+                    <tr style="background:#f8fafc; text-align:left; font-size:12px; color:#64748b;">
+                        <th style="padding:15px;">TARİH</th>
+                        <th>YOLCU ADI</th>
+                        <th>HEDEF TUR</th>
+                        <th>İLETİŞİM</th>
+                        <th>DURUM</th>
+                        <th style="text-align:center;">İŞLEM</th>
+                    </tr>
+                </thead>
+                <tbody id="tour-passengers-body">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+    
     <div class="modal-overlay" id="modal-select-income-type" style="display:none;">
         <div class="modal-box" style="width: 750px;">
             <div class="modal-header"><h3>İşlem Seçiniz</h3><button class="close-btn" onclick="ui.closeModal('modal-select-income-type')">✕</button></div>
