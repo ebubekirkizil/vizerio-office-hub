@@ -1303,6 +1303,65 @@
             </h3>
 <button class="close-btn" onclick="ui.closeModal('modal-passenger-detail')" style="color:white;">✕</button>
 </div>
+    <div class="modal-overlay" id="modal-add-passenger" style="display:none;">
+    <div class="modal-box" style="width: 500px;">
+        <div class="modal-header">
+            <h3>Manuel Yolcu Kaydı</h3>
+            <button class="close-btn" onclick="ui.closeModal('modal-add-passenger')">✕</button>
+        </div>
+        <div class="modal-body">
+            <form onsubmit="event.preventDefault(); tours.saveManualPassenger();">
+                
+                <div class="form-group">
+                    <label>Hangi Tura Katılacak?</label>
+                    <select class="form-control" id="add-pax-tour" required>
+                        </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label>Ad Soyad</label>
+                        <input type="text" class="form-control" id="add-pax-name" required placeholder="Örn: Ali Veli">
+                    </div>
+                    <div class="form-group half">
+                        <label>Telefon</label>
+                        <input type="tel" class="form-control" id="add-pax-phone" required placeholder="05XX...">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label>TC Kimlik No</label>
+                        <input type="text" class="form-control" id="add-pax-tc" placeholder="Opsiyonel">
+                    </div>
+                    <div class="form-group half">
+                        <label>Katılım Tipi</label>
+                        <select class="form-control" id="add-pax-type">
+                            <option value="Tek Kişi">Tek Kişi</option>
+                            <option value="Çift">Çift</option>
+                            <option value="Grup">Grup/Aile</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Ödeme Durumu</label>
+                    <select class="form-control" id="add-pax-status">
+                        <option value="pending">Ödeme Bekliyor (Havuz)</option>
+                        <option value="confirmed">Ödeme Alındı (Kesin Kayıt)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Not / Özel İstek</label>
+                    <textarea class="form-control" id="add-pax-note" rows="2"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-green" style="width:100%;">KAYDET VE EKLE</button>
+            </form>
+        </div>
+    </div>
+</div>
 <div class="modal-body" style="background:#f8fafc; padding:25px;">
 <div style="background:white; border-radius:12px; padding:20px; display:flex; gap:20px; border:1px solid #e2e8f0; margin-bottom:20px;">
 <div style="width:80px; height:80px; background:#eff6ff; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#2563eb;">
