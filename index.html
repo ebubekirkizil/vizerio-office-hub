@@ -1289,8 +1289,77 @@
                 this.renderCards();
                 this.renderPassengers();
             }
+        }, // <--- BURAYA VİRGÜLÜ KOYDUM Kİ HATA VERMESİN
+
+        // YENİ: KAYIT PENCERESİNİ AÇAR
+        openAddPassengerModal: function() {
+            const select = document.getElementById('add-pax-tour');
+            if(select) {
+                // Turları dropdown'a doldur
+                select.innerHTML = '<option value="">Tur Seçiniz...</option>';
+                this.data.tours.filter(t=>t.status==='active').forEach(t => {
+                    select.innerHTML += `<option value="${t.id}">${t.name} (${t.date})</option>`;
+                });
+                
+                // Formu temizle
+                document.getElementById('add-pax-name').value = '';
+                document.getElementById('add-pax-phone').value = '';
+                document.getElementById('add-pax-tc').value = '';
+                document.getElementById('add-pax-note').value = '';
+                
+                window.ui.openModal('modal-add-passenger');
+            }
+        },
+
+        // YENİ: MANUEL YOLCU KAYDEDER
+        saveManualPassenger: function() {
+            const tourId = parseInt(document.getElementById('add-pax-tour').value);
+            const name = document.getElementById('add-pax-name').value;
+            const phone = document.getElementById('add-pax-phone').value;
+            const status = document.getElementById('add-pax-status').value;
+            const note = document.getElementById('add-pax-note').value;
+            const tc = document.getElementById('add-pax-tc').value;
+            const type = document.getElementById('add-pax-type').value;
+
+            if(!tourId || !name || !phone) { alert("Lütfen tur, isim ve telefon giriniz."); return; }
+
+            const tour = this.data.tours.find(t => t.id === tourId);
+
+            // Yeni Yolcu Objesi
+            const newPax = {
+                id: Math.floor(Math.random() * 9000) + 1000,
+                status: status,
+                tourId: tourId,
+                tourName: tour.name,
+                date: new Date().toLocaleDateString('tr-TR'),
+                name: name,
+                phone: phone,
+                email: '-',
+                tc: tc || '-',
+                age: '-',
+                passportStatus: 'Belirtilmedi',
+                passportType: '-',
+                passportNo: '-',
+                groupType: type,
+                note: note,
+                groupId: null
+            };
+
+            // Listeye Ekle
+            this.data.passengers.unshift(newPax);
+
+            // Eğer "Kesin Kayıt" ise sayacı artır
+            if(status === 'confirmed') {
+                tour.sold++;
+            }
+
+            // Ekranı Güncelle
+            this.renderCards();
+            this.renderPassengers();
+            window.ui.closeModal('modal-add-passenger');
+            
+            alert("Yolcu Başarıyla Eklendi!");
         }
-    };
 
 
 </script>
