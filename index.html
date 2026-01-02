@@ -1225,48 +1225,53 @@
     });
     </script>
 
-    <script>
-    // 1. TURLAR SİSTEMİ (DÜZELTİLDİ)
+   // 1. TURLAR VE YOLCU SİSTEMİ (GRUP ÖZELLİKLİ FİNAL)
     window.tours = {
         activeTourFilter: null,
-
-        // Test verileri (Supabase bağlanana kadar)
         data: {
             tours: [
                 { id: 1, name: 'Büyük Balkan Turu', date: '15 Haz 2026', capacity: 45, sold: 12, status: 'active' },
-                { id: 2, name: 'İtalya Yaz Rüyası', date: '20 Tem 2026', capacity: 30, sold: 28, status: 'active' },
-                { id: 3, name: 'Benelüks & Paris', date: '10 Ağu 2026', capacity: 40, sold: 5, status: 'active' }
+                { id: 2, name: 'İtalya Yaz Rüyası', date: '20 Tem 2026', capacity: 30, sold: 28, status: 'active' }
             ],
+            // YOLCULAR (groupId: Grup kimliği aynı olanlar birbirini görür)
             passengers: [
-                {
-                    id: 101, status: 'pending', tourId: 1, tourName: 'Büyük Balkan Turu', date: '15.06.2026',
+                { 
+                    id: 101, groupId: 'G1', status: 'pending', tourId: 1, tourName: 'Büyük Balkan Turu', date: '15.06.2026',
                     name: 'Ahmet Yılmaz', phone: '0532 555 1122', email: 'ahmet@mail.com',
-                    tc: '12345678901', age: '34 (1990)', passportStatus: 'Var', passportType: 'Bordo (Umuma Mahsus)', passportNo: 'U12345678',
-                    groupType: 'Çift (Eşiyle)', note: 'Eşimle yan yana koltuk istiyoruz. Vejetaryen yemek tercihimiz var.'
+                    tc: '12345678901', age: '34 (1990)', passportStatus: 'Var', passportType: 'Bordo', passportNo: 'U12345',
+                    groupType: 'Çift (Eşiyle)', note: 'Eşim Zeynep ile yan yana koltuk istiyoruz.'
                 },
-                {
-                    id: 102, status: 'confirmed', tourId: 2, tourName: 'İtalya Yaz Rüyası', date: '20.07.2026',
+                { 
+                    id: 104, groupId: 'G1', status: 'pending', tourId: 1, tourName: 'Büyük Balkan Turu', date: '15.06.2026',
+                    name: 'Zeynep Yılmaz', phone: '0532 555 9988', email: 'zeynep@mail.com',
+                    tc: '22222333444', age: '32 (1992)', passportStatus: 'Var', passportType: 'Bordo', passportNo: 'U99887',
+                    groupType: 'Çift (Eşiyle)', note: '-'
+                },
+                { 
+                    id: 102, groupId: 'G2', status: 'confirmed', tourId: 2, tourName: 'İtalya Yaz Rüyası', date: '20.07.2026',
                     name: 'Ayşe Demir', phone: '0555 444 3322', email: 'ayse@mail.com',
-                    tc: '55555678901', age: '28 (1996)', passportStatus: 'Yok (Çıkartacak)', passportType: '-', passportNo: '-',
-                    groupType: 'Tek Kişi (Single)', note: 'Pasaport başvurumu yeni yaptım, yetişir mi?'
+                    tc: '55555678901', age: '28 (1996)', passportStatus: 'Yok', passportType: '-', passportNo: '-',
+                    groupType: 'Tek Kişi', note: 'Pasaport bekliyor.'
                 },
-                {
-                    id: 103, status: 'pending', tourId: 1, tourName: 'Büyük Balkan Turu', date: '15.06.2026',
+                { 
+                    id: 103, groupId: 'G3', status: 'confirmed', tourId: 1, tourName: 'Büyük Balkan Turu', date: '15.06.2026',
                     name: 'Mehmet Kaya', phone: '0533 222 1100', email: 'mehmet@mail.com',
-                    tc: '98765432100', age: '45 (1979)', passportStatus: 'Var', passportType: 'Yeşil (Hususi)', passportNo: 'Z98765432',
-                    groupType: 'Grup (3 Arkadaş)', note: 'Ödemeyi havale ile yapacağım.'
+                    tc: '98765432100', age: '45 (1979)', passportStatus: 'Var', passportType: 'Yeşil', passportNo: 'Z98765',
+                    groupType: 'Grup (Ali ve Veli ile)', note: '3 kişiyiz.'
+                },
+                { 
+                    id: 105, groupId: 'G3', status: 'confirmed', tourId: 1, tourName: 'Büyük Balkan Turu', date: '15.06.2026',
+                    name: 'Ali Vural', phone: '0533 999 0000', email: 'ali@mail.com',
+                    tc: '11111111111', age: '44 (1980)', passportStatus: 'Var', passportType: 'Bordo', passportNo: 'U55555',
+                    groupType: 'Grup', note: '-'
                 }
             ]
         },
 
-        // 2. Kartları çiz (üst kısım)
         renderCards: function() {
             const container = document.getElementById('tour-cards-container');
             if(!container) return;
-
-            const onlyActiveEl = document.getElementById('toggle-active-tours');
-            const showOnlyActive = onlyActiveEl ? onlyActiveEl.checked : false;
-
+            const showOnlyActive = document.getElementById('toggle-active-tours') ? document.getElementById('toggle-active-tours').checked : true;
             container.innerHTML = '';
 
             const allClass = this.activeTourFilter === null ? 'active' : '';
@@ -1274,179 +1279,138 @@
                 <div class="tour-card-box ${allClass}" onclick="tours.selectTour(null)">
                     <div class="tour-date-badge" style="background:#3b82f6; color:white;">YENİ KAYIT HAVUZU</div>
                     <div class="tour-title">Onay Bekleyenler</div>
-                    <div class="tour-stats">
-                        <span style="color:#f59e0b; font-weight:bold;">Bekleyen: ${this.data.passengers.filter(p=>p.status==='pending').length}</span>
-                    </div>
-                </div>
-            `;
+                    <div class="tour-stats"><span style="color:#f59e0b; font-weight:bold;">Bekleyen: ${this.data.passengers.filter(p=>p.status==='pending').length}</span></div>
+                </div>`;
 
             this.data.tours.forEach(t => {
                 if(showOnlyActive && t.status !== 'active') return;
-
                 const isActive = this.activeTourFilter === t.id ? 'active' : '';
                 const percent = Math.round((t.sold / t.capacity) * 100);
-                const barColor = percent > 90 ? '#ef4444' : '#10b981';
-
-                const dotColor = t.status === 'active' ? 'dot-green' : 'dot-gray';
-                const statusLabel = t.status === 'active' ? 'Satışta' : 'Tamamlandı';
+                let barColor = percent > 90 ? '#ef4444' : '#10b981';
 
                 container.innerHTML += `
                     <div class="tour-card-box ${isActive}" onclick="tours.selectTour(${t.id})">
                         <div class="tour-date-badge">${t.date}</div>
                         <div class="tour-title">${t.name}</div>
                         <div style="margin-top:8px;">
-                            <div style="height:4px; background:#f1f5f9; border-radius:2px; overflow:hidden;">
-                                <div style="width:${percent}%; background:${barColor}; height:100%;"></div>
-                            </div>
-                            <div class="tour-stats">
-                                <span><span class="status-dot ${dotColor}"></span>${statusLabel}</span>
-                                <span>${t.sold}/${t.capacity}</span>
-                            </div>
+                            <div style="height:4px; background:#f1f5f9; border-radius:2px; overflow:hidden;"><div style="width:${percent}%; background:${barColor}; height:100%;"></div></div>
+                            <div class="tour-stats"><span>Satışta</span><span>${t.sold}/${t.capacity}</span></div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
         },
 
-        // 3. Tur seçimi
         selectTour: function(id) {
             this.activeTourFilter = id;
             this.renderCards();
             this.renderPassengers();
         },
 
-        // 4. Yolcuları listele (alt tablo)
         renderPassengers: function() {
             const tbody = document.getElementById('tour-passengers-body');
             const titleEl = document.getElementById('list-title');
             const subEl = document.getElementById('list-subtitle');
-            if(!tbody || !titleEl || !subEl) return;
-
+            if(!tbody) return;
             tbody.innerHTML = '';
-
+            
             let list = [];
             if (this.activeTourFilter === null) {
-                titleEl.innerText = "YENİ KAYITLAR (Ödeme Bekleyen)";
-                titleEl.style.color = "#ea580c";
-                subEl.innerText = "Web sitesinden gelen başvurular";
+                if(titleEl) { titleEl.innerText = "YENİ KAYITLAR (Ödeme Bekleyen)"; titleEl.style.color = "#ea580c"; }
+                if(subEl) subEl.innerText = "Web sitesinden gelen başvurular";
                 list = this.data.passengers.filter(p => p.status === 'pending');
             } else {
                 const tour = this.data.tours.find(t => t.id === this.activeTourFilter);
-                titleEl.innerText = (tour ? tour.name.toUpperCase() : "TUR") + " - LİSTESİ";
-                titleEl.style.color = "#1e293b";
-                subEl.innerText = "Kesin kayıtlı yolcular";
+                if(titleEl) { titleEl.innerText = tour.name.toUpperCase() + " - LİSTESİ"; titleEl.style.color = "#1e293b"; }
+                if(subEl) subEl.innerText = "Kesin kayıtlı yolcular";
                 list = this.data.passengers.filter(p => p.tourId === this.activeTourFilter && p.status === 'confirmed');
             }
 
-            if (list.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px; color:#94a3b8;">Kayıt bulunamadı.</td></tr>';
-                return;
-            }
+            if (list.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px; color:#94a3b8;">Kayıt bulunamadı.</td></tr>'; return; }
 
             list.forEach(p => {
-                const statusBadge = p.status === 'pending'
-                    ? '<span style="color:#f59e0b; font-weight:700; background:#fffbeb; padding:2px 6px; border-radius:4px;">⏳ Bekliyor</span>'
+                let statusBadge = p.status === 'pending' 
+                    ? '<span style="color:#f59e0b; font-weight:700; background:#fffbeb; padding:2px 6px; border-radius:4px;">⏳ Bekliyor</span>' 
                     : '<span style="color:#10b981; font-weight:700; background:#ecfdf5; padding:2px 6px; border-radius:4px;">✔ Kesin Kayıt</span>';
-
+                
                 let actionHtml = `
                     <button class="btn-sm" style="background:white; border:1px solid #cbd5e1; color:#475569; margin-right:5px;" onclick="tours.openPassengerDetail(${p.id})">
                         <span class="material-icons-round" style="font-size:14px; vertical-align:middle;">visibility</span> DETAY
                     </button>
                 `;
+                if(p.status === 'pending') actionHtml += `<button class="btn-sm" style="background:#ecfdf5; color:#059669; border:1px solid #a7f3d0;" onclick="tours.approvePayment(${p.id})">ÖDEME AL ✅</button>`;
 
-                if(p.status === 'pending') {
-                    actionHtml += `<button class="btn-sm" style="background:#ecfdf5; color:#059669; border:1px solid #a7f3d0;" onclick="tours.approvePayment(${p.id})">ÖDEME AL ✅</button>`;
-                }
+                // Grup ikon
+                let groupIcon = '';
+                // Kendisi dışında aynı grupta (groupId) başka biri var mı?
+                const hasGroup = this.data.passengers.some(x => x.groupId && x.groupId === p.groupId && x.id !== p.id);
+                if(hasGroup) groupIcon = '<span class="material-icons-round" style="font-size:14px; color:#3b82f6; vertical-align:middle; margin-left:5px;" title="Grup/Aile">groups</span>';
 
                 tbody.innerHTML += `
                     <tr style="border-bottom:1px solid #f1f5f9;">
-                        <td style="padding:15px;">${p.date || '-'}</td>
-                        <td style="font-weight:600;">
-                            ${p.name || '-'}
-                            ${p.groupType ? `<div style="font-size:10px; color:#94a3b8; font-weight:400;">${p.groupType}</div>` : ''}
-                        </td>
-                        <td><span class="badge badge-gray">${p.tourName || '-'}</span></td>
-                        <td>${p.phone || '-'}</td>
+                        <td style="padding:15px;">${p.date}</td>
+                        <td style="font-weight:600;">${p.name} ${groupIcon} <div style="font-size:10px; color:#94a3b8;">${p.groupType}</div></td>
+                        <td><span class="badge badge-gray">${p.tourName}</span></td>
+                        <td>${p.phone}</td>
                         <td>${statusBadge}</td>
                         <td style="text-align:center;">${actionHtml}</td>
-                    </tr>
-                `;
+                    </tr>`;
             });
         },
 
-        // 5. Detay modalını doldur
         openPassengerDetail: function(id) {
             const p = this.data.passengers.find(x => x.id === id);
             if(!p) return;
 
-            const set = (eid, val) => { const el = document.getElementById(eid); if(el) el.innerText = (val ?? '-'); };
-
-            set('pd-name', p.name);
-            set('pd-id', '#' + p.id);
-            set('pd-tc', p.tc);
-            set('pd-age', p.age);
-            set('pd-passport-st', p.passportStatus);
-            set('pd-passport-no', p.passportNo);
-            set('pd-passport-type', p.passportType);
-            set('pd-tour', p.tourName);
-            set('pd-date', p.date);
-            set('pd-phone', p.phone);
-            set('pd-email', p.email);
-            set('pd-group-type', p.groupType);
+            // 1. Temel Bilgileri Doldur
+            const set = (eid, val) => { const el = document.getElementById(eid); if(el) el.innerText = val; };
+            set('pd-name', p.name); set('pd-id', '#' + p.id); set('pd-tc', p.tc);
+            set('pd-age', p.age); set('pd-passport-st', p.passportStatus); set('pd-passport-no', p.passportNo);
+            set('pd-passport-type', p.passportType); set('pd-tour', p.tourName); set('pd-date', p.date);
+            set('pd-phone', p.phone); set('pd-email', p.email); set('pd-group-type', p.groupType);
             set('pd-note', p.note || 'Not yok.');
 
             const badge = document.getElementById('pd-status-badge');
-            if(badge) {
-                if(p.status === 'pending') {
-                    badge.innerText = "Ödeme Bekliyor";
-                    badge.className = "badge badge-red";
-                } else {
-                    badge.innerText = "Kesin Kayıt";
-                    badge.className = "badge badge-green";
-                }
+            if(p.status === 'pending') { badge.innerText = "Ödeme Bekliyor"; badge.className = "badge badge-red"; } 
+            else { badge.innerText = "Kesin Kayıt"; badge.className = "badge badge-green"; }
+            if(document.getElementById('pd-pax-type')) document.getElementById('pd-pax-type').innerText = p.groupType;
+
+            // 2. GRUP ARKADAŞLARINI BUL VE LİSTELE
+            const groupArea = document.getElementById('pd-group-area');
+            const groupList = document.getElementById('pd-group-list');
+            
+            // Aynı groupId'ye sahip diğer kişileri bul
+            const members = this.data.passengers.filter(m => m.groupId && m.groupId === p.groupId && m.id !== p.id);
+
+            if(members.length > 0) {
+                groupArea.style.display = 'block';
+                groupList.innerHTML = '';
+                members.forEach(m => {
+                    // Her arkadaş için bir buton oluştur
+                    groupList.innerHTML += `
+                        <button onclick="tours.openPassengerDetail(${m.id})" 
+                            style="background:white; border:1px solid #93c5fd; color:#1e40af; padding:8px 12px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:5px; transition:0.2s;">
+                            <span class="material-icons-round" style="font-size:16px;">person</span> ${m.name}
+                        </button>
+                    `;
+                });
+            } else {
+                groupArea.style.display = 'none';
             }
 
-            const paxType = document.getElementById('pd-pax-type');
-            if(paxType) paxType.innerText = p.groupType || '-';
-
-            if(window.ui && window.ui.openModal) window.ui.openModal('modal-passenger-detail');
+            window.ui.openModal('modal-passenger-detail');
         },
 
-        // 6. Ödeme onayı (pending -> confirmed)
         approvePayment: function(id) {
             const p = this.data.passengers.find(x => x.id === id);
-            if(!p) return;
-
             if(confirm(p.name + " için ödeme alındı mı?")) {
                 p.status = 'confirmed';
                 const t = this.data.tours.find(x => x.id === p.tourId);
                 if(t) t.sold++;
                 this.renderCards();
                 this.renderPassengers();
-                alert("İşlem Başarılı! Yolcu tura eklendi.");
             }
-        },
-
-        addNewTourModal: function() {
-            alert("Yeni Tur Ekleme penceresi buraya gelecek.");
-        },
-
-        searchPassenger: function(query) {
-            console.log("Aranıyor:", query);
         }
     };
-
-    // Sayfa yüklendiğinde başlat
-    document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(() => {
-            if(window.tours) {
-                window.tours.renderCards();
-                window.tours.renderPassengers();
-            }
-        }, 200);
-    });
-</script>
-
 
 </body>
 </html>
